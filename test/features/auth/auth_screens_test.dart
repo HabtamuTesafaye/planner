@@ -4,19 +4,19 @@ import 'package:mocktail/mocktail.dart';
 import 'package:planner/core/widgets/circle_check.dart';
 import 'package:planner/data/app_exception.dart';
 import 'package:planner/data/repositories/auth_repository.dart';
-import 'package:planner/data/repositories/team_repository.dart';
+import 'package:planner/data/repositories/space_repository.dart';
 import 'package:planner/features/auth/screens/check_email_screen.dart';
 import 'package:planner/features/auth/screens/sign_in_screen.dart';
 import 'package:planner/features/auth/screens/sign_up_screen.dart';
-import 'package:planner/features/auth/screens/team_setup_screen.dart';
 import 'package:planner/features/auth/screens/welcome_screen.dart';
 import 'package:planner/features/auth/widgets/today_preview.dart';
+import 'package:planner/features/space/screens/new_space_screen.dart';
 
 import '../../helpers.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
-class MockTeamRepository extends Mock implements TeamRepository {}
+class MockSpaceRepository extends Mock implements SpaceRepository {}
 
 void main() {
   group('screens fit a small phone at 1.5x text, both themes', () {
@@ -25,7 +25,8 @@ void main() {
       'sign in': const SignInScreen(),
       'sign up': const SignUpScreen(),
       'check email': const CheckEmailScreen(email: 'someone@example.com'),
-      'team setup': const TeamSetupScreen(),
+      'new space': const NewSpaceScreen(),
+      'join space': const NewSpaceScreen(initialMode: NewSpaceMode.join),
     };
     for (final brightness in Brightness.values) {
       screens.forEach((name, screen) {
@@ -90,27 +91,27 @@ void main() {
     );
   });
 
-  testWidgets('team setup: a wrong code shows a friendly message', (
+  testWidgets('join space: a wrong code shows a friendly message', (
     tester,
   ) async {
-    final teams = MockTeamRepository();
-    when(() => teams.joinTeam(any()))
+    final teams = MockSpaceRepository();
+    when(() => teams.joinSpace(any()))
         .thenThrow(const AppException(AppErrorKind.invalidCode));
     useSmallPhone(tester);
     await pumpScreen(
       tester,
-      const TeamSetupScreen(),
-      overrides: [teamRepositoryProvider.overrideWithValue(teams)],
+      const NewSpaceScreen(),
+      overrides: [spaceRepositoryProvider.overrideWithValue(teams)],
     );
     await tester.tap(find.text('Join with code'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), 'abcd efgh');
     expect(find.text('ABCDEFGH'), findsOneWidget);
-    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Join team'));
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Join space'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Join team'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Join space'));
     await tester.pumpAndSettle();
-    verify(() => teams.joinTeam('ABCDEFGH')).called(1);
+    verify(() => teams.joinSpace('ABCDEFGH')).called(1);
     expect(
       find.text(const AppException(AppErrorKind.invalidCode).message),
       findsOneWidget,

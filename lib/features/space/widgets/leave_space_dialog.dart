@@ -4,9 +4,9 @@ import '../../../core/theme/theme_context.dart';
 import '../../../data/models/team_member.dart';
 
 /// Asks before leaving and says exactly what will happen.
-Future<bool> confirmLeaveTeam(
+Future<bool> confirmLeaveSpace(
   BuildContext context, {
-  required String teamName,
+  required String spaceName,
   required List<TeamMember> members,
   required String? myUserId,
 }) async {
@@ -16,7 +16,7 @@ Future<bool> confirmLeaveTeam(
   final String consequence;
   if (others.isEmpty) {
     consequence =
-        "You're the only member, so the team and everything in it "
+        "You're the only member, so the space and everything in it "
         'will be deleted.';
   } else if (iAmOwner) {
     consequence =
@@ -29,7 +29,7 @@ Future<bool> confirmLeaveTeam(
   final result = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Leave $teamName?'),
+      title: Text('Leave $spaceName?'),
       content: Text(consequence),
       actions: [
         TextButton(
@@ -42,7 +42,7 @@ Future<bool> confirmLeaveTeam(
           style: TextButton.styleFrom(
             foregroundColor: context.colors.attention,
           ),
-          child: const Text('Leave team'),
+          child: const Text('Leave space'),
         ),
       ],
     ),

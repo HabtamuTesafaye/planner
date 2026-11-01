@@ -13,7 +13,9 @@ enum AppErrorKind {
   weakPassword,
   invalidEmail,
   invalidCode,
-  alreadyInTeam,
+  alreadyMember,
+  tooManySpaces,
+  cannotLeavePersonal,
   notInTeam,
   invalidTeamName,
   taskLimit,
@@ -54,11 +56,14 @@ class AppException implements Exception {
     AppErrorKind.invalidEmail => 'That email address looks incomplete.',
     AppErrorKind.invalidCode =>
       "That code didn't work. Check it with your teammate and try again.",
-    AppErrorKind.alreadyInTeam =>
-      "You're already in a team. Leave it first to join another.",
-    AppErrorKind.notInTeam => "You're not in a team anymore.",
+    AppErrorKind.alreadyMember => "You're already in this space.",
+    AppErrorKind.tooManySpaces =>
+      'You can be in up to 20 spaces. Leave one to add another.',
+    AppErrorKind.cannotLeavePersonal =>
+      'Your personal space stays with you. It cannot be left.',
+    AppErrorKind.notInTeam => "You're not in this space anymore.",
     AppErrorKind.invalidTeamName =>
-      'Give your team a name of up to 60 characters.',
+      'Give the space a name of up to 60 characters.',
     AppErrorKind.taskLimit => 'Three is the limit. Finish or remove one first.',
     AppErrorKind.rateLimited =>
       'Too many tries in a short time. Wait a minute and try again.',
@@ -122,7 +127,9 @@ class AppException implements Exception {
   static AppErrorKind _fromServerMessage(String message) {
     return switch (message) {
       'invalid_code' => AppErrorKind.invalidCode,
-      'already_in_team' => AppErrorKind.alreadyInTeam,
+      'already_in_team' || 'already_member' => AppErrorKind.alreadyMember,
+      'too_many_spaces' => AppErrorKind.tooManySpaces,
+      'cannot_leave_personal' => AppErrorKind.cannotLeavePersonal,
       'not_in_team' => AppErrorKind.notInTeam,
       'invalid_team_name' => AppErrorKind.invalidTeamName,
       'task_limit_reached' => AppErrorKind.taskLimit,

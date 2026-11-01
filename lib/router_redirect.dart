@@ -1,5 +1,5 @@
 import 'features/auth/providers/auth_providers.dart';
-import 'features/team/providers/team_providers.dart';
+import 'features/space/providers/space_providers.dart';
 
 /// Route paths, in one place.
 abstract final class AppRoutes {
@@ -8,11 +8,12 @@ abstract final class AppRoutes {
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const checkEmail = '/check-email';
-  static const teamSetup = '/team-setup';
+  static const newSpace = '/spaces/new';
   static const today = '/today';
+  static const projects = '/projects';
   static const outreach = '/outreach';
   static const money = '/money';
-  static const team = '/team';
+  static const space = '/space';
 
   /// Reachable while signed out.
   static const signedOutRoutes = {welcome, signIn, signUp, checkEmail};
@@ -20,13 +21,13 @@ abstract final class AppRoutes {
 
 /// Where to send the user, or null to stay. Pure so it can be tested.
 ///
-/// * Starting up or loading the team: splash.
+/// * Starting up, or loading the user's spaces: splash.
 /// * Signed out: the auth screens only (welcome by default).
-/// * Signed in without a team: team setup.
-/// * Signed in with a team: the tabs; auth and setup screens go to Today.
+/// * Signed in: the app. Nobody is forced to create a team; everyone has a
+///   Personal space. Auth and splash screens go to Today.
 String? resolveRedirect({
   required AuthStatus auth,
-  required TeamStatus team,
+  required SpacesStatus spaces,
   required String location,
 }) {
   String? goTo(String target) => location == target ? null : target;
@@ -38,17 +39,12 @@ String? resolveRedirect({
     case AuthStatus.signedOut:
       return onSignedOutRoute ? null : AppRoutes.welcome;
     case AuthStatus.signedIn:
-      switch (team) {
-        case TeamStatus.loading:
-        case TeamStatus.error:
+      switch (spaces) {
+        case SpacesStatus.loading:
+        case SpacesStatus.error:
           return goTo(AppRoutes.splash);
-        case TeamStatus.none:
-          return goTo(AppRoutes.teamSetup);
-        case TeamStatus.member:
-          final outsideApp =
-              onSignedOutRoute ||
-              location == AppRoutes.splash ||
-              location == AppRoutes.teamSetup;
+        case SpacesStatus.ready:
+          final outsideApp = onSignedOutRoute || location == AppRoutes.splash;
           return outsideApp ? AppRoutes.today : null;
       }
   }

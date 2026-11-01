@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/join_code.dart';
-import '../../../core/utils/logger.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/form_message.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../data/app_exception.dart';
-import '../../../data/repositories/auth_repository.dart';
-import '../../../data/repositories/team_repository.dart';
-import '../../team/providers/team_providers.dart';
-import '../widgets/auth_page.dart';
+import '../../../data/repositories/space_repository.dart';
+import '../../auth/widgets/auth_page.dart';
+import '../providers/space_providers.dart';
 
-enum _Mode { create, join }
+enum NewSpaceMode { create, join }
 
-/// After sign-up: create a team, or join a teammate's with their code.
-/// One action at a time.
-class TeamSetupScreen extends ConsumerStatefulWidget {
-  const TeamSetupScreen({super.key});
+/// Create a team space, or join one with a code. Opened from the space
+/// switcher; on success it switches to the new space and closes.
+class NewSpaceScreen extends ConsumerStatefulWidget {
+  const NewSpaceScreen({this.initialMode = NewSpaceMode.create, super.key});
+
+  final NewSpaceMode initialMode;
 
   @override
-  ConsumerState<TeamSetupScreen> createState() => _TeamSetupScreenState();
+  ConsumerState<NewSpaceScreen> createState() => _NewSpaceScreenState();
 }
 
-class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
+class _NewSpaceScreenState extends ConsumerState<NewSpaceScreen> {
   final _formKey = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _code = TextEditingController();
-  _Mode _mode = _Mode.create;
+  late NewSpaceMode _mode = widget.initialMode;
   bool _loading = false;
   String? _error;
 
@@ -47,16 +48,13 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
       _loading = true;
       _error = null;
     });
-    final repo = ref.read(teamRepositoryProvider);
+    final repo = ref.read(spaceRepositoryProvider);
     try {
-      if (_mode == _Mode.create) {
-        await repo.createTeam(_name.text);
-      } else {
-        await repo.joinTeam(_code.text);
-      }
-      // Reload the team; the router then opens the app.
-      ref.invalidate(currentTeamProvider);
-      await ref.read(currentTeamProvider.future);
+      final space = _mode == NewSpaceMode.create
+          ? await repo.createSpace(_name.text)
+          : await repo.joinSpace(_code.text);
+      await refreshAndSelect(ref, space.id);
+      if (mounted) context.pop();
     } on AppException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
@@ -64,26 +62,23 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
     }
   }
 
-  Future<void> _signOut() async {
-    try {
-      await ref.read(authRepositoryProvider).signOut();
-    } on AppException catch (e, s) {
-      Log.error('Sign out failed', e, s);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final creating = _mode == _Mode.create;
+    final creating = _mode == NewSpaceMode.create;
     return AuthPage(
-      title: 'Set up your team',
-      subtitle: 'Start a new team, or join your teammate with their code.',
-      showBack: false,
+      title: creating ? 'New team space' : 'Join a space',
+      subtitle: creating
+          ? 'A shared space for projects, outreach and income. '
+                'Invite people with its code.'
+          : 'Ask a member for the 8-character code.',
       children: [
-        SegmentedButton<_Mode>(
+        SegmentedButton<NewSpaceMode>(
           segments: const [
-            ButtonSegment(value: _Mode.create, label: Text('New team')),
-            ButtonSegment(value: _Mode.join, label: Text('Join with code')),
+            ButtonSegment(value: NewSpaceMode.create, label: Text('New')),
+            ButtonSegment(
+              value: NewSpaceMode.join,
+              label: Text('Join with code'),
+            ),
           ],
           selected: {_mode},
           showSelectedIcon: false,
@@ -103,7 +98,7 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
             switchOutCurve: AppMotion.exit,
             child: creating
                 ? TextFormField(
-                    key: const ValueKey('team-name'),
+                    key: const ValueKey('space-name'),
                     controller: _name,
                     validator: Validators.teamName,
                     textCapitalization: TextCapitalization.words,
@@ -111,7 +106,7 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
                     maxLength: Validators.maxNameLength,
                     onFieldSubmitted: (_) => _submit(),
                     decoration: const InputDecoration(
-                      labelText: 'Team name',
+                      labelText: 'Space name',
                       counterText: '',
                     ),
                   )
@@ -132,7 +127,7 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
                     ),
                     decoration: const InputDecoration(
                       labelText: 'Invite code',
-                      helperText: '8 letters and numbers, from your teammate',
+                      helperText: '8 letters and numbers',
                     ),
                   ),
           ),
@@ -140,14 +135,9 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
         FormMessage(message: _error),
         const SizedBox(height: AppSpacing.xl),
         PrimaryButton(
-          label: creating ? 'Create team' : 'Join team',
+          label: creating ? 'Create space' : 'Join space',
           loading: _loading,
           onPressed: _submit,
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        TextButton(
-          onPressed: _loading ? null : _signOut,
-          child: const Text('Sign out'),
         ),
       ],
     );

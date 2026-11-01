@@ -8,9 +8,9 @@ import '../../../core/utils/logger.dart';
 import '../../../core/widgets/brand_mark.dart';
 import '../../../data/app_exception.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../team/providers/team_providers.dart';
+import '../../space/providers/space_providers.dart';
 
-/// Shown while the session and team load. The mark sits exactly where the
+/// Shown while the session and spaces load. The mark sits exactly where the
 /// native launch screen shows it, so launch feels like one continuous
 /// moment. If loading is slow, a short note fades in; if it fails (for
 /// example, no connection), it explains why and offers a retry.
@@ -27,8 +27,12 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final team = ref.watch(currentTeamProvider);
-    final error = team.hasError && !team.isLoading ? team.error : null;
+    final spaces = ref.watch(mySpacesProvider);
+    final Object? error = spaces.hasError && !spaces.isLoading
+        ? spaces.error
+        : (spaces.hasValue && spaces.value!.isEmpty
+              ? const AppException(AppErrorKind.unknown)
+              : null);
     final text = context.text;
 
     return Scaffold(
@@ -52,7 +56,7 @@ class SplashScreen extends ConsumerWidget {
                             key: const ValueKey('slow'),
                             delay: const Duration(milliseconds: 1500),
                             child: Text(
-                              'Getting your team ready…',
+                              'Getting your spaces ready…',
                               textAlign: TextAlign.center,
                               style: text.bodyMedium!.copyWith(
                                 color: context.colors.muted,
@@ -72,7 +76,7 @@ class SplashScreen extends ConsumerWidget {
                               const SizedBox(height: AppSpacing.xl),
                               FilledButton(
                                 onPressed: () =>
-                                    ref.invalidate(currentTeamProvider),
+                                    ref.invalidate(mySpacesProvider),
                                 child: const Text('Try again'),
                               ),
                               const SizedBox(height: AppSpacing.sm),

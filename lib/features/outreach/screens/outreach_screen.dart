@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/page_body.dart';
+import '../../space/widgets/space_switcher.dart';
 
 /// Outreach tab. Placeholder until its phase is built.
 class OutreachScreen extends StatelessWidget {
@@ -12,6 +13,7 @@ class OutreachScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const PageBody(
       title: 'Outreach',
+      top: SpaceSwitcher(),
       children: [
         EmptyState(
           icon: Symbols.handshake,

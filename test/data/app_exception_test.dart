@@ -57,7 +57,10 @@ void main() {
   group('team errors from the database', () {
     for (final (message, kind) in [
       ('invalid_code', AppErrorKind.invalidCode),
-      ('already_in_team', AppErrorKind.alreadyInTeam),
+      ('already_in_team', AppErrorKind.alreadyMember),
+      ('already_member', AppErrorKind.alreadyMember),
+      ('too_many_spaces', AppErrorKind.tooManySpaces),
+      ('cannot_leave_personal', AppErrorKind.cannotLeavePersonal),
       ('not_in_team', AppErrorKind.notInTeam),
       ('invalid_team_name', AppErrorKind.invalidTeamName),
       ('task_limit_reached', AppErrorKind.taskLimit),

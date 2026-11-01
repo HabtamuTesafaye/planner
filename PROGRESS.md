@@ -3,8 +3,8 @@
 This file lets any agent (Claude Code or Codex) pick up exactly where the last one stopped. Keep it short and always current.
 
 ## Current state
-- Current phase: 2 (Auth and team): DONE, waiting for the user's two-phone test and approval
-- Last completed phase: 1 (approved: the user said go)
+- Current phase: building 3 (Today) → 3b → 4 → 5 → 6 → 7 without stopping (owner's decision); report at the end
+- Last completed phase: 2b (Spaces and projects backend + app spaces)
 - Tool used last: Claude Code
 
 ## Done
@@ -19,6 +19,12 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Tests: contrast (all token pairs, both themes), theme smoke, config, CircleCheck semantics and 48 dp target, 4 tabs at 360x640 and 1.5x font in both themes, setup screen. 67 passing; `flutter analyze` clean.
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
+
+## Phase 2b (spaces) done
+- Owner decided: Personal space for everyone plus any number of team spaces; 3 tasks a day across ALL spaces; projects with templates inside spaces. AGENTS.md sections 1, 5.3, 6 and 9 updated; new phase files 02b and 03b.
+- Migrations 011 (spaces, profile settings, new RPCs incl. leave_team(id)), 012 (projects, project_items, tasks.project_item_id, sync triggers), 013 (last_team_id not an FK; fixes account deletion). Isolation test: 132/132.
+- App: Team renamed to Space throughout (`lib/features/space/`, `SpaceRepository`, `Space` model). No forced team setup: signed in → Personal. Space switcher (`SpaceSwitcher` + sheet) on Projects/Outreach/Money/Space tabs; selected space stored on the profile (`selectedSpaceIdProvider`, `currentSpaceProvider`, `pickSpace`). New space screen at `/spaces/new?mode=create|join`. 5 tabs: Today, Projects, Outreach, Money, Space. Theme follows the profile setting.
+- Tests: 144 passing.
 
 ## Motion and launch polish (user request, after Phase 2)
 - Native splash and launcher icon generated now (pulled forward from Phase 7): `flutter_native_splash.yaml`, `flutter_launcher_icons.yaml`. Adaptive icon with monochrome; Android 12+ splash in light and dark. The Android 12+ window background was fixed back to `@color/app_background`.

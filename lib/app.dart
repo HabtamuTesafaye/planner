@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/app_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/setup_needed_screen.dart';
+import 'features/auth/providers/auth_providers.dart';
 import 'router.dart';
 
 /// Root widget: theme, router, and the setup guard.
@@ -17,8 +18,6 @@ class PlannerApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Theme mode follows the system (the default) until the setting arrives
-    // in Phase 6.
     if (!config.isComplete) {
       return MaterialApp(
         title: title,
@@ -30,11 +29,16 @@ class PlannerApp extends ConsumerWidget {
       );
     }
 
+    // Light, dark or system, from the profile settings.
+    final themeMode =
+        ref.watch(currentProfileProvider).value?.themeMode ?? ThemeMode.system;
+
     return MaterialApp.router(
       title: title,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
+      themeMode: themeMode,
       builder: _withSystemBars,
       routerConfig: ref.watch(routerProvider),
     );

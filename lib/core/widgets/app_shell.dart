@@ -8,7 +8,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../theme/theme_context.dart';
 import 'offline_banner.dart';
 
-/// Bottom-tab shell: Today, Outreach, Money, Team.
+/// Bottom-tab shell: Today, Projects, Outreach, Money, Space.
 class AppShell extends StatelessWidget {
   const AppShell({required this.navigationShell, super.key});
 
@@ -21,6 +21,11 @@ class AppShell extends StatelessWidget {
       label: 'Today',
     ),
     NavigationDestination(
+      icon: Icon(Symbols.folder_open),
+      selectedIcon: Icon(Symbols.folder_open, weight: 500),
+      label: 'Projects',
+    ),
+    NavigationDestination(
       icon: Icon(Symbols.handshake),
       selectedIcon: Icon(Symbols.handshake, weight: 500),
       label: 'Outreach',
@@ -31,9 +36,9 @@ class AppShell extends StatelessWidget {
       label: 'Money',
     ),
     NavigationDestination(
-      icon: Icon(Symbols.group),
-      selectedIcon: Icon(Symbols.group, weight: 500),
-      label: 'Team',
+      icon: Icon(Symbols.workspaces),
+      selectedIcon: Icon(Symbols.workspaces, weight: 500),
+      label: 'Space',
     ),
   ];
 

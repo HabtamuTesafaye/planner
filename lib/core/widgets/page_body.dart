@@ -11,6 +11,7 @@ class PageBody extends StatelessWidget {
     required this.title,
     required this.children,
     this.onRefresh,
+    this.top,
     super.key,
   });
 
@@ -18,17 +19,21 @@ class PageBody extends StatelessWidget {
   final List<Widget> children;
   final RefreshCallback? onRefresh;
 
+  /// Optional widget above the title, for example the space switcher.
+  final Widget? top;
+
   @override
   Widget build(BuildContext context) {
     final list = ListView(
       physics: onRefresh == null ? null : const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
-        AppSpacing.xl,
+        top == null ? AppSpacing.xl : AppSpacing.sm,
         AppSpacing.lg,
         AppSpacing.xxl,
       ),
       children: [
+        if (top != null) ...[top!, const SizedBox(height: AppSpacing.xs)],
         Semantics(
           header: true,
           child: Text(title, style: context.text.headlineMedium),
