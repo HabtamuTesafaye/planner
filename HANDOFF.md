@@ -75,12 +75,11 @@ Device: Xiaomi blocks automated taps and asks the user to tap Install for every 
 
 | Item | Owner | Where |
 |---|---|---|
-| Back up `~/keys/planner-release.jks` + `android/key.properties` | Owner | #2 |
-| Supabase: Redirect URL `com.elvaris.planner://login-callback`, min password length 8, leaked-password protection | Owner | #3 |
-| Rotate the SMTP app password | Owner | #3 |
-| Switch on Google sign-in: Google Cloud OAuth client (Web) + Supabase provider (README "Google sign-in") | Owner | #3 |
+| Back up `~/keys/planner-release.jks` + `android/key.properties` (README "Release build") | Owner | — |
+| Switch on Google sign-in: Google Cloud OAuth client (Web) + Supabase provider (README "Google sign-in") | Owner | — |
 | Device checks not automatable here: TalkBack walk-through, reminder arrives, airplane mode, Android 7 phone | Owner | #4, `docs/qa-checklist.md` (👤 rows) |
-| AI features (optional, proposed): weekly review summary, plan-my-day, outreach follow-up drafts via a Supabase Edge Function | Next agent, after owner says go | #5 |
+
+Closed: #3 Supabase auth settings (done by the owner). #5 AI features: owner's decision, not planned; do not build.
 
 ## 6. Working rules (from AGENTS.md and the owner)
 

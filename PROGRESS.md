@@ -157,3 +157,7 @@ Phase 0:
 3. `flutter run --dart-define-from-file=env/example.json` (or `env/staging.json`).
 4. Check 4 tabs, switch the phone between light and dark mode, set the font size to the largest.
 5. `flutter run` without the define shows the "Setup needed" screen.
+
+## Merge and issue cleanup (2026-11-01)
+- PRs #1, #6 and #7 merged into `main` after checks (analyze clean, 257 tests, DB 140/140).
+- Issues closed: #3 (Supabase auth settings, done by owner), #5 (AI features, not planned by owner's decision), #2 (backup reminder; steps in README). Open: #4 device QA.
