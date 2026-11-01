@@ -13,7 +13,7 @@ Repo: https://github.com/HabtamuTesafaye/planner (public). Default branch `main`
 - **Open PR #6:** `feature/ui-polish` (stacked on #1) polishes the calm style: grouped rounded lists, a progress ring on Today, tinted status pills and icon tiles, bolder money bar, fixed FAB hero-tag clash.
 - **Open PR #1:** `feature/insights-dashboard` adds the Insights dashboard (activity heatmap, weekly bars, stat tiles, income per month, outreach breakdown). Review and merge it first.
 - **Owner status:** the owner is testing on a Redmi phone (Android 16) and will send comments. Nothing is blocked on code.
-- **Checks on `feature/modern-ui`:** `flutter analyze` clean; `flutter test` 257 passing (+8 screenshot renders skipped by default); DB isolation test 141/141 (migration 015 pushed to staging).
+- **Checks on `feature/modern-ui`:** `flutter analyze` clean; `flutter test` 257 passing (+8 screenshot renders skipped by default); DB isolation test 140/140 (migration 015 pushed to staging).
 
 ## 2. What the app does
 
