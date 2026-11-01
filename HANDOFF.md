@@ -9,7 +9,7 @@ Repo: https://github.com/HabtamuTesafaye/planner (public). Default branch `main`
 ## 1. State right now (2026-11-01)
 
 - **All planned phases are built:** 0–7, plus 2b (spaces) and 3b (projects). Tags `phase-0` … `phase-7`.
-- **Open PR:** `feature/insights-dashboard` adds the Insights dashboard (activity heatmap, weekly bars, stat tiles, income per month, outreach breakdown). Review and merge it first.
+- **Open PR #1:** `feature/insights-dashboard` adds the Insights dashboard (activity heatmap, weekly bars, stat tiles, income per month, outreach breakdown). Review and merge it first.
 - **Owner status:** the owner is testing on a Redmi phone (Android 16) and will send comments. Nothing is blocked on code.
 - **Checks on `main` + the PR:** `flutter analyze` clean; `flutter test` 235 passing; DB isolation test 139/139.
 
@@ -67,11 +67,11 @@ Device: Xiaomi blocks automated taps and asks the user to tap Install for every 
 
 | Item | Owner | Where |
 |---|---|---|
-| Back up `~/keys/planner-release.jks` + `android/key.properties` | Owner | GitHub issue |
-| Supabase: Redirect URL `com.elvaris.planner://login-callback`, min password length 8, leaked-password protection | Owner | GitHub issue |
-| Revoke the Gmail app password that was pasted in chat | Owner | GitHub issue |
-| Device checks not automatable here: TalkBack walk-through, reminder arrives, airplane mode, Android 7 phone | Owner | `docs/qa-checklist.md` (👤 rows), GitHub issue |
-| AI features (optional, proposed): weekly review summary, plan-my-day, outreach follow-up drafts via a Supabase Edge Function | Next agent, after owner says go | GitHub issue |
+| Back up `~/keys/planner-release.jks` + `android/key.properties` | Owner | #2 |
+| Supabase: Redirect URL `com.elvaris.planner://login-callback`, min password length 8, leaked-password protection | Owner | #3 |
+| Rotate the SMTP app password | Owner | #3 |
+| Device checks not automatable here: TalkBack walk-through, reminder arrives, airplane mode, Android 7 phone | Owner | #4, `docs/qa-checklist.md` (👤 rows) |
+| AI features (optional, proposed): weekly review summary, plan-my-day, outreach follow-up drafts via a Supabase Edge Function | Next agent, after owner says go | #5 |
 
 ## 6. Working rules (from AGENTS.md and the owner)
 
