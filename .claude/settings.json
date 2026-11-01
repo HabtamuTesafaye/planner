@@ -1,0 +1,15 @@
+{
+  "enabledPlugins": {
+    "insecure-defaults@trailofbits": true,
+    "sharp-edges@trailofbits": true,
+    "differential-review@trailofbits": true
+  },
+  "extraKnownMarketplaces": {
+    "trailofbits": {
+      "source": {
+        "source": "github",
+        "repo": "trailofbits/skills"
+      }
+    }
+  }
+}

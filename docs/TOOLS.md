@@ -11,6 +11,27 @@ Skills are folders with a `SKILL.md` that the agent loads only when a task match
 | `supabase/agent-skills`, skill `supabase` | Supabase auth, Realtime, RLS, migrations, security checks | `npx skills add supabase/agent-skills --skill supabase -a claude-code -a codex -y` |
 | `supabase/agent-skills`, skill `supabase-postgres-best-practices` | Schema, index, RLS and query best practices | `npx skills add supabase/agent-skills --skill supabase-postgres-best-practices -a claude-code -a codex -y` |
 
+### Security plugins (Claude Code only, approved by the user)
+
+From the official Trail of Bits repo `trailofbits/skills`. Installed at project scope, so `.claude/settings.json` enables them for anyone who opens the repo in Claude Code.
+
+| Plugin | What it does | What it can run |
+|---|---|---|
+| `insecure-defaults` | Audits for unsafe defaults: weak crypto, open access, fallback secrets, debug flags. Run `/insecure-defaults:audit`. | A multi-agent Workflow and Bash (heavier on tokens) |
+| `sharp-edges` | Flags error-prone APIs and dangerous configurations | Instructions only |
+| `differential-review` | Security review of a change set (diff, blast radius, test coverage) | Instructions only (reads git) |
+
+```
+claude plugin marketplace add trailofbits/skills
+claude plugin install insecure-defaults@trailofbits --scope project
+claude plugin install sharp-edges@trailofbits --scope project
+claude plugin install differential-review@trailofbits --scope project
+```
+
+Also use the built-in `/security-review`, and the Supabase security advisor against `planner-staging` from Phase 1. Write audit findings to `docs/security-audit.md`.
+
+Audit schedule: a light audit after Phase 0, a full audit at the end of Phase 1 (RLS, functions, advisor, isolation test), a differential review at the end of every later phase, and a full audit in Phase 7 before the release build.
+
 Notes:
 - The Flutter repo was renamed. Use `flutter/agent-plugins`, not the old `flutter/skills`.
 - Claude Code reads project skills from `.claude/skills/`. Codex reads `.agents/skills/`. Installing with both `-a` flags puts them in both places. If a flag is rejected, run `npx skills add --help` and use the closest option.
