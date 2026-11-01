@@ -1,4 +1,4 @@
-# AGENTS.md: Team Planner (Flutter + Supabase)
+# AGENTS.md: Planner (Flutter + Supabase)
 
 You are the lead developer for a small Android app. This file is the permanent reference: product, stack, design system, security and rules. Read it fully once.
 
@@ -8,18 +8,26 @@ The work is split into phase files in `phases/`. Only work on the phase file you
 
 ## 1. Objective
 
-A calm, polished planner for a two-person founding team. Each person keeps a short daily task list, tracks business outreach, and watches a monthly income number. Teammates see each other's progress in a shared team space.
+A calm, polished planner for people and small teams. Everyone has a private **Personal space** and can create or join any number of **team spaces**. Inside each space you keep **projects** (started from templates, each with a checklist), a business **outreach** pipeline, and a monthly **income** number against a target. Across all spaces, each person plans **one focused day: at most 3 tasks**, pulled from any space or project.
 
-The app is successful if both founders open it every day because it is fast, clear and pleasant. Simplicity beats features.
+The app is successful if people open it every day because it is fast, clear and pleasant. Simplicity beats features.
+
+### What makes it different (keep these sharp)
+1. **One focused day.** Today shows at most 3 tasks across *all* your spaces, each tagged with its space. Other planners let lists grow forever.
+2. **Backlog lives in projects, focus lives in Today.** Any project step can be "planned for today" in one tap, which uses one of the 3 slots.
+3. **Templates** start a project with sensible steps (client project, product launch, content plan, event), so nothing starts blank.
+4. **Outreach and income next to the plan**, in the same space, for freelancers and small teams.
+5. **Weekly review** feeds next week's goal for the space.
 
 ### In scope (v1)
 - Email + password accounts
-- One team per user: create a team, or join with an invite code
-- Today: max 3 tasks per person per day, plus one "goal of the week" line
-- Outreach: shared pipeline of contacts with status and follow-up dates
-- Money: shared monthly income entries (ETB) against a monthly target
-- Team: each member's progress, invite code, leave team
-- Weekly review: 3 short questions per person, visible to the team
+- Spaces: an automatic Personal space for every user (private, cannot be left or joined), plus any number of team spaces (create, join with an invite code, leave). A space switcher at the top of the app.
+- Today: max 3 tasks per person per day **across all spaces**, plus one "goal of the week" for the current space
+- Projects: per space, created from a template or blank, each with a checklist; plan a step for today
+- Outreach: pipeline of contacts per space with status and follow-up dates
+- Money: monthly income entries (ETB) per space against a monthly target
+- Space: members' progress, invite code, leave space, settings
+- Weekly review: 3 short questions per person per space, visible to the space
 - Light and dark theme, daily reminder notification
 
 ### Out of scope (do NOT build)
@@ -27,7 +35,7 @@ The app is successful if both founders open it every day because it is fast, cle
 - Offline editing and sync (see section 5.5, handle offline gracefully only)
 - Social login, phone login, magic links, analytics, ads, in-app purchases
 - iOS, web, desktop. Android phones only
-- Multiple teams per user, admin panels, roles beyond owner and member
+- Admin panels, roles beyond owner and member, nested projects, due-date calendars, Gantt charts, custom templates created by users (built-in templates only in v1)
 
 ---
 
@@ -130,8 +138,16 @@ I have (or will create) a Supabase project named `planner-staging`. Use the free
 | `monthly_targets` | `team_id`, `month date`, `target numeric(12,2)`; pk `(team_id, month)` |
 | `weekly_reviews` | `id`, `team_id`, `user_id`, `week_start`, `did text`, `blocked text`, `next_goal text`; unique `(team_id, user_id, week_start)` |
 
+**Spaces update (2026-11-01).** "Team" in table and function names means *space*:
+- `teams.kind text check in ('personal','team')`. Each user has exactly one personal space, created by the sign-up trigger; it has no join code, cannot be joined and cannot be left. `team_members` no longer has `unique (user_id)`.
+- `profiles.last_team_id` remembers the selected space; `profiles.theme` and `profiles.reminder_time` hold settings (so no extra local-storage package is needed).
+- `projects`: `id`, `team_id`, `name (1..80)`, `template`, `status ('active','done')`, `created_by`, `created_at`, `updated_at`.
+- `project_items`: `id`, `project_id`, `team_id` (copied from the project, for RLS and realtime filters), `title (1..200)`, `done`, `done_at`, `position`, `created_by`, `created_at`.
+- `tasks.project_item_id uuid null` links a Today task to the project step it came from.
+- Projects and steps are shared inside the space: members read and write; delete by creator or space owner.
+
 Rules:
-- A database trigger must reject a 4th task for the same `user_id` and `day`. The app also enforces it, but the database is the source of truth.
+- A database trigger must reject a 4th task for the same `user_id` and `day` (across all spaces). The app also enforces it, but the database is the source of truth.
 - Auto-create a `profiles` row on signup with a trigger.
 - Add indexes for `team_id`, `(user_id, day)` and `(team_id, next_follow_up)`.
 
@@ -153,13 +169,18 @@ Rules:
 
 ## 6. Screens and behavior
 
-Bottom tabs: **Today, Outreach, Money, Team**.
+Bottom tabs: **Today, Projects, Outreach, Money, Space**. A **space switcher** sits at the top of every tab except Today: tap it to switch space, create a team space or join one with a code. The selected space is remembered (stored on the profile).
 
-**Auth**: welcome screen, sign up (name, email, password), sign in, then "Create a team" or "Join with code". Session persists. Friendly error messages (wrong password, no connection, email in use).
+**Auth**: welcome screen, sign up (name, email, password), sign in. No team is required: after sign-in you land in your Personal space. Session persists. Friendly error messages (wrong password, no connection, email in use).
+
+**Projects**
+- List of the current space's projects with a thin progress bar (steps done / total) and status (active, done).
+- New project: name plus a template (Blank, Client project, Product launch, Content plan, Event). Templates pre-fill checklist steps; built into the app, not stored.
+- Project detail: checklist steps (add, check off, delete with Undo), rename, mark done, delete (creator or space owner). Each step has "Plan for today", which creates a Today task linked to it (respects the 3-task limit). Completing the task completes the step.
 
 **Today**
-- Big date in Fraunces, then the "Goal of the week" (tap to edit).
-- Up to 3 tasks. Adding a 4th shows a clear, kind message ("Three is the limit. Finish or remove one first."). Completing a task animates the check and strikes through the title. Swipe to delete with Undo.
+- Big date in Fraunces, then the "Goal of the week" for the current space (tap to edit).
+- My tasks for today from every space, each tagged with its space name. Up to 3 tasks in total. Adding a 4th shows a clear, kind message ("Three is the limit. Finish or remove one first."). Completing a task animates the check and strikes through the title. Swipe to delete with Undo.
 - Link to "Weekly review". Shows a gentle prompt on Sunday and Monday only.
 - Empty state: one short line and one button.
 
@@ -173,10 +194,11 @@ Bottom tabs: **Today, Outreach, Money, Team**.
 - Add income entry (amount, note). List of entries with who added them. Previous months list.
 - Set or edit the monthly target.
 
-**Team**
-- One card per member: name, today's tasks done out of 3, tasks completed this week, contacts added this week, current weekly goal, last review date. Derived from existing tables, no extra tables.
+**Space** (was "Team")
+- Personal space: create a team space, join with a code, settings.
+- Team space: one card per member: name, today's tasks done out of 3, tasks completed this week, contacts added this week, current weekly goal, last review date. Derived from existing tables, no extra tables.
 - Invite code with a copy button and a share sheet (`share_plus` is allowed for this single use).
-- Settings: daily reminder time, theme (system, light, dark), sign out, leave team.
+- Settings: daily reminder time, theme (system, light, dark), sign out, leave space (team spaces only).
 
 **Weekly review**: 3 text fields (what I did, what is blocked, next week's goal). One per user per week, editable. Teammates' reviews are readable in a list.
 
@@ -260,15 +282,19 @@ Each phase has its own file in `phases/` with its objective, tasks, do and do-no
 
 After each phase: summarize what changed, tell me exactly how to test it on my phone, list anything you were unsure about, and wait for my "go".
 
+**Update (owner's decision, 2026-11-01):** from Phase 2b on, build the remaining phases one after another without stopping, committing after each and keeping `PROGRESS.md` current. Report once at the end; the owner reviews everything together.
+
 | Phase | Work | Done when |
 |---|---|---|
 | **0. Foundation** (`phases/00-foundation.md`) | Questions from section 2. Flutter project, lints, folder structure, env config, theme tokens, fonts, 4-tab shell with empty states, light and dark. | App runs on my phone, 4 tabs look right in both themes, `flutter analyze` is clean. |
 | **1. Backend** (`phases/01-backend.md`) | All migrations, triggers, RLS, RPCs, SQL tests or manual test script, README setup steps for Supabase. | I can run the migrations on a fresh project and the two-user isolation test passes. |
 | **2. Auth and team** (`phases/02-auth-and-team.md`) | Sign up, sign in, session persistence, create team, join with code, leave team, sign out, router redirects. | Two accounts on two phones end up in the same team. |
+| **2b. Spaces and projects backend** (`phases/02b-spaces-and-projects.md`) | Personal space per user, many team spaces, space switcher, projects and steps tables, RLS, tests. | A new account lands in its Personal space; it can create and join team spaces and switch between them. |
 | **3. Today** (`phases/03-today.md`) | Tasks, 3-task limit (app and database), weekly goal, realtime updates, animations, Undo. | A task added on one phone appears within seconds on a second phone signed in to the same account, and a 4th task is blocked in both the app and the database. |
+| **3b. Projects** (`phases/03b-projects.md`) | Projects list, templates, checklist, plan a step for today, realtime. | A project from a template shows its steps; planning a step adds it to Today and respects the limit. |
 | **4. Outreach** (`phases/04-outreach.md`) | Contacts CRUD, filters, overdue sorting, quick status and follow-up actions, realtime. | I can log 10 contacts and see them on my teammate's phone. |
 | **5. Money** (`phases/05-money.md`) | Entries, target, progress bar, month history. | Totals are correct across month boundaries. |
-| **6. Team and review** (`phases/06-team-and-review.md`) | Team progress cards, invite code share, settings, weekly review. | Both founders see each other's progress and reviews. |
+| **6. Space and review** (`phases/06-team-and-review.md`) | Team progress cards, invite code share, settings, weekly review. | Both founders see each other's progress and reviews. |
 | **7. Polish and release** (`phases/07-polish-and-release.md`) | Offline banner and handling, daily reminder, accessibility pass, small-screen and large-font pass, performance pass, app icon and splash, signed release APK, README. | Works on a small old Android device and a large one, release APK installs. |
 
 ---
