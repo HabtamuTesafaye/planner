@@ -64,7 +64,7 @@ class WelcomeScreen extends StatelessWidget {
                           delay: after,
                           index: 1,
                           child: Text(
-                            'Tasks, outreach and income for a two-person '
+                            'Projects, outreach and income for you and your '
                             'team, in one calm place.',
                             style: text.bodyLarge!.copyWith(
                               color: colors.muted,
