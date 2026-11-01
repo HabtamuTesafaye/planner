@@ -20,6 +20,12 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## Phase 5 (Money) done
+- `IncomeEntry`, `MonthlyTarget` (amounts as integer cents; exact `centsToDb` strings), `MoneyRepository` (realtime entries per space, target fetch/upsert, add, delete with permission check, restore).
+- `money_logic.dart`: `monthOf`, `monthTotal`, `previousMonths`, `entriesOf`, `targetProgress`.
+- Money screen: month name, hero total in Fraunces (`12,500 ETB`), target + thin progress ("25% of 50,000 ETB" / "Target reached"), set/edit target sheet, this month's entries (who + date, swipe delete + Undo), previous months totals, FAB Add income (`AmountSheet`).
+- Tests: 201 passing (31st→1st, Dec→Jan, exact sums, cents round trip, screen at 1.5x).
+
 ## Phase 4 (Outreach) done
 - `Contact` + `ContactStatus` (labels; paid/"Not now" are closed); `ContactsRepository` (realtime per space, add, update, status, follow-up, delete with permission check, added-between for Space stats).
 - `outreach_logic.dart`: sort (overdue first, then soonest, no date, closed last), `followUpText` ("3 days overdue", Today, Tomorrow, In n days, date), `OutreachFilter` + `visibleContacts`.
