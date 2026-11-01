@@ -101,7 +101,7 @@ void main() {
       overrides: [teamRepositoryProvider.overrideWithValue(teams)],
     );
     await tester.tap(find.text('Join with code'));
-    await tester.pump();
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), 'abcd efgh');
     expect(find.text('ABCDEFGH'), findsOneWidget);
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Join team'));

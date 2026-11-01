@@ -20,12 +20,20 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## Motion and launch polish (user request, after Phase 2)
+- Native splash and launcher icon generated now (pulled forward from Phase 7): `flutter_native_splash.yaml`, `flutter_launcher_icons.yaml`. Adaptive icon with monochrome; Android 12+ splash in light and dark. The Android 12+ window background was fixed back to `@color/app_background`.
+- Predictive back on (`android:enableOnBackInvokedCallback`, theme `PredictiveBackPageTransitionsBuilder`).
+- `lib/core/theme/app_motion.dart` (`AppMotion`, `FadeSlideIn`), `lib/core/widgets/brand_mark.dart` (drawn mark, optional 700 ms reveal), `lib/core/widgets/fade_through_stack.dart` (tab fade-through).
+- Welcome: mark draws itself, then a staggered heading, 3 points and buttons. Auth pages ease in. Team setup cross-fades between forms. Splash: centered mark matching the native splash, "Getting your team ready…" after 1.5 s, error with retry.
+- Motion rules written into AGENTS.md section 7 ("Motion"). Tests in `test/core/widgets/motion_test.dart` (reduce motion, ≤250 ms, hidden tabs not tappable or readable).
+- Notification icon (`assets/icon/notification.png`) still to wire in Phase 7.
+
 ## Phase 2 (auth and team) done
 - `lib/data/`: `supabase_client.dart` (init + client provider), `app_exception.dart` (the ONE place errors become friendly messages), models `Profile`, `Team`, `TeamMember`, repositories `AuthRepository`, `TeamRepository`, `ProfileRepository`.
 - Providers: `currentUserIdProvider`, `authStatusProvider`, `currentProfileProvider` (auth); `currentTeamProvider`, `teamMembersProvider`, `teamStatusProvider` (team). `teamStatusProvider` treats `isReloading` (user changed) as loading, so a previous user's team is never shown.
 - Router: pure `resolveRedirect` in `lib/router_redirect.dart` (splash / welcome / team setup / tabs), re-run on auth or team changes.
 - Screens: Welcome, Sign up, Sign in (with "send the email again" when unconfirmed), Check email, Splash (loading, or error with retry), Team setup (new team / join with code). Temporary Team tab: name, invite code + copy, members (pull to refresh), sign out, leave team (with a confirmation that says what will happen).
-- Tests: 124 passing (error mapping, redirects, join code formatter, validators, models, all auth screens at 360x640 and 1.5x in both themes, wrong password and wrong code messages).
+- Tests: 124 passing at the end of Phase 2 (129 after the motion work) (error mapping, redirects, join code formatter, validators, models, all auth screens at 360x640 and 1.5x in both themes, wrong password and wrong code messages).
 - Verified against the live backend with temporary users (since deleted): wrong password, create team, wrong code, join with lowercase and spaced code, both see the same team and members, leave.
 
 ## Phase 1 (backend) done

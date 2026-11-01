@@ -64,7 +64,11 @@ The icon set lives in `assets/icon/`. It is drawn by `assets/icon/src/make_icons
 ```
 python3 assets/icon/src/make_icons.py
 ```
-It is wired into the launcher and splash in Phase 7.
+Launcher icon and native splash are generated from it:
+```
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+```
 
 ## Release signing (not committed)
 

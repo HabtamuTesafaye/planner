@@ -13,7 +13,7 @@ Phase 6 approved.
 4. Layout pass: 360 x 640 phone, large phone, foldable, tablet (content centered, max width 600 dp), font scale up to 1.5, light and dark, gesture and 3-button navigation, edge-to-edge.
 5. Performance pass: run in profile mode on a low-end device or emulator, fix jank, check list performance and startup time.
 6. Visual polish: consistent spacing, transitions of 200 to 250 ms, no leftover default Material blue or stray shadows, consistent empty and error copy.
-7. App icon (`flutter_launcher_icons`) and splash (`flutter_native_splash`) using the stormy blue accent on the beige-gray background. The icon set is already drawn in `assets/icon/` (regenerate with `python3 assets/icon/src/make_icons.py`); wire it up, including the adaptive foreground, monochrome themed icon, notification icon, and the dark splash variant.
+7. App icon and splash are already generated (see `flutter_launcher_icons.yaml`, `flutter_native_splash.yaml`). Re-check them on devices and wire the notification icon. Originally: app icon (`flutter_launcher_icons`) and splash (`flutter_native_splash`) using the stormy blue accent on the beige-gray background. The icon set is already drawn in `assets/icon/` (regenerate with `python3 assets/icon/src/make_icons.py`); wire it up, including the adaptive foreground, monochrome themed icon, notification icon, and the dark splash variant.
 8. Release build: generate a signing keystore with instructions (kept out of git), enable R8, build `flutter build apk --release --split-per-abi`, and document install steps.
 9. Final README: setup, env files, Supabase notes, how to restore a paused project, how to build a release, known limitations.
 10. Final QA checklist run-through with results written to `docs/qa-checklist.md`.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 
@@ -55,21 +56,32 @@ class AuthPage extends StatelessWidget {
                   else
                     const SizedBox(height: AppSpacing.xl),
                   const SizedBox(height: AppSpacing.lg),
-                  Semantics(
-                    header: true,
-                    child: Text(title, style: context.text.headlineMedium),
+                  FadeSlideIn(
+                    child: Semantics(
+                      header: true,
+                      child: Text(title, style: context.text.headlineMedium),
+                    ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      subtitle!,
-                      style: context.text.bodyLarge!.copyWith(
-                        color: context.colors.muted,
+                    FadeSlideIn(
+                      index: 1,
+                      child: Text(
+                        subtitle!,
+                        style: context.text.bodyLarge!.copyWith(
+                          color: context.colors.muted,
+                        ),
                       ),
                     ),
                   ],
                   const SizedBox(height: AppSpacing.xl),
-                  ...children,
+                  FadeSlideIn(
+                    index: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: children,
+                    ),
+                  ),
                 ],
               ),
             ),

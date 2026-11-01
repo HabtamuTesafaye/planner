@@ -7,6 +7,7 @@ import 'package:planner/data/models/team.dart';
 import 'package:planner/data/models/team_member.dart';
 import 'package:planner/features/auth/providers/auth_providers.dart';
 import 'package:planner/features/team/providers/team_providers.dart';
+import 'package:planner/features/team/screens/team_screen.dart';
 
 import 'helpers.dart';
 
@@ -89,7 +90,16 @@ void main() {
     expect(find.text('Abebe'), findsOneWidget);
     expect(find.text('you · owner'), findsOneWidget);
     expect(find.text('Sara'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Leave team'), 200);
+    await tester.scrollUntilVisible(
+      find.text('Leave team'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(TeamScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     expect(find.text('Sign out'), findsOneWidget);
     expect(find.text('Leave team'), findsOneWidget);
   });

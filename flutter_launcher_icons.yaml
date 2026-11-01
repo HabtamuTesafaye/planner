@@ -1,0 +1,12 @@
+# App icon. Source art: assets/icon/ (drawn by assets/icon/src/make_icons.py).
+# Regenerate: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 24
+  adaptive_icon_background: "#F3F1EC"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  # The foreground art already sits inside the safe zone.
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: "assets/icon/icon_monochrome.png"

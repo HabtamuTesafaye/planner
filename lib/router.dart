@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/widgets/app_shell.dart';
+import 'core/widgets/fade_through_stack.dart';
 import 'features/auth/providers/auth_providers.dart';
 import 'features/auth/screens/check_email_screen.dart';
 import 'features/auth/screens/sign_in_screen.dart';
@@ -59,8 +60,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.teamSetup,
         builder: (context, state) => const TeamSetupScreen(),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, shell) => AppShell(navigationShell: shell),
+        navigatorContainerBuilder: (context, shell, children) =>
+            FadeThroughStack(index: shell.currentIndex, children: children),
         branches: [
           _branch(AppRoutes.today, const TodayScreen()),
           _branch(AppRoutes.outreach, const OutreachScreen()),

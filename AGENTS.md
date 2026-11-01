@@ -84,7 +84,7 @@ Use `useMaterial3: true` and build the `ColorScheme` by hand from the tokens bel
 | Pull to refresh | `RefreshIndicator` |
 | Loading | Simple custom skeleton boxes (no shimmer package) |
 | Progress | Custom thin progress bar (no `CircularProgressIndicator` except for tiny inline loading) |
-| Animation | Implicit animations only (`AnimatedContainer`, `AnimatedSwitcher`, `AnimatedOpacity`). Max 200 to 250 ms. |
+| Animation | Implicit animations only (`AnimatedContainer`, `AnimatedSwitcher`, `AnimatedOpacity`, `TweenAnimationBuilder`). Each movement max 200 to 250 ms. See "Motion" in section 7. |
 
 ---
 
@@ -213,6 +213,16 @@ Check text contrast (WCAG AA, 4.5:1) for every text and background pair, includi
 - Haptics: light haptic when completing a task, selection tick on tab change and filter change, and at a swipe-action threshold. Use Flutter's built-in `HapticFeedback` only (no package). Never on every scroll or keystroke.
 - Every screen has designed loading (skeleton), empty and error states with short, human copy. No lorem ipsum, no "Something went wrong" alone.
 - Accessibility: semantic labels on icon buttons and the custom checkbox, correct focus order, works with TalkBack.
+
+### Motion (calm, quick, never in the way)
+Helpers live in `lib/core/theme/app_motion.dart` (`AppMotion`, `FadeSlideIn`). Use them instead of ad hoc animations.
+- Each movement lasts 250 ms or less. Entrances may be staggered (`FadeSlideIn(index: n)`, 60 ms apart), but every element still moves for at most 250 ms.
+- Material 3 easing: `AppMotion.enter` (emphasized decelerate) for arriving, `AppMotion.exit` for leaving.
+- Page transitions: Android predictive back (`PredictiveBackPageTransitionsBuilder`, enabled in the manifest). Tabs: 200 ms fade-through (`FadeThroughStack`), keeping every tab's state.
+- Launch: native splash (icon mark on the page color, light and dark), then the in-app splash with the same mark in the same place. The Welcome screen draws the mark (`BrandMark(animate: true)`) and staggers the content in.
+- Use motion to explain change (something arrived, was completed, moved), never as decoration on every element.
+- Respect the system "Remove animations" setting: `AppMotion.reduced(context)` makes everything appear at once.
+- Performance: no blur, no shadows, no looping animations on screen (except loading skeletons), animate only small subtrees, pass static children through `child:`.
 
 ### Avoid (this is what makes apps look AI-generated)
 Purple gradients, glassmorphism, identical rounded cards stacked everywhere, default Material blue, centered stock illustrations, shadows on everything, big colored headers, "Welcome back!" style filler copy, emoji decoration.

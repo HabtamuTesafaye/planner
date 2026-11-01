@@ -1,0 +1,18 @@
+# Native launch screen: the app mark on the page background, light and dark.
+# It hands off to the in-app splash, which shows the same mark.
+# Regenerate: dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+flutter_native_splash:
+  color: "#F3F1EC"
+  color_dark: "#121519"
+  image: assets/icon/icon_foreground.png
+  image_dark: assets/icon/icon_foreground_dark.png
+  android: true
+  ios: false
+  web: false
+  android_min_sdk: 24
+  fullscreen: false
+  android_12:
+    color: "#F3F1EC"
+    color_dark: "#121519"
+    image: assets/icon/icon_foreground.png
+    image_dark: assets/icon/icon_foreground_dark.png

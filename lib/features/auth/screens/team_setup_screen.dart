@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/join_code.dart';
@@ -96,40 +97,45 @@ class _TeamSetupScreenState extends ConsumerState<TeamSetupScreen> {
         const SizedBox(height: AppSpacing.xl),
         Form(
           key: _formKey,
-          child: creating
-              ? TextFormField(
-                  key: const ValueKey('team-name'),
-                  controller: _name,
-                  validator: Validators.teamName,
-                  textCapitalization: TextCapitalization.words,
-                  textInputAction: TextInputAction.done,
-                  maxLength: Validators.maxNameLength,
-                  onFieldSubmitted: (_) => _submit(),
-                  decoration: const InputDecoration(
-                    labelText: 'Team name',
-                    counterText: '',
+          child: AnimatedSwitcher(
+            duration: AppMotion.of(context, AppDurations.normal),
+            switchInCurve: AppMotion.enter,
+            switchOutCurve: AppMotion.exit,
+            child: creating
+                ? TextFormField(
+                    key: const ValueKey('team-name'),
+                    controller: _name,
+                    validator: Validators.teamName,
+                    textCapitalization: TextCapitalization.words,
+                    textInputAction: TextInputAction.done,
+                    maxLength: Validators.maxNameLength,
+                    onFieldSubmitted: (_) => _submit(),
+                    decoration: const InputDecoration(
+                      labelText: 'Team name',
+                      counterText: '',
+                    ),
+                  )
+                : TextFormField(
+                    key: const ValueKey('join-code'),
+                    controller: _code,
+                    validator: Validators.joinCode,
+                    inputFormatters: const [JoinCodeInputFormatter()],
+                    keyboardType: TextInputType.visiblePassword,
+                    textCapitalization: TextCapitalization.characters,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submit(),
+                    style: const TextStyle(
+                      letterSpacing: 2,
+                      fontFeatures: AppTextStyles.tabular,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Invite code',
+                      helperText: '8 letters and numbers, from your teammate',
+                    ),
                   ),
-                )
-              : TextFormField(
-                  key: const ValueKey('join-code'),
-                  controller: _code,
-                  validator: Validators.joinCode,
-                  inputFormatters: const [JoinCodeInputFormatter()],
-                  keyboardType: TextInputType.visiblePassword,
-                  textCapitalization: TextCapitalization.characters,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _submit(),
-                  style: const TextStyle(
-                    letterSpacing: 2,
-                    fontFeatures: AppTextStyles.tabular,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Invite code',
-                    helperText: '8 letters and numbers, from your teammate',
-                  ),
-                ),
+          ),
         ),
         FormMessage(message: _error),
         const SizedBox(height: AppSpacing.xl),

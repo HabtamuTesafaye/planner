@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/utils/logger.dart';
-import '../../../core/widgets/skeleton.dart';
+import '../../../core/widgets/brand_mark.dart';
 import '../../../data/app_exception.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../team/providers/team_providers.dart';
 
-/// Shown while the session and team load. If the team cannot be loaded
-/// (for example, no connection), it explains why and offers a retry.
+/// Shown while the session and team load. The mark sits exactly where the
+/// native launch screen shows it, so launch feels like one continuous
+/// moment. If loading is slow, a short note fades in; if it fails (for
+/// example, no connection), it explains why and offers a retry.
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
@@ -29,42 +32,62 @@ class SplashScreen extends ConsumerWidget {
     final text = context.text;
 
     return Scaffold(
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.maxContentWidth,
-            ),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.xxl * 2,
-                AppSpacing.lg,
-                AppSpacing.xxl,
+      body: Stack(
+        children: [
+          // Default size (96) matches the mark on the native launch screen.
+          const Center(child: BrandMark()),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSizes.maxContentWidth,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: AnimatedSwitcher(
+                    duration: AppMotion.of(context, AppDurations.normal),
+                    child: error == null
+                        ? FadeSlideIn(
+                            key: const ValueKey('slow'),
+                            delay: const Duration(milliseconds: 1500),
+                            child: Text(
+                              'Getting your team ready…',
+                              textAlign: TextAlign.center,
+                              style: text.bodyMedium!.copyWith(
+                                color: context.colors.muted,
+                              ),
+                            ),
+                          )
+                        : Column(
+                            key: const ValueKey('error'),
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                AppException.from(error).message,
+                                textAlign: TextAlign.center,
+                                style: text.bodyLarge,
+                              ),
+                              const SizedBox(height: AppSpacing.xl),
+                              FilledButton(
+                                onPressed: () =>
+                                    ref.invalidate(currentTeamProvider),
+                                child: const Text('Try again'),
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                              TextButton(
+                                onPressed: () => _signOut(ref),
+                                child: const Text('Sign out'),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
               ),
-              children: [
-                Text('Planner', style: text.headlineMedium),
-                const SizedBox(height: AppSpacing.xl),
-                if (error == null)
-                  const SkeletonList()
-                else ...[
-                  Text(AppException.from(error).message, style: text.bodyLarge),
-                  const SizedBox(height: AppSpacing.xl),
-                  FilledButton(
-                    onPressed: () => ref.invalidate(currentTeamProvider),
-                    child: const Text('Try again'),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  TextButton(
-                    onPressed: () => _signOut(ref),
-                    child: const Text('Sign out'),
-                  ),
-                ],
-              ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }

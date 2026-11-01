@@ -87,6 +87,13 @@ abstract final class AppTheme {
       // Ripple is cheaper than sparkle on low-end devices.
       splashFactory: InkRipple.splashFactory,
       materialTapTargetSize: MaterialTapTargetSize.padded,
+      // Android's predictive back: follows the back gesture on Android 14+,
+      // and the Android 16 "fade forwards" transition elsewhere.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        },
+      ),
       visualDensity: VisualDensity.standard,
       iconTheme: IconThemeData(color: c.text, size: 24, weight: 300),
       appBarTheme: AppBarThemeData(
