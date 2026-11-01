@@ -51,6 +51,9 @@ class ReminderService {
     icon: 'ic_stat_planner',
   );
 
+  /// Loads time zones and the plugin. The icon is kept in release builds
+  /// by android/app/src/main/res/raw/keep.xml (resource shrinking would
+  /// remove it, and initialize would then fail).
   Future<void> _init() async {
     if (_ready) return;
     tzdata.initializeTimeZones();
@@ -77,11 +80,17 @@ class ReminderService {
   /// Asks for notification permission (Android 13+). Returns whether
   /// notifications are allowed. The app works either way.
   Future<bool> requestPermission() async {
-    await _init();
-    final android = _android;
-    if (android == null) return false;
-    if (await android.areNotificationsEnabled() ?? false) return true;
-    return await android.requestNotificationsPermission() ?? false;
+    try {
+      await _init();
+      final android = _android;
+      if (android == null) return false;
+      if (await android.areNotificationsEnabled() ?? false) return true;
+      return await android.requestNotificationsPermission() ?? false;
+    } on Object catch (e, s) {
+      // Never leave the switch stuck: report "not allowed" and move on.
+      Log.error('Could not ask for notification permission', e, s);
+      return false;
+    }
   }
 
   /// Schedules the daily reminder at [time], or cancels it when null.

@@ -169,4 +169,5 @@ Phase 0:
 - Insights is now a bottom tab (second). The round Insights button on Today and the Insights link on Space are gone. The nav shows the selected tab's name only when it fits (six round tabs on small phones or large text).
 - Google: first try failed before Google returned (owner was not yet a test user in Google Cloud). After adding the test user, Google sign-in works on the phone (2026-11-01 13:40 UTC): account created with profile and Personal space.
 - Fixed: tabs added the status bar height twice (shell SafeArea for the offline banner plus each page's SafeArea), leaving a big gap at the top of every tab. Page top padding 24 → 16.
-- Tests: 268 passing (+8 skipped renders).
+- Fixed: daily reminder switch did nothing in release builds. Resource shrinking removed `ic_stat_planner` (loaded by name), so the notification plugin failed to initialize before the permission prompt. Kept via `res/raw/keep.xml`; permission request now fails safe.
+- Tests: 269 passing (+8 skipped renders).
