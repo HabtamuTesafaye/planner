@@ -81,6 +81,48 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('switching tabs fully hides the old tab (no overlap)', (
+    tester,
+  ) async {
+    Widget stack(int index) => _app(
+      FadeThroughStack(
+        index: index,
+        children: const [
+          Center(child: Text('Tab A')),
+          Center(child: Text('Tab B')),
+        ],
+      ),
+    );
+    double opacityOf(String label) => tester
+        .widget<FadeTransition>(
+          find
+              .ancestor(
+                of: find.text(label),
+                matching: find.byType(FadeTransition),
+              )
+              .first,
+        )
+        .opacity
+        .value;
+
+    await tester.pumpWidget(stack(0));
+    await tester.pumpAndSettle();
+    expect(opacityOf('Tab A'), 1);
+    expect(opacityOf('Tab B'), 0);
+
+    // Switch to B: A must fade all the way out, B all the way in.
+    await tester.pumpWidget(stack(1));
+    await tester.pumpAndSettle();
+    expect(opacityOf('Tab A'), 0);
+    expect(opacityOf('Tab B'), 1);
+
+    // And back again.
+    await tester.pumpWidget(stack(0));
+    await tester.pumpAndSettle();
+    expect(opacityOf('Tab A'), 1);
+    expect(opacityOf('Tab B'), 0);
+  });
+
   testWidgets('BrandMark draws at the requested width', (tester) async {
     await tester.pumpWidget(_app(const Center(child: BrandMark(size: 80))));
     final size = tester.getSize(find.byType(CustomPaint).last);

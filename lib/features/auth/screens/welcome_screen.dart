@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/brand_mark.dart';
 import '../../../router_redirect.dart';
+import '../widgets/today_preview.dart';
 
-/// First screen when signed out. The mark draws itself, then the words and
-/// actions arrive in order. The two actions sit in the bottom half, within
+/// First screen when signed out. The mark draws itself, then the words, a
+/// live preview of Today, and the actions arrive in order. The two actions sit in the bottom half, within
 /// thumb reach.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
-
-  static const _points = [
-    (Symbols.task_alt, 'Three tasks a day, no more.'),
-    (Symbols.handshake, 'Every lead and follow-up, shared.'),
-    (Symbols.payments, "This month's income against your target."),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -67,24 +61,24 @@ class WelcomeScreen extends StatelessWidget {
                           delay: after,
                           index: 1,
                           child: Text(
-                            'A calm planner for a two-person team.',
+                            'Tasks, outreach and income for a two-person '
+                            'team, in one calm place.',
                             style: text.bodyLarge!.copyWith(
                               color: colors.muted,
                             ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xl),
-                        for (final (i, (icon, label)) in _points.indexed)
-                          FadeSlideIn(
-                            delay: after,
-                            index: 2 + i,
-                            child: _Point(icon: icon, label: label),
-                          ),
+                        const FadeSlideIn(
+                          delay: after,
+                          index: 2,
+                          child: TodayPreview(),
+                        ),
                         const Spacer(),
                         const SizedBox(height: AppSpacing.xxl),
                         FadeSlideIn(
                           delay: after,
-                          index: 5,
+                          index: 3,
                           child: FilledButton(
                             onPressed: () => context.push(AppRoutes.signUp),
                             child: const Text('Create an account'),
@@ -93,7 +87,7 @@ class WelcomeScreen extends StatelessWidget {
                         const SizedBox(height: AppSpacing.md),
                         FadeSlideIn(
                           delay: after,
-                          index: 6,
+                          index: 4,
                           child: OutlinedButton(
                             onPressed: () => context.push(AppRoutes.signIn),
                             child: const Text('I already have an account'),
@@ -107,28 +101,6 @@ class WelcomeScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Point extends StatelessWidget {
-  const _Point({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: AppSizes.iconSmall, color: context.colors.accent),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(child: Text(label, style: context.text.bodyLarge)),
-        ],
       ),
     );
   }

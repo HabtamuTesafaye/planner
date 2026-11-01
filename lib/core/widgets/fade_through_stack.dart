@@ -51,18 +51,17 @@ class _Page extends StatelessWidget {
         excluding: !active,
         child: ExcludeFocus(
           excluding: !active,
-          child: TickerMode(
-            enabled: active,
-            child: AnimatedOpacity(
-              opacity: active ? 1 : 0,
+          // The fade itself must keep running when a tab is left, so the
+          // pause (TickerMode) wraps only the tab's content, inside it.
+          child: AnimatedOpacity(
+            opacity: active ? 1 : 0,
+            duration: duration,
+            curve: active ? AppMotion.enter : AppMotion.exit,
+            child: AnimatedScale(
+              scale: active ? 1 : 0.98,
               duration: duration,
-              curve: active ? AppMotion.enter : AppMotion.exit,
-              child: AnimatedScale(
-                scale: active ? 1 : 0.98,
-                duration: duration,
-                curve: AppMotion.enter,
-                child: child,
-              ),
+              curve: AppMotion.enter,
+              child: TickerMode(enabled: active, child: child),
             ),
           ),
         ),

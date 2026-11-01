@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:planner/core/widgets/circle_check.dart';
 import 'package:planner/data/app_exception.dart';
 import 'package:planner/data/repositories/auth_repository.dart';
 import 'package:planner/data/repositories/team_repository.dart';
@@ -9,6 +10,7 @@ import 'package:planner/features/auth/screens/sign_in_screen.dart';
 import 'package:planner/features/auth/screens/sign_up_screen.dart';
 import 'package:planner/features/auth/screens/team_setup_screen.dart';
 import 'package:planner/features/auth/screens/welcome_screen.dart';
+import 'package:planner/features/auth/widgets/today_preview.dart';
 
 import '../../helpers.dart';
 
@@ -124,5 +126,30 @@ void main() {
     await tester.tap(find.byTooltip('Show password'));
     await tester.pump();
     expect(password().obscureText, isFalse);
+  });
+
+  testWidgets('welcome preview ticks the first task by itself', (tester) async {
+    useSmallPhone(tester);
+    await pumpScreen(tester, const WelcomeScreen());
+    bool firstDone() =>
+        tester.widget<CircleCheck>(find.byType(CircleCheck).first).value;
+    expect(firstDone(), isFalse);
+    await tester.pump(const Duration(milliseconds: 1500));
+    await tester.pumpAndSettle();
+    expect(firstDone(), isTrue);
+    expect(find.text('1 of 3'), findsOneWidget);
+  });
+
+  testWidgets('welcome preview circles can be tapped', (tester) async {
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const Scaffold(
+        body: Center(child: TodayPreview(autoCheckAfter: Duration(hours: 1))),
+      ),
+    );
+    await tester.tap(find.byType(CircleCheck).at(1));
+    await tester.pumpAndSettle();
+    expect(find.text('1 of 3'), findsOneWidget);
   });
 }
