@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:planner/app.dart';
 import 'package:planner/core/config/app_config.dart';
+import 'package:planner/core/theme/app_spacing.dart';
 import 'package:planner/core/widgets/floating_nav_bar.dart';
+import 'package:planner/core/widgets/page_body.dart';
 import 'package:planner/data/models/profile.dart';
 import 'package:planner/data/models/space.dart';
 import 'package:planner/data/models/team_member.dart';
@@ -165,6 +167,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(navLabel('Today'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('tabs: the status bar gap is added once, not twice', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    const statusBar = 40.0;
+    tester.view.padding = const FakeViewPadding(top: statusBar * 3);
+    await _pumpApp(tester);
+    final title = find
+        .descendant(of: find.byType(PageBody), matching: find.byType(Text))
+        .first;
+    final top = tester.getTopLeft(title).dy;
+    expect(top, greaterThanOrEqualTo(statusBar));
+    expect(top, lessThanOrEqualTo(statusBar + AppSpacing.lg));
   });
 
   testWidgets('switching tabs through the real router never overlaps', (

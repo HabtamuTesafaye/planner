@@ -85,8 +85,16 @@ class _AppShellState extends ConsumerState<AppShell> {
       backgroundColor: context.colors.accentSoft,
       body: Column(
         children: [
+          // The banner sits below the status bar; the tabs then must not
+          // add the status bar height a second time.
           SafeArea(bottom: false, child: OfflineBanner(visible: !online)),
-          Expanded(child: widget.navigationShell),
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: widget.navigationShell,
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: FloatingNavBar(
