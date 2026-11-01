@@ -7,6 +7,7 @@ import 'package:planner/core/config/app_config.dart';
 import 'package:planner/core/theme/app_spacing.dart';
 import 'package:planner/core/widgets/floating_nav_bar.dart';
 import 'package:planner/core/widgets/page_body.dart';
+import 'package:planner/core/widgets/sheet_frame.dart';
 import 'package:planner/data/models/profile.dart';
 import 'package:planner/data/models/space.dart';
 import 'package:planner/data/models/team_member.dart';
@@ -182,6 +183,27 @@ void main() {
     final top = tester.getTopLeft(title).dy;
     expect(top, greaterThanOrEqualTo(statusBar));
     expect(top, lessThanOrEqualTo(statusBar + AppSpacing.lg));
+  });
+
+  testWidgets('sheets: room for the keyboard is made once, not twice', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    tester.platformDispatcher.textScaleFactorTestValue = 1;
+    await _pumpApp(tester);
+    await _openTab(tester, 'Outreach');
+    await tester.tap(find.text('Add contact').last);
+    await tester.pumpAndSettle();
+    const keyboard = 250.0;
+    tester.view.viewInsets = const FakeViewPadding(bottom: keyboard * 3);
+    await tester.pumpAndSettle();
+    final form = find.descendant(
+      of: find.byType(SheetFrame),
+      matching: find.byType(SingleChildScrollView),
+    );
+    final bottom = tester.getBottomLeft(form).dy;
+    // The form reaches down to the top of the keyboard.
+    expect(bottom, closeTo(640 - keyboard, 1));
   });
 
   testWidgets('switching tabs through the real router never overlaps', (

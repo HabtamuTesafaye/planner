@@ -41,9 +41,14 @@ class SheetFrame extends StatelessWidget {
 }
 
 /// Opens [child] in the app's standard bottom sheet.
+///
+/// It opens on the root navigator, above the tabs and the nav bar. Inside a
+/// tab, the shell has already shrunk for the keyboard, so [SheetFrame]
+/// would make room for it a second time.
 Future<T?> showAppSheet<T>(BuildContext context, Widget child) {
   return showModalBottomSheet<T>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     builder: (_) => child,
