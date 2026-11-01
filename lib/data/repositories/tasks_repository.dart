@@ -50,6 +50,18 @@ class TasksRepository {
     return rows.map(Task.fromJson).toList(growable: false);
   });
 
+  /// My tasks (all spaces) from [from] on, for the activity heatmap.
+  Future<List<Task>> fetchMyTasksSince(String userId, DateTime from) =>
+      _guard(() async {
+        final rows = await _client
+            .from('tasks')
+            .select()
+            .eq('user_id', userId)
+            .gte('day', Dates.toDb(from))
+            .order('day');
+        return rows.map(Task.fromJson).toList(growable: false);
+      });
+
   Future<void> add(Task task) =>
       _guard(() => _client.from('tasks').insert(task.toInsertJson()));
 

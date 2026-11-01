@@ -14,6 +14,7 @@ import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../data/app_exception.dart';
 import '../../../data/models/task.dart';
+import '../../insights/screens/insights_screen.dart';
 import '../../review/providers/review_providers.dart';
 import '../../review/screens/review_screen.dart';
 import '../../space/providers/space_providers.dart';
@@ -117,6 +118,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         title: DateFormat.EEEE().format(today),
         subtitle: DateFormat.MMMMd().format(today),
         largeTitle: true,
+        top: Align(
+          alignment: Alignment.centerRight,
+          child: IconButton(
+            onPressed: () => context.push(InsightsScreen.path),
+            tooltip: 'Insights',
+            icon: const Icon(Symbols.insights),
+          ),
+        ),
         bottomPadding: AppSizes.fabClearance,
         onRefresh: () async => ref.invalidate(myTasksProvider),
         children: [

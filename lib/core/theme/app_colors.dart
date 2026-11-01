@@ -21,6 +21,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.attention,
     required this.success,
     required this.successSoft,
+    required this.activity,
   });
 
   /// Page background.
@@ -67,6 +68,11 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Very light success wash.
   final Color successSoft;
 
+  /// Activity heatmap ramp for 1, 2 and 3 tasks done (one hue, light to
+  /// dark; validated with the data-viz palette checks against the card
+  /// surface in each theme). Zero uses [surfaceSunken].
+  final List<Color> activity;
+
   static const AppColors light = AppColors(
     background: Color(0xFFF3F1EC),
     surface: Color(0xFFFFFFFF),
@@ -82,6 +88,7 @@ class AppColors extends ThemeExtension<AppColors> {
     attention: Color(0xFFA9431A),
     success: Color(0xFF2A7046),
     successSoft: Color(0xFFE2F0E7),
+    activity: [Color(0xFF86C09E), Color(0xFF4C9A6C), Color(0xFF2A7046)],
   );
 
   static const AppColors dark = AppColors(
@@ -99,6 +106,7 @@ class AppColors extends ThemeExtension<AppColors> {
     attention: Color(0xFFF0905F),
     success: Color(0xFF5BB27F),
     successSoft: Color(0xFF1C2E23),
+    activity: [Color(0xFF2C5640), Color(0xFF3F8A5E), Color(0xFF6CC392)],
   );
 
   @override
@@ -117,6 +125,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? attention,
     Color? success,
     Color? successSoft,
+    List<Color>? activity,
   }) {
     return AppColors(
       background: background ?? this.background,
@@ -133,6 +142,7 @@ class AppColors extends ThemeExtension<AppColors> {
       attention: attention ?? this.attention,
       success: success ?? this.success,
       successSoft: successSoft ?? this.successSoft,
+      activity: activity ?? this.activity,
     );
   }
 
@@ -155,6 +165,10 @@ class AppColors extends ThemeExtension<AppColors> {
       attention: l(attention, other.attention),
       success: l(success, other.success),
       successSoft: l(successSoft, other.successSoft),
+      activity: [
+        for (var i = 0; i < activity.length; i++)
+          l(activity[i], other.activity[i]),
+      ],
     );
   }
 }

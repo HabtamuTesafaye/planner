@@ -2,7 +2,7 @@
 
 A calm planner for people and small teams. Everyone gets a private **Personal space** and can create or join any number of **team spaces**. Each space keeps **projects** (from templates, with checklists), an **outreach** pipeline and **income** against a monthly target. Across all spaces you plan **one focused day: at most three tasks**. Android only. Flutter + Supabase.
 
-The build brief lives in `AGENTS.md` (product, stack, design, rules) and `phases/` (one file per phase). Progress is tracked in `PROGRESS.md`.
+New agent? Start with `HANDOFF.md`. The build brief lives in `AGENTS.md` (product, stack, design, rules) and `phases/` (one file per phase). Progress is tracked in `PROGRESS.md`.
 
 ## Requirements
 
@@ -41,6 +41,7 @@ flutter run --release --dart-define-from-file=env/staging.json
 | **Projects** | Projects of the current space with a progress bar. New project from a template (Blank, Client project, Product launch, Content plan, Event). Checklist steps; **Plan for today** puts a step into Today (counts toward the 3). |
 | **Outreach** | Leads with status, owner and next follow-up; overdue first ("3 days overdue"); Mine/Everyone; one-tap "Followed up" with a date. |
 | **Money** | This month's income in ETB against the target, entries with who added them (swipe to delete with Undo), previous months. |
+| **Insights** (Today → top-right icon) | GitHub-style activity heatmap (tasks done per day), tasks per week, this-week vs last week, active days, share of planned tasks finished, strongest weekday; for the current space: income per month, outreach pipeline, projects. |
 | **Space** | This week for every member (calm facts, no scores), weekly review, invite code (copy/share), settings (daily reminder, theme), sign out, leave space. |
 
 - **Spaces:** tap the space name at the top of a tab to switch, create a team space, or join one with a code. Nobody is forced to create a team.

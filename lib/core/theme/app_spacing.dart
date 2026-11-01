@@ -68,6 +68,13 @@ abstract final class AppSizes {
 
   /// App mark sizes: small (Welcome header) and large (launch, matches the
   /// native splash).
+  /// Charts: gap between adjacent marks, rounded data ends, plot height,
+  /// smallest heatmap cell.
+  static const double chartGap = 2;
+  static const double barRadius = 4;
+  static const double chartHeight = 120;
+  static const double heatCellMin = 10;
+
   /// Space kept free under a list so a floating button never hides the
   /// last row.
   static const double fabClearance = 96;

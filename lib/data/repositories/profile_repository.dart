@@ -19,7 +19,9 @@ class ProfileRepository {
   /// get_my_profile(), which only ever returns the caller's row.
   Future<Profile?> fetchProfile(String userId) => _guard(() async {
     final rows = await _client.rpc<List<dynamic>>('get_my_profile');
-    final mine = rows.cast<Map<String, dynamic>>().where((r) => r['id'] == userId);
+    final mine = rows.cast<Map<String, dynamic>>().where(
+      (r) => r['id'] == userId,
+    );
     return mine.isEmpty ? null : Profile.fromJson(mine.first);
   });
 
