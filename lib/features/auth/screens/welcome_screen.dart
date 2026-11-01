@@ -6,6 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/brand_mark.dart';
 import '../../../router_redirect.dart';
+import '../widgets/google_button.dart';
 import '../widgets/today_preview.dart';
 
 /// First screen when signed out. The mark draws itself, then the words, a
@@ -88,10 +89,16 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
-                        FadeSlideIn(
+                        const FadeSlideIn(
                           delay: after,
                           index: 4,
-                          child: OutlinedButton(
+                          child: GoogleButton(),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        FadeSlideIn(
+                          delay: after,
+                          index: 5,
+                          child: TextButton(
                             onPressed: () => context.push(AppRoutes.signIn),
                             child: const Text('I already have an account'),
                           ),

@@ -11,6 +11,7 @@ import '../../../data/app_exception.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../router_redirect.dart';
 import '../widgets/auth_page.dart';
+import '../widgets/google_button.dart';
 import '../widgets/password_field.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -120,6 +121,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         FormMessage(message: _notice, isError: false),
         const SizedBox(height: AppSpacing.xl),
         PrimaryButton(label: 'Sign in', loading: _loading, onPressed: _submit),
+        const SizedBox(height: AppSpacing.lg),
+        const OrDivider(),
+        const SizedBox(height: AppSpacing.lg),
+        const GoogleButton(),
         const SizedBox(height: AppSpacing.sm),
         TextButton(
           onPressed: () => context.pushReplacement(AppRoutes.signUp),

@@ -22,6 +22,7 @@ enum AppErrorKind {
   notAllowed,
   rateLimited,
   signedOut,
+  googleNotSetUp,
   network,
   unknown,
 }
@@ -71,6 +72,8 @@ class AppException implements Exception {
     AppErrorKind.rateLimited =>
       'Too many tries in a short time. Wait a minute and try again.',
     AppErrorKind.signedOut => 'Your session ended. Please sign in again.',
+    AppErrorKind.googleNotSetUp =>
+      'Google sign-in isn’t switched on yet. Use email for now.',
     AppErrorKind.network =>
       "Can't reach the server. Check your connection and try again.",
     AppErrorKind.unknown =>
