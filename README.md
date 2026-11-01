@@ -76,9 +76,58 @@ Release builds read `android/key.properties`, which is git-ignored. Without it, 
    ```
 3. Back up the keystore and passwords somewhere safe. If you lose them, you can't ship updates to the same app.
 
-## Supabase
+## Supabase (backend)
 
-Setup steps (migrations, email confirmation, keys, the free-plan 7-day pause and how to restore) are added in Phase 1.
+The backend is a Supabase project (staging: `planner-staging`, region eu-central-1). Everything lives in `supabase/migrations/`, numbered and meant to be read top to bottom.
+
+### Set up a fresh project
+1. **Create the project.** Use the dashboard (New project, name `planner-staging`, free plan, region Frankfurt), or the CLI:
+   ```
+   npx supabase@2.122.0 login
+   npx supabase@2.122.0 projects create planner-staging --org-id <your-org-id> --region eu-central-1 --db-password '<strong password>'
+   ```
+   Keep the database password in a password manager. Locally it can live in `env/staging.db-password` (git-ignored).
+2. **App keys.** In Project Settings → API, copy the **Project URL** and the **anon** key into `env/staging.json` (see `env/example.json`). Never copy the `service_role` key anywhere.
+3. **Run the migrations, in order:**
+   ```
+   npx supabase@2.122.0 link --project-ref <project-ref>
+   SUPABASE_DB_PASSWORD="$(cat env/staging.db-password)" npx supabase@2.122.0 db push --linked
+   ```
+   No CLI? Paste each file from `supabase/migrations/` into the dashboard SQL editor, in number order.
+4. **Auth settings** (dashboard → Authentication):
+   - Sign In / Providers → Email: enabled. Set **Minimum password length** to 8, matching the app.
+   - **Email confirmation:** the brief planned it OFF for staging, because Supabase's built-in mailer allows only a few emails per hour. This project has it **ON** with custom SMTP (Emails → SMTP Settings, Gmail with an app password). If you turn it on, set up SMTP first.
+   - URL Configuration → **Site URL**: a page you own. The default `http://localhost:3000` makes confirmation links end on an error page.
+5. **Prove isolation** (see below).
+
+### Isolation and rules test
+```
+npx supabase@2.122.0 db query --linked -f supabase/tests/rls_isolation.sql
+```
+It creates three throwaway users (A and C in one team, B in another), runs about 100 checks as each user and as a logged-out caller, deletes everything it created, and prints one row per check. The last row is the summary, and every row must say `ok: true`. It covers cross-team reads and writes, owner-only writes, creator-or-owner deletes, anon access, the 3-task limit, input checks, join codes, and leaving a team.
+
+Also run the security advisor after any schema change:
+```
+npx supabase@2.122.0 db advisors --linked --type all
+```
+The only expected warnings are for `create_team`, `join_team` and `leave_team` (see `docs/security-audit.md`).
+
+### Error codes the backend returns
+The app maps these to friendly messages:
+
+| Code | When |
+|---|---|
+| `task_limit_reached` | A 4th task for the same person and day |
+| `already_in_team` | Creating or joining while already in a team |
+| `invalid_code` | Join code is wrong (nothing else is revealed) |
+| `invalid_team_name` | Team name empty or over 60 characters |
+| `not_in_team` | Leaving when not in a team |
+| `not_authenticated` | RPC called without a login |
+| `immutable_column` | Trying to change a row's team, creator or creation time |
+
+### Free plan facts
+- 500 MB database, 50,000 monthly active users, 2 free projects, **no daily backups**.
+- **Free projects pause after 7 days without activity.** Daily use keeps it awake. If it pauses, open the dashboard, select the project and press **Restore project**. It takes a few minutes and the data is kept.
 
 ## Agent skills
 

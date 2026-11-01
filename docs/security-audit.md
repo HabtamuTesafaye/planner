@@ -4,6 +4,38 @@ Newest first. Each finding has a severity, status and fix. Severity: Critical, H
 
 ---
 
+## Phase 1 audit: backend (2026-11-01)
+
+Scope: all migrations (`001`–`010`), RLS policies, `security definer` functions, grants, Realtime publication, the public API surface with the anon key, and the Supabase advisors.
+
+Method:
+- Manual review against the Supabase security checklist (skills `supabase` and `supabase-postgres-best-practices`).
+- `supabase/tests/rls_isolation.sql`: **98 checks, 98 passed**, as three users and anon.
+- Live probes of the REST and GraphQL API with only the anon key.
+- `supabase db advisors --type all`.
+
+| # | Finding | Severity | Status |
+|---|---|---|---|
+| 1 | New tables and functions in `public` are granted to `anon` and `authenticated` by default on this project. | High (by default) | **Fixed**: every migration revokes all and grants back only what is needed. 007 also changes the default privileges so future objects are not granted to anon. |
+| 2 | Users could update any column of their own rows, including `id`, `created_at` and `done_at`. | Low | **Fixed** in 010: column-level UPDATE grants on tasks, contacts and income. Tested. |
+| 3 | Advisor: `create_team`, `join_team`, `leave_team` are SECURITY DEFINER and callable by `authenticated`. | Warn | **Accepted, by design.** Memberships have no write policies, so these RPCs are the only way to change them. Each acts only on `auth.uid()`, validates input, uses `search_path = ''`, and is revoked from anon and PUBLIC. |
+| 4 | Join codes could be brute-forced. 31^8 ≈ 8.5 × 10^11 codes, and a wrong code reveals nothing. | Low | Accepted for v1. If needed later, add a per-user attempt limit in `join_team`. |
+| 5 | Join code characters have a tiny modulo bias (256 mod 31). | Info | Accepted. It does not meaningfully reduce the search space. |
+| 6 | The server minimum password length is the Supabase default (6). The app requires 8. | Low | **User action**: dashboard → Authentication → Providers → Email → Minimum password length = 8. |
+| 7 | The Gmail SMTP app password from the Phase 0 audit (#3) still needs rotating. | High | **User action** (carried over) |
+
+Verified:
+- RLS is enabled on all 9 tables, from the migration that creates each one. No table ever existed without it.
+- With only the anon key, every table returns `42501 permission denied`, RPCs are denied, the `private` schema is not exposed (`PGRST106`), and GraphQL is disabled (`pg_graphql` not installed).
+- Cross-team: no reads and no writes on any table, including profiles, teams and memberships.
+- Same team: teammates read everything; own-row tables are writable only by their owner; shared rows are editable by members, but creator, team and created time cannot change; deletes only by the creator or the team owner.
+- The 3-task limit holds for single inserts, bulk inserts and moving a task's day, with an advisory lock against races. `done_at` is set only by the database.
+- Leaving: the owner hands over to the oldest member, and the last member leaving deletes the team and all its data.
+- Helpers live in the unexposed `private` schema with a fixed `search_path`, and every policy uses `(select auth.uid())` (no per-row re-evaluation; the performance advisor is clean).
+- Realtime (tasks, contacts, income) applies the same SELECT policies.
+
+---
+
 ## Phase 0 audit (2026-11-01)
 
 Scope: repo and git history, secrets handling, env config, Android manifest and Gradle config, Supabase project setup. There is no backend code or data access yet, so RLS is audited in Phase 1.
