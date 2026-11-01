@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -13,6 +14,8 @@ import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../data/app_exception.dart';
 import '../../../data/models/task.dart';
+import '../../review/providers/review_providers.dart';
+import '../../review/screens/review_screen.dart';
 import '../../space/providers/space_providers.dart';
 import '../providers/today_controller.dart';
 import '../providers/today_providers.dart';
@@ -126,6 +129,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 onTap: () => _editGoal(space.id, goal),
               ),
             ),
+          if (ref.watch(reviewPromptProvider))
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.md),
+              child: FadeSlideIn(
+                index: 1,
+                child: _ReviewPrompt(
+                  onOpen: () => context.push(ReviewScreen.path),
+                ),
+              ),
+            ),
           SectionHeader(
             title: 'Today’s three',
             trailing: DayProgress(planned: count, done: done),
@@ -195,6 +208,42 @@ class _ErrorBlock extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
         ],
+      ),
+    );
+  }
+}
+
+/// Gentle Sunday/Monday nudge when the weekly review is missing.
+class _ReviewPrompt extends StatelessWidget {
+  const _ReviewPrompt({required this.onOpen});
+
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: colors.accentSoft,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlAll),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onOpen,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            children: [
+              Icon(Symbols.edit_note, color: colors.accentText),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  'Take two minutes for your weekly review.',
+                  style: context.text.bodyLarge,
+                ),
+              ),
+              Icon(Symbols.chevron_right, color: colors.muted),
+            ],
+          ),
+        ),
       ),
     );
   }

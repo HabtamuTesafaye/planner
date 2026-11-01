@@ -7,6 +7,7 @@ import 'package:planner/data/models/profile.dart';
 import 'package:planner/data/models/space.dart';
 import 'package:planner/data/models/task.dart';
 import 'package:planner/features/auth/providers/auth_providers.dart';
+import 'package:planner/features/review/providers/review_providers.dart';
 import 'package:planner/features/space/providers/space_providers.dart';
 import 'package:planner/features/today/providers/today_providers.dart';
 import 'package:planner/features/today/screens/today_screen.dart';
@@ -35,12 +36,12 @@ Task _task(String id, String space, {bool done = false, int order = 0}) => Task(
   spaceId: space,
   userId: 'u1',
   title: 'Task $id',
-  day: DateTime(2026, 11, 2),
+  day: DateTime(2026, 11, 4),
   done: done,
-  createdAt: DateTime(2026, 11, 2, 8, order),
+  createdAt: DateTime(2026, 11, 4, 8, order),
 );
 
-List<Override> _overrides(List<Task> tasks) => [
+List<Override> _overrides(List<Task> tasks, {DateTime? now}) => [
   currentUserIdProvider.overrideWith((ref) => Stream.value('u1')),
   currentProfileProvider.overrideWith(
     (ref) async => const Profile(id: 'u1', displayName: 'Abebe'),
@@ -48,7 +49,9 @@ List<Override> _overrides(List<Task> tasks) => [
   mySpacesProvider.overrideWith((ref) async => _spaces),
   myTasksProvider.overrideWith((ref) => Stream.value(tasks)),
   weeklyGoalProvider.overrideWith((ref) async => null),
-  clockProvider.overrideWithValue(() => DateTime(2026, 11, 2, 9)),
+  spaceReviewsProvider.overrideWith((ref) async => const []),
+  // A Wednesday: no review prompt.
+  clockProvider.overrideWithValue(() => now ?? DateTime(2026, 11, 4, 9)),
 ];
 
 void main() {
@@ -67,7 +70,7 @@ void main() {
         ]),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Monday'), findsOneWidget);
+      expect(find.text('Wednesday'), findsOneWidget);
       expect(find.byType(CircleCheck), findsNWidgets(3));
       expect(tester.takeException(), isNull);
     });
@@ -121,5 +124,21 @@ void main() {
     await pumpScreen(tester, const TodayScreen(), overrides: _overrides([]));
     await tester.pumpAndSettle();
     expect(find.text('What would make this week a win?'), findsOneWidget);
+  });
+
+  testWidgets('on Monday, a missing review shows the gentle prompt', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const TodayScreen(),
+      overrides: _overrides([], now: DateTime(2026, 11, 9, 9)),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Take two minutes for your weekly review.'),
+      findsOneWidget,
+    );
   });
 }

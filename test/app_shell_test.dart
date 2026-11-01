@@ -12,6 +12,8 @@ import 'package:planner/features/auth/providers/auth_providers.dart';
 import 'package:planner/features/money/providers/money_providers.dart';
 import 'package:planner/features/outreach/providers/outreach_providers.dart';
 import 'package:planner/features/projects/providers/projects_providers.dart';
+import 'package:planner/features/review/providers/review_providers.dart';
+import 'package:planner/features/space/providers/progress_providers.dart';
 import 'package:planner/features/space/providers/space_providers.dart';
 import 'package:planner/features/space/screens/space_screen.dart';
 import 'package:planner/features/today/providers/today_providers.dart';
@@ -80,11 +82,30 @@ Future<void> _pumpApp(WidgetTester tester, {String? lastSpace}) async {
         contactsProvider.overrideWith((ref) => Stream.value(const [])),
         incomeEntriesProvider.overrideWith((ref) => Stream.value(const [])),
         monthlyTargetProvider.overrideWith((ref) async => null),
+        spaceTasksProvider.overrideWith((ref) => Stream.value(const [])),
+        spaceGoalsProvider.overrideWith((ref) async => const []),
+        spaceReviewsProvider.overrideWith((ref) async => const []),
+        // A Wednesday, so the Sunday/Monday review prompt stays hidden.
+        clockProvider.overrideWithValue(() => DateTime(2026, 11, 4, 9)),
       ],
       child: const PlannerApp(config: _config),
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// Scrolls the Space tab until [text] is built and visible.
+Future<void> _scrollSpaceTo(WidgetTester tester, String text) async {
+  await tester.scrollUntilVisible(
+    find.text(text),
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(SpaceScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
 }
 
 Future<void> _openTab(WidgetTester tester, String tab) async {
@@ -158,8 +179,9 @@ void main() {
     await _pumpApp(tester);
     expect(find.text('Nothing planned yet.'), findsOneWidget);
     await _openTab(tester, 'Space');
+    await _scrollSpaceTo(tester, 'Join with a code');
     expect(find.text('Create a team space'), findsOneWidget);
-    expect(find.text('Join with a code'), findsOneWidget);
+    await _scrollSpaceTo(tester, 'Sign out');
     expect(find.text('Leave space'), findsNothing);
   });
 
@@ -167,19 +189,12 @@ void main() {
     useSmallPhone(tester);
     await _pumpApp(tester, lastSpace: 't1');
     await _openTab(tester, 'Space');
-    expect(find.text('ABCD EFGH'), findsOneWidget);
-    expect(find.text('you · owner'), findsOneWidget);
+    expect(find.text('Abebe (you)'), findsOneWidget);
     expect(find.text('Sara'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Leave space'),
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byType(SpaceScreen),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
+    await _scrollSpaceTo(tester, 'ABCD EFGH');
+    expect(find.byTooltip('Share invite'), findsOneWidget);
+    await _scrollSpaceTo(tester, 'Leave space');
+    expect(tester.takeException(), isNull); // whole tab, no overflow at 1.5x
     expect(find.text('Leave space'), findsOneWidget);
   });
 

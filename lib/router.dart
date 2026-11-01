@@ -14,6 +14,7 @@ import 'features/money/screens/money_screen.dart';
 import 'features/outreach/screens/outreach_screen.dart';
 import 'features/projects/screens/project_screen.dart';
 import 'features/projects/screens/projects_screen.dart';
+import 'features/review/screens/review_screen.dart';
 import 'features/space/providers/space_providers.dart';
 import 'features/space/screens/new_space_screen.dart';
 import 'features/space/screens/space_screen.dart';
@@ -65,6 +66,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               ? NewSpaceMode.join
               : NewSpaceMode.create,
         ),
+      ),
+      GoRoute(
+        path: ReviewScreen.path,
+        builder: (context, state) => const ReviewScreen(),
       ),
       GoRoute(
         path: '/projects/:id',

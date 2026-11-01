@@ -25,6 +25,16 @@ class TasksRepository {
       .map((rows) => rows.map(Task.fromJson).toList(growable: false))
       .handleError((Object e, StackTrace s) => throw AppException.from(e, s));
 
+  /// Live recent tasks of everyone in a space (for the progress cards).
+  Stream<List<Task>> watchSpaceTasks(String spaceId) => _client
+      .from('tasks')
+      .stream(primaryKey: ['id'])
+      .eq('team_id', spaceId)
+      .order('day')
+      .limit(200)
+      .map((rows) => rows.map(Task.fromJson).toList(growable: false))
+      .handleError((Object e, StackTrace s) => throw AppException.from(e, s));
+
   /// Tasks of every member of a space for one day (for the Space tab).
   Future<List<Task>> fetchSpaceTasks(
     String spaceId,
