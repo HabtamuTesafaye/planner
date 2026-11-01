@@ -6,6 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../data/app_exception.dart';
+import '../../../data/reminders/reminder_service.dart';
 import '../../../data/repositories/profile_repository.dart';
 import '../../auth/providers/auth_providers.dart';
 
@@ -32,11 +33,53 @@ class SettingsSection extends ConsumerWidget {
     }
   }
 
+  /// Explains why, then asks Android for notification permission. The
+  /// reminder time is saved either way; the app works without it.
+  Future<bool> _askPermission(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('One gentle reminder a day'),
+        content: const Text(
+          'Planner can remind you once a day to pick your three tasks. '
+          'Android will ask if notifications are OK. You can change this '
+          'any time.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: TextButton.styleFrom(foregroundColor: context.colors.text),
+            child: const Text('Not now'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return false;
+    final granted = await ref.read(reminderServiceProvider).requestPermission();
+    if (!granted && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Notifications are off for Planner. You can allow them in '
+            'Android settings.',
+          ),
+        ),
+      );
+    }
+    return true;
+  }
+
   Future<void> _pickTime(
     BuildContext context,
     WidgetRef ref,
     TimeOfDay? current,
   ) async {
+    if (current == null && !await _askPermission(context, ref)) return;
+    if (!context.mounted) return;
     final picked = await showTimePicker(
       context: context,
       initialTime: current ?? const TimeOfDay(hour: 8, minute: 0),
