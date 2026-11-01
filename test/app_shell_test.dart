@@ -77,6 +77,49 @@ void main() {
     });
   }
 
+  testWidgets('switching tabs through the real router never overlaps', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    await _pumpSignedInApp(tester);
+    // Unique text on each tab.
+    const marks = {
+      'Today': 'Nothing planned yet.',
+      'Outreach': 'No contacts yet.',
+      'Money': 'No income logged this month.',
+      'Team': 'Founders Studio',
+    };
+    double visibility(String text) {
+      final fades = find.ancestor(
+        of: find.text(text, skipOffstage: false),
+        matching: find.byType(FadeTransition),
+      );
+      if (fades.evaluate().isEmpty) return 0; // tab not built yet
+      return tester.widget<FadeTransition>(fades.first).opacity.value;
+    }
+
+    for (final tab in [
+      'Outreach',
+      'Team',
+      'Money',
+      'Today',
+      'Team',
+      'Outreach',
+      'Today',
+    ]) {
+      await tester.tap(find.widgetWithText(NavigationDestination, tab));
+      await tester.pumpAndSettle();
+      marks.forEach((other, text) {
+        expect(
+          visibility(text),
+          other == tab ? 1 : 0,
+          reason:
+              'on $tab, the $other tab must be ${other == tab ? 'visible' : 'hidden'}',
+        );
+      });
+    }
+  });
+
   testWidgets('team tab shows code, members, sign out and leave', (
     tester,
   ) async {
