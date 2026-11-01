@@ -108,7 +108,8 @@ The backend is a Supabase project (staging: `planner-staging`, region eu-central
 4. **Auth settings** (dashboard → Authentication):
    - Sign In / Providers → Email: enabled. Set **Minimum password length** to 8, matching the app.
    - **Email confirmation:** the brief planned it OFF for staging, because Supabase's built-in mailer allows only a few emails per hour. This project has it **ON** with custom SMTP (Emails → SMTP Settings, Gmail with an app password). If you turn it on, set up SMTP first.
-   - URL Configuration → **Site URL**: a page you own. The default `http://localhost:3000` makes confirmation links end on an error page.
+   - URL Configuration → **Redirect URLs**: add `com.elvaris.planner://login-callback`. Confirmation emails then open the app, which signs the user in. Without it, Supabase falls back to the Site URL.
+   - URL Configuration → **Site URL**: set it to `com.elvaris.planner://login-callback` too (or a page you own). The default `http://localhost:3000` makes confirmation links end on an error page.
 5. **Prove isolation** (see below).
 
 ### Isolation and rules test

@@ -59,7 +59,9 @@ class _CheckEmailScreenState extends ConsumerState<CheckEmailScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const TextSpan(
-                text: '. Open it, then come back here and sign in.',
+                text:
+                    '. Open it on this phone and Planner signs you in. '
+                    'Opened it somewhere else? Come back and sign in.',
               ),
             ],
           ),

@@ -62,7 +62,10 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Phase 1 created 10 migrations (spec listed 9): 010 is a security hardening, kept separate so it never rewrites an applied migration.
 - RLS is enabled in each table's own migration (stricter than the spec's "in 007"), so no table ever existed without RLS.
 
+- Email confirmation links open the app: `emailRedirectTo = com.elvaris.planner://login-callback` (AppConfig.authRedirectUrl), intent filter in the manifest, Flutter deep linking off. NEEDS the Redirect URL added in the Supabase dashboard.
+
 ## Open questions for the user
+- Add `com.elvaris.planner://login-callback` to Supabase Redirect URLs (and set it as the Site URL).
 - Set Minimum password length = 8 in Supabase Auth (the server default is 6).
 - Supabase Site URL is still the default `http://localhost:3000`, so the confirmation link ends on an error page after confirming. Set a real URL, or handle it in Phase 2.
 - Confirm SMTP uses a NEW Gmail app password (the old one was pasted in chat and should be revoked).

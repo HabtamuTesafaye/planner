@@ -4,6 +4,16 @@ Newest first. Each finding has a severity, status and fix. Severity: Critical, H
 
 ---
 
+## Change review: email links open the app (2026-11-01)
+
+| # | Finding | Severity | Status |
+|---|---|---|---|
+| 1 | The custom scheme `com.elvaris.planner://login-callback` could also be registered by another app, which might receive a confirmation link. | Low | **Mitigated**: supabase_flutter uses PKCE, so the code in the link is useless without the verifier stored only on the device that signed up. Only the exact path is accepted, and Supabase only redirects to URLs on the allow list. |
+| 2 | Flutter's own deep-link routing would push the callback URL into go_router (an unknown route). | Info | **Fixed**: `flutter_deeplinking_enabled=false`; supabase_flutter handles the link. |
+| 3 | A failed or expired link arrives as an error on the auth stream. | Info | **Handled**: logged and ignored, and the sign-in state keeps working. The user can still sign in by hand. |
+
+---
+
 ## Phase 1 audit: backend (2026-11-01)
 
 Scope: all migrations (`001`–`010`), RLS policies, `security definer` functions, grants, Realtime publication, the public API surface with the anon key, and the Supabase advisors.

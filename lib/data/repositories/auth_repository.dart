@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/utils/logger.dart';
 import '../app_exception.dart';
 import '../supabase_client.dart';
 
@@ -21,7 +23,11 @@ class AuthRepository {
   /// first, then every change. Token refreshes repeat the same id.
   Stream<String?> userIdChanges() async* {
     yield _auth.currentUser?.id;
-    yield* _auth.onAuthStateChange.map((state) => state.session?.user.id);
+    // A failed email link (for example, expired) arrives as an error event.
+    // Log it and keep listening, so the sign-in state stays usable.
+    yield* _auth.onAuthStateChange
+        .handleError((Object e, StackTrace s) => Log.error('Auth event', e, s))
+        .map((state) => state.session?.user.id);
   }
 
   Future<SignUpOutcome> signUp({
@@ -34,6 +40,7 @@ class AuthRepository {
         email: email.trim(),
         password: password,
         data: {'display_name': displayName.trim()},
+        emailRedirectTo: AppConfig.authRedirectUrl,
       );
       // With confirmation on, an existing email returns a user with no
       // identities instead of an error.
@@ -60,7 +67,11 @@ class AuthRepository {
   /// Sends the confirmation email again.
   Future<void> resendConfirmation(String email) async {
     try {
-      await _auth.resend(type: OtpType.signup, email: email.trim());
+      await _auth.resend(
+        type: OtpType.signup,
+        email: email.trim(),
+        emailRedirectTo: AppConfig.authRedirectUrl,
+      );
     } catch (e, s) {
       throw AppException.from(e, s);
     }

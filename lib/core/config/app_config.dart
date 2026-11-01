@@ -18,6 +18,12 @@ class AppConfig {
   final String supabaseUrl;
   final String supabaseAnonKey;
 
+  /// Where links in auth emails (confirm sign-up) send the user: straight
+  /// back into the app, which finishes signing in. Must also be listed in
+  /// Supabase → Authentication → URL Configuration → Redirect URLs, and
+  /// matches the intent filter in AndroidManifest.xml.
+  static const String authRedirectUrl = 'com.elvaris.planner://login-callback';
+
   /// Names of settings that are missing or malformed. Empty when the
   /// config is usable.
   List<String> get problems {

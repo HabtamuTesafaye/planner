@@ -35,6 +35,19 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Email confirmation links open the app (supabase_flutter
+                 finishes the sign-in). PKCE makes a hijacked link useless:
+                 the code only works with the secret kept on this device. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="com.elvaris.planner" android:host="login-callback"/>
+            </intent-filter>
+            <!-- Links are handled by supabase_flutter, not by the router. -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false" />
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
