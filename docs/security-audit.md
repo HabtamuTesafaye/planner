@@ -4,6 +4,19 @@ Newest first. Each finding has a severity, status and fix. Severity: Critical, H
 
 ---
 
+## Change review: Google sign-in (2026-11-01)
+
+| # | Area | Severity | Status | Notes |
+|---|---|---|---|---|
+| G1 | OAuth flow | Info | OK | Supabase OAuth with **PKCE** (supabase_flutter default). The browser returns to `com.elvaris.planner://login-callback`; a stolen redirect without the app's code verifier cannot be exchanged for a session. |
+| G2 | Secrets | Info | OK | The Google client secret lives only in the Supabase dashboard. The app only uses the public anon key. Nothing new in the repo. |
+| G3 | Provider check | Info | OK | Before opening the browser the app reads the public `/auth/v1/settings` (anon key, no secrets) to see if Google is on; if not, a calm message. Failure counts as "off". |
+| G4 | Account linking | Low | Accepted | Supabase links a Google login to an existing account with the same **verified** email. Acceptable: Google emails are verified. Keep "Confirm email" on for password sign-ups (issue #3) so an unverified password account can't pre-claim someone's Gmail. |
+| G5 | Profile name | Info | OK | Migration 015: the sign-up trigger takes `full_name`/`name` from Google metadata, trimmed and capped at 60 characters (same check constraint as before). Covered by a check in `supabase/tests/rls_isolation.sql` (141/141). |
+| G6 | Android | Info | OK | Manifest `<queries>` for https VIEW intents (Android 11+ package visibility) so the browser can open; no new permissions. |
+
+---
+
 ## Phase 7 audit: spaces, projects and release (2026-11-01)
 
 Scope: migrations 011–014 (spaces, projects, plan-for-today, settings), app code from phases 3–7, release build configuration.

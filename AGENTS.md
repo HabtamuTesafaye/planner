@@ -33,7 +33,8 @@ The app is successful if people open it every day because it is fast, clear and 
 ### Out of scope (do NOT build)
 - Chat, comments, file uploads, avatars, push notifications from the server
 - Offline editing and sync (see section 5.5, handle offline gracefully only)
-- Social login, phone login, magic links, analytics, ads, in-app purchases
+- Social login other than Google, phone login, magic links, analytics, ads, in-app purchases
+  (**Update 2026-11-01, owner's decision:** "Continue with Google" is in scope, via Supabase OAuth with PKCE and the app's deep link. It shows a calm message until the Google provider is switched on in Supabase.)
 - iOS, web, desktop. Android phones only
 - Admin panels, roles beyond owner and member, nested projects, due-date calendars, Gantt charts, custom templates created by users (built-in templates only in v1)
 
@@ -71,16 +72,16 @@ Use the latest stable Flutter and Dart. After adding packages, pin the resolved 
 Do NOT add: `google_fonts` (fonts are bundled), Firebase, GetX, Bloc, `freezed`, `json_serializable`, `build_runner`, UI kits (no GetWidget, no flutter_screenutil). Write small immutable model classes by hand with `fromJson` and `toJson`.
 
 ### Fonts (bundled, not downloaded at runtime)
-- **Fraunces**: headings, the date, big numbers
+**Update 2026-11-01 (owner's decision, modern restyle):** Fraunces is dropped. Manrope is the only font: display and headline sizes use weight 700 with tight tracking.
 - **Manrope**: everything else
-Declare both in `pubspec.yaml` under `assets/fonts/`. I will place the font files there. Until then, fall back to the system serif and sans and do not crash.
+Declare it in `pubspec.yaml` under `assets/fonts/`. I will place the font files there. Until then, fall back to the system sans and do not crash.
 
 ### UI components (use Flutter Material 3, heavily themed)
 Use `useMaterial3: true` and build the `ColorScheme` by hand from the tokens below, not `fromSeed`. Style these through `ThemeData` component themes so screens stay clean:
 
 | Need | Use |
 |---|---|
-| Bottom navigation | `NavigationBar` (themed, no indicator pill color clash) |
+| Bottom navigation | `FloatingNavBar` (custom): a floating surface pill with round 48 dp tabs; the selected tab fills with the accent and shows its name |
 | Primary / secondary buttons | `FilledButton`, `OutlinedButton`, `TextButton` |
 | Task checkbox | Custom circular animated check widget (not the default `Checkbox`) |
 | Status and filters | `FilterChip`, `SegmentedButton` |
@@ -179,7 +180,7 @@ Bottom tabs: **Today, Projects, Outreach, Money, Space**. A **space switcher** s
 - Project detail: checklist steps (add, check off, delete with Undo), rename, mark done, delete (creator or space owner). Each step has "Plan for today", which creates a Today task linked to it (respects the 3-task limit). Completing the task completes the step.
 
 **Today**
-- Big date in Fraunces, then the "Goal of the week" for the current space (tap to edit).
+- Big date (bold display size), then the "Goal of the week" for the current space (tap to edit).
 - My tasks for today from every space, each tagged with its space name. Up to 3 tasks in total. Adding a 4th shows a clear, kind message ("Three is the limit. Finish or remove one first."). Completing a task animates the check and strikes through the title. Swipe to delete with Undo.
 - Link to "Weekly review". Shows a gentle prompt on Sunday and Monday only.
 - Empty state: one short line and one button.
@@ -190,7 +191,7 @@ Bottom tabs: **Today, Projects, Outreach, Money, Space**. A **space switcher** s
 - Add and edit in a bottom sheet. Quick status change from the list. Mark "followed up today" in one tap (sets next follow-up with a date picker).
 
 **Money**
-- Large this-month total vs target with a thin progress bar, big numbers in Fraunces.
+- Large this-month total vs target with a thin progress bar, big numbers in the display size.
 - Add income entry (amount, note). List of entries with who added them. Previous months list.
 - Set or edit the monthly target.
 
@@ -229,7 +230,8 @@ Text on the accent uses white in light mode and `#121519` in dark mode.
 Check text contrast (WCAG AA, 4.5:1) for every text and background pair, including the accent and attention colors on both themes, and 3:1 for borders and icons. `test/core/theme/contrast_test.dart` enforces this.
 
 - Spacing scale: 4, 8, 12, 16, 24, 32. Corner radius: 12 for inputs and buttons, 16 for sheets. No heavy shadows; use dividers and surface color instead.
-- Type scale: Fraunces for display (date, big numbers, screen titles). Manrope for body 15 to 16, labels 13, with real hierarchy. Numbers use tabular figures.
+- Type scale: Manrope only. Display and headlines weight 700 with tight tracking (date, big numbers, screen titles); body 15 to 16, labels 13, with real hierarchy. Numbers use tabular figures.
+- Modern restyle (2026-11-01): soft cards (`AppDecor.card`: radius 20, small soft shadow in light, hairline in dark), a soft accent wash at the top of pages (`PageWash`), pill-shaped buttons, segmented tabs and FAB, round header buttons (`RoundIconButton`), and round colored shortcuts on Today (`QuickActions`, tokens `teal`/`amber` plus their soft washes).
 - Icons: outlined, consistent size 22 to 24. No emoji as icons.
 - Touch targets at least 48 x 48 dp. Primary actions in the bottom half of the screen (thumb zone); destructive actions never in the easiest-to-reach spot.
 - Haptics: light haptic when completing a task, selection tick on tab change and filter change, and at a swipe-action threshold. Use Flutter's built-in `HapticFeedback` only (no package). Never on every scroll or keystroke.

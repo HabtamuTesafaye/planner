@@ -590,6 +590,20 @@ select pg_temp.expect_affected('B leaves team B',
 
 -- Cleanup and results (as postgres) ---------------------------------------
 select pg_temp.act_as('postgres');
+-- Google sign-in: the name comes from full_name when there is no display_name.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) values (
+  '00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated',
+  'authenticated', 'rls-test-g@example.com', '', now(),
+  '{"provider":"google","providers":["google"]}'::jsonb,
+  '{"full_name":"Hana Google","name":"Hana"}'::jsonb, now(), now()
+);
+select pg_temp.ok('Google sign-up uses full_name as the display name',
+  exists (select 1 from public.profiles p join auth.users u on u.id = p.id
+          where u.email = 'rls-test-g@example.com'
+            and p.display_name = 'Hana Google'));
 delete from public.teams where name like 'rls-test-%';
 delete from auth.users where email like 'rls-test-%@example.com';
 select pg_temp.ok('Cleanup removed all test users and teams',

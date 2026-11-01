@@ -9,10 +9,11 @@ Repo: https://github.com/HabtamuTesafaye/planner (public). Default branch `main`
 ## 1. State right now (2026-11-01)
 
 - **All planned phases are built:** 0–7, plus 2b (spaces) and 3b (projects). Tags `phase-0` … `phase-7`.
+- **Open PR (new): `feature/modern-ui`** (stacked on #6): modern restyle from the owner's reference images: Manrope-only bold type (Fraunces removed), floating pill bottom navigation (`FloatingNavBar`), soft cards (`AppDecor.card`, `CardMaterial`), top-of-page accent wash (`PageWash`), pill buttons/segmented tabs/FAB, round header buttons (`RoundIconButton`), round coloured shortcuts on Today (`QuickActions`). New compact logo: a check in a ring of three arcs on a rounded tile (icon, splash, notification, `BrandMark`). **Google sign-in** ("Continue with Google" on Welcome, Sign in, Sign up; switched on in Supabase by the owner, see README "Google sign-in"); migration 015 takes the Google name.
 - **Open PR #6:** `feature/ui-polish` (stacked on #1) polishes the calm style: grouped rounded lists, a progress ring on Today, tinted status pills and icon tiles, bolder money bar, fixed FAB hero-tag clash.
 - **Open PR #1:** `feature/insights-dashboard` adds the Insights dashboard (activity heatmap, weekly bars, stat tiles, income per month, outreach breakdown). Review and merge it first.
 - **Owner status:** the owner is testing on a Redmi phone (Android 16) and will send comments. Nothing is blocked on code.
-- **Checks on `main` + the PR:** `flutter analyze` clean; `flutter test` 235 passing; DB isolation test 139/139.
+- **Checks on `feature/modern-ui`:** `flutter analyze` clean; `flutter test` 258 passing (+8 screenshot renders skipped by default); DB isolation test 141/141 (migration 015 pushed to staging).
 
 ## 2. What the app does
 
@@ -77,6 +78,7 @@ Device: Xiaomi blocks automated taps and asks the user to tap Install for every 
 | Back up `~/keys/planner-release.jks` + `android/key.properties` | Owner | #2 |
 | Supabase: Redirect URL `com.elvaris.planner://login-callback`, min password length 8, leaked-password protection | Owner | #3 |
 | Rotate the SMTP app password | Owner | #3 |
+| Switch on Google sign-in: Google Cloud OAuth client (Web) + Supabase provider (README "Google sign-in") | Owner | #3 |
 | Device checks not automatable here: TalkBack walk-through, reminder arrives, airplane mode, Android 7 phone | Owner | #4, `docs/qa-checklist.md` (👤 rows) |
 | AI features (optional, proposed): weekly review summary, plan-my-day, outreach follow-up drafts via a Supabase Edge Function | Next agent, after owner says go | #5 |
 
