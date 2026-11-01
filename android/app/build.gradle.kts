@@ -6,13 +6,23 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Release signing: create android/key.properties (git-ignored) as described
-// in README.md. Without it, release builds fall back to the debug key so
-// `flutter run --release` still works locally.
+// Release signing: android/key.properties (git-ignored) points at the
+// keystore, which lives outside the repo (see README "Release build").
+// A release build without it fails on purpose, so an app signed with the
+// public debug key can never ship by mistake.
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+val buildingRelease = gradle.startParameter.taskNames.any {
+    it.contains("Release", ignoreCase = true)
+}
+if (buildingRelease && !keystorePropertiesFile.exists()) {
+    throw GradleException(
+        "Release signing is not set up: create android/key.properties " +
+            "(see README, Release build)."
+    )
 }
 
 android {
@@ -55,11 +65,14 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("release")
+            // R8: shrink, optimize and obfuscate code; drop unused resources.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

@@ -223,13 +223,13 @@ select pg_temp.expect_affected('C can select team A as its current space',
   format('update public.profiles set last_team_id = %L where id = auth.uid()',
          pg_temp.val('teamA')), 1);
 select pg_temp.expect_count('...and it is stored',
-  format('select 1 from public.profiles where id = auth.uid() and last_team_id = %L',
+  format('select 1 from public.get_my_profile() where last_team_id = %L',
          pg_temp.val('teamA')), 1);
 select pg_temp.expect_affected('Selecting a space C is not in is ignored',
   format('update public.profiles set last_team_id = %L where id = auth.uid()',
          pg_temp.val('teamB')), 1);
 select pg_temp.expect_count('...the stored value is cleared, not B''s space',
-  'select 1 from public.profiles where id = auth.uid() and last_team_id is null', 1);
+  'select 1 from public.get_my_profile() where last_team_id is null', 1);
 
 -- 2. A's data and database rules -------------------------------------------
 select pg_temp.act_as('A');
@@ -439,6 +439,29 @@ select pg_temp.expect_affected('C deletes its own contact',
 select pg_temp.act_as('A');
 select pg_temp.expect_affected('A (owner) can delete C''s contact',
   $q$ delete from public.contacts where name = 'C lead 2' $q$, 1);
+
+-- 4a. Profile privacy: teammates see names, not settings -------------------
+select pg_temp.act_as('A');
+select pg_temp.expect_affected('A sets a daily reminder time',
+  $q$ update public.profiles set reminder_time = '07:30' where id = auth.uid() $q$, 1);
+select pg_temp.act_as('C');
+select pg_temp.expect_count('C (teammate) sees A''s name',
+  format('select display_name from public.profiles where id = %L', pg_temp.val('A')), 1);
+select pg_temp.expect_error('C cannot read A''s reminder time',
+  format('select reminder_time from public.profiles where id = %L', pg_temp.val('A')),
+  '%permission denied%');
+select pg_temp.expect_error('C cannot read A''s last selected space',
+  format('select last_team_id from public.profiles where id = %L', pg_temp.val('A')),
+  '%permission denied%');
+select pg_temp.act_as('A');
+select pg_temp.expect_count('A reads its own settings via get_my_profile()',
+  $q$ select 1 from public.get_my_profile() where reminder_time = '07:30' $q$, 1);
+select pg_temp.act_as('C');
+select pg_temp.expect_count('get_my_profile() never returns someone else',
+  format('select 1 from public.get_my_profile() where id = %L', pg_temp.val('A')), 0);
+select pg_temp.act_as('anon');
+select pg_temp.expect_error('anon cannot call get_my_profile()',
+  'select * from public.get_my_profile()', '%permission denied%');
 
 -- 4b. Projects: shared inside the space, invisible outside ------------------
 select pg_temp.act_as('A');

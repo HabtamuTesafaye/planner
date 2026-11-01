@@ -1,6 +1,6 @@
 # Planner
 
-A calm daily planner for a two-person founding team: three tasks a day, a goal of the week, a shared outreach pipeline, monthly income against a target, and a weekly review. Android only. Flutter + Supabase.
+A calm planner for people and small teams. Everyone gets a private **Personal space** and can create or join any number of **team spaces**. Each space keeps **projects** (from templates, with checklists), an **outreach** pipeline and **income** against a monthly target. Across all spaces you plan **one focused day: at most three tasks**. Android only. Flutter + Supabase.
 
 The build brief lives in `AGENTS.md` (product, stack, design, rules) and `phases/` (one file per phase). Progress is tracked in `PROGRESS.md`.
 
@@ -28,17 +28,26 @@ The build brief lives in `AGENTS.md` (product, stack, design, rules) and `phases
 
 If you run without `--dart-define-from-file`, the app shows a **Setup needed** screen explaining what is missing instead of crashing.
 
-Until the Supabase project exists (Phase 1), you can run with the example file to see the UI:
+To feel real performance (debug builds are much slower), run in release mode:
 ```
-flutter run --dart-define-from-file=env/example.json
+flutter run --release --dart-define-from-file=env/staging.json
 ```
 
-## Accounts and teams (Phase 2)
+## What's in the app
 
-- Sign up with name, email and password (min 8). With email confirmation on, the app shows "Check your email". Tap the link, then sign in.
-- After signing in: create a team (you get an 8-character invite code) or join one with a teammate's code. Codes ignore case, spaces and dashes.
-- The session is kept by Supabase on the device (excluded from backups), so closing the app keeps you signed in.
-- Team tab (temporary until Phase 6): team name, invite code with a copy button, members (pull down to refresh), sign out and leave team.
+| Tab | What it does |
+|---|---|
+| **Today** | Big date, goal of the week (current space), up to **3 tasks across all spaces**, each tagged with its space. Swipe right = done, left = delete with Undo. Sunday/Monday prompt for the weekly review. |
+| **Projects** | Projects of the current space with a progress bar. New project from a template (Blank, Client project, Product launch, Content plan, Event). Checklist steps; **Plan for today** puts a step into Today (counts toward the 3). |
+| **Outreach** | Leads with status, owner and next follow-up; overdue first ("3 days overdue"); Mine/Everyone; one-tap "Followed up" with a date. |
+| **Money** | This month's income in ETB against the target, entries with who added them (swipe to delete with Undo), previous months. |
+| **Space** | This week for every member (calm facts, no scores), weekly review, invite code (copy/share), settings (daily reminder, theme), sign out, leave space. |
+
+- **Spaces:** tap the space name at the top of a tab to switch, create a team space, or join one with a code. Nobody is forced to create a team.
+- **Accounts:** email + password (min 8). With email confirmation on, the link opens the app and signs you in.
+- **Offline:** a calm banner appears, data already loaded stays on screen, save buttons pause with a short reason (typed text is kept), and everything refreshes when the connection returns.
+- **Daily reminder:** Space → Settings. Inexact on purpose (no exact-alarm permission), rescheduled after a reboot, follows the phone's time zone.
+- **Motion:** short (≤ 250 ms), Material 3 easing, predictive back, and everything turns off with Android's "Remove animations".
 
 ## Checks
 
@@ -70,22 +79,47 @@ dart run flutter_launcher_icons
 dart run flutter_native_splash:create --path=flutter_native_splash.yaml
 ```
 
-## Release signing (not committed)
+## Release build
 
-Release builds read `android/key.properties`, which is git-ignored. Without it, release builds are signed with the debug key so `flutter run --release` works locally. The full release steps come in Phase 7. In short:
+Release builds are signed with your own key and shrunk with R8. A release build **fails on purpose** if signing is not set up, so an app signed with the public debug key can never ship by mistake.
 
-1. Create a keystore outside the repo:
-   ```
-   keytool -genkey -v -keystore ~/keys/planner-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias planner
-   ```
-2. Create `android/key.properties`:
-   ```
-   storePassword=...
-   keyPassword=...
-   keyAlias=planner
-   storeFile=/home/you/keys/planner-release.jks
-   ```
-3. Back up the keystore and passwords somewhere safe. If you lose them, you can't ship updates to the same app.
+**1. Signing key (once).** Keep the keystore outside the repo and back it up together with its password. If you lose either, you can never update the app on the same phones or on Play.
+```
+keytool -genkeypair -v -keystore ~/keys/planner-release.jks -storetype PKCS12 \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias planner
+```
+Then create `android/key.properties` (git-ignored):
+```
+storePassword=...
+keyPassword=...
+keyAlias=planner
+storeFile=/home/<you>/keys/planner-release.jks
+```
+(On the main dev machine this already exists: keystore in `~/keys/`, password only in `android/key.properties`.)
+
+**2. Build** small APKs, one per CPU type:
+```
+flutter build apk --release --split-per-abi --dart-define-from-file=env/staging.json
+```
+Output in `build/app/outputs/flutter-apk/`:
+- `app-arm64-v8a-release.apk` (about 22 MB): almost every phone from the last 7 years. Use this one.
+- `app-armeabi-v7a-release.apk` (about 20 MB): older 32-bit phones.
+- `app-x86_64-release.apk`: emulators.
+
+**3. Install** on a phone with USB debugging on:
+```
+adb install build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+```
+Or copy the APK to the phone and open it (allow "install unknown apps" for your file manager). On Xiaomi/Redmi phones, turn on Developer options → "Install via USB" and tap Install on the phone when asked. If a build signed with a different key is installed, uninstall it first (data lives on the server; you just sign in again).
+
+## Known limitations (v1)
+
+- Online-first: no offline editing. While offline you can read what was loaded, but nothing can be saved.
+- Built-in project templates only; no custom templates, due dates, calendars or Gantt charts.
+- One currency (ETB). No charts, expenses or invoices.
+- The daily reminder is inexact (Android may shift it by a few minutes to save battery).
+- Free Supabase projects pause after 7 days without use (restore from the dashboard; see below).
+- Android phones only (no iOS, web or desktop).
 
 ## Supabase (backend)
 

@@ -14,13 +14,13 @@ class ProfileRepository {
 
   final SupabaseClient _client;
 
+  /// The signed-in user's own profile with settings. Settings columns are
+  /// private (teammates only see names), so this goes through
+  /// get_my_profile(), which only ever returns the caller's row.
   Future<Profile?> fetchProfile(String userId) => _guard(() async {
-    final row = await _client
-        .from('profiles')
-        .select('id, display_name, last_team_id, theme, reminder_time')
-        .eq('id', userId)
-        .maybeSingle();
-    return row == null ? null : Profile.fromJson(row);
+    final rows = await _client.rpc<List<dynamic>>('get_my_profile');
+    final mine = rows.cast<Map<String, dynamic>>().where((r) => r['id'] == userId);
+    return mine.isEmpty ? null : Profile.fromJson(mine.first);
   });
 
   Future<void> setLastSpace(String userId, String spaceId) =>

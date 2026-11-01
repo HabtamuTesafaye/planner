@@ -4,6 +4,30 @@ Newest first. Each finding has a severity, status and fix. Severity: Critical, H
 
 ---
 
+## Phase 7 audit: spaces, projects and release (2026-11-01)
+
+Scope: migrations 011–014 (spaces, projects, plan-for-today, settings), app code from phases 3–7, release build configuration.
+
+Method: `supabase/tests/rls_isolation.sql` (**139/139**, now including spaces, personal spaces, projects, plan-for-today and profile privacy); live end-to-end of every app query with temporary users; `supabase db advisors`; manual review; `apksigner` on the release APK.
+
+| # | Finding | Severity | Status |
+|---|---|---|---|
+| 1 | Teammates could read each other's whole profile row, which since 011 includes reminder time (a daily routine), theme and last selected space. | Medium (privacy) | **Fixed** in 014: column-level SELECT (id, name, created) for others; own settings only through `get_my_profile()`. Tested in SQL and live (teammate gets 403). |
+| 2 | Deleting an account failed: removing its personal space tried to update the profile being deleted. | Medium (availability) | **Fixed** in 013 (`last_team_id` validated by trigger instead of a foreign key). Found by the isolation test before release. |
+| 3 | A task could link a project step from another space. | Low | **Prevented** by trigger `check_task_item` (tested). |
+| 4 | Release builds fell back to the debug key (Phase 0, #4). | Low | **Fixed**: release builds fail without `android/key.properties`; the keystore lives outside the repo; R8 shrinking and obfuscation on; APK verified as signed by `CN=Planner, O=Elvaris`. |
+| 5 | Advisor: `get_my_profile()` is SECURITY DEFINER and callable by `authenticated`. | Warn | **Accepted, by design**: returns only the caller's row (`auth.uid()`), fixed `search_path`, revoked from anon. Same reasoning as the team RPCs. |
+| 6 | Advisor: leaked password protection (HaveIBeenPwned) is off. | Low | **User action** if your plan allows: Authentication → Policies. |
+| 7 | Join codes are shared as plain text through the share sheet. | Info | Accepted: that is their purpose. A code only lets someone join; members can leave, and the owner keeps control. |
+
+Verified:
+- Spaces: personal space per user (created on sign-up and backfilled), cannot be joined or left, at most 20 spaces, deleted with its user.
+- Projects and steps: shared inside the space, invisible outside; steps always take the project's space; only creator or owner deletes.
+- The 3-task limit counts across all spaces, also for planned project steps.
+- No secrets in git (keystore, key password, env files and DB password are git-ignored or outside the repo).
+
+---
+
 ## Change review: email links open the app (2026-11-01)
 
 | # | Finding | Severity | Status |

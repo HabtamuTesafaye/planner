@@ -3,8 +3,8 @@
 This file lets any agent (Claude Code or Codex) pick up exactly where the last one stopped. Keep it short and always current.
 
 ## Current state
-- Current phase: building 3 (Today) → 3b → 4 → 5 → 6 → 7 without stopping (owner's decision); report at the end
-- Last completed phase: 2b (Spaces and projects backend + app spaces)
+- Current phase: ALL PHASES BUILT (0–7, plus 2b and 3b). Waiting for the owner's review and comments.
+- Last completed phase: 7 (Polish and release)
 - Tool used last: Claude Code
 
 ## Done
@@ -19,6 +19,15 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Tests: contrast (all token pairs, both themes), theme smoke, config, CircleCheck semantics and 48 dp target, 4 tabs at 360x640 and 1.5x font in both themes, setup screen. 67 passing; `flutter analyze` clean.
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
+
+## Phase 7 (Polish and release) done
+- Offline: `lib/data/connectivity.dart` (`isOnlineProvider`, unknown = online), OfflineBanner wired in AppShell, PrimaryButton pauses saving with a reason (typed text kept), live data refreshed on reconnect.
+- Daily reminder: `lib/data/reminders/reminder_service.dart` (inexact, `nextReminder`, full time zone database so Africa/Addis_Ababa works), permission asked with an explanation (works if denied), boot receiver, notification icon `ic_stat_planner`, synced from the profile in AppShell.
+- Accessibility: `test/accessibility_test.dart` (tap targets, labels, contrast) on auth screens and all tabs, both themes.
+- Release: R8 + resource shrinking, `proguard-rules.pro`, release fails without `android/key.properties`. Keystore generated at `~/keys/planner-release.jks` (password only in `android/key.properties`, git-ignored). Signed split APKs: arm64 ~22 MB.
+- Migration 014: profile settings private (teammates see names only; own via `get_my_profile()`). Isolation test 139/139.
+- README final (features, release, install, limitations), `docs/qa-checklist.md`, security audit Phase 7.
+- Tests: 226 passing.
 
 ## Phase 6 (Space and review) done
 - `WeeklyReview` model, `ReviewsRepository` (space reviews; upsert; next goal → next week's goal of the week), `TasksRepository.watchSpaceTasks`.
@@ -108,13 +117,15 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Email confirmation links open the app: `emailRedirectTo = com.elvaris.planner://login-callback` (AppConfig.authRedirectUrl), intent filter in the manifest, Flutter deep linking off. NEEDS the Redirect URL added in the Supabase dashboard.
 
 ## Open questions for the user
+- BACK UP `~/keys/planner-release.jks` and `android/key.properties` (losing them means no updates to installed apps).
+- Turn on leaked password protection in Supabase if the plan allows.
 - Add `com.elvaris.planner://login-callback` to Supabase Redirect URLs (and set it as the Site URL).
 - Set Minimum password length = 8 in Supabase Auth (the server default is 6).
 - Supabase Site URL is still the default `http://localhost:3000`, so the confirmation link ends on an error page after confirming. Set a real URL, or handle it in Phase 2.
 - Confirm SMTP uses a NEW Gmail app password (the old one was pasted in chat and should be revoked).
 
 ## Next step
-Wait for the user's two-phone test and approval of Phase 2, then `phases/03-today.md`. Email confirmation is ON, so sign-up shows "check your email". After restarting Claude Code, optionally run `/security-review` and `/insecure-defaults:audit` (Trail of Bits) as a second opinion on Phase 1.
+Owner reviews the whole app on phones and sends comments. Install the signed release: `adb install build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` (uninstall any debug-signed build first). Open items: see "Open questions for the user". Email confirmation is ON, so sign-up shows "check your email". After restarting Claude Code, optionally run `/security-review` and `/insecure-defaults:audit` (Trail of Bits) as a second opinion on Phase 1.
 
 ## How to test the latest work
 Phase 1:
