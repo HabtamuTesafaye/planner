@@ -54,3 +54,7 @@ env/*.json
 *.keystore
 key.properties
 android/key.properties
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
