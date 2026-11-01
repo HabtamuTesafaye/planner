@@ -47,7 +47,7 @@ class StepRow extends StatelessWidget {
       onDismissed: (_) => onDelete(),
       child: Container(
         constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
-        padding: const EdgeInsets.only(left: AppSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
         child: Row(
           children: [
             CircleCheck(
@@ -84,7 +84,11 @@ class StepRow extends StatelessWidget {
               IconButton(
                 onPressed: onPlan,
                 tooltip: 'Plan for today',
-                icon: Icon(Symbols.wb_sunny, color: colors.muted),
+                style: IconButton.styleFrom(
+                  backgroundColor: colors.accentSoft,
+                  foregroundColor: colors.accentText,
+                ),
+                icon: const Icon(Symbols.wb_sunny),
               ),
           ],
         ),

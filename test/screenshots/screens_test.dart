@@ -99,7 +99,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Website relaunch'));
       await _snap(tester, '${mode}_6_project');
-      await tester.tap(find.byTooltip('Back'));
+      await tester.tap(find.byTooltip('Back to projects'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Today'));
       await tester.pumpAndSettle();

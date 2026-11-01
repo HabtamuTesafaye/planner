@@ -86,11 +86,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: ReviewScreen.path,
         builder: (context, state) => const ReviewScreen(),
       ),
-      GoRoute(
-        path: '/projects/:id',
-        builder: (context, state) =>
-            ProjectScreen(projectId: state.pathParameters['id']!),
-      ),
       StatefulShellRoute(
         builder: (context, state, shell) => AppShell(navigationShell: shell),
         navigatorContainerBuilder: (context, shell, children) =>
@@ -98,7 +93,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         branches: [
           _branch(AppRoutes.today, const TodayScreen()),
           _branch(InsightsScreen.path, const InsightsScreen()),
-          _branch(AppRoutes.projects, const ProjectsScreen()),
+          // A project opens inside the Projects tab: the nav stays, and
+          // back always returns to the list (also when opened from Today).
+          _branch(
+            AppRoutes.projects,
+            const ProjectsScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) =>
+                    ProjectScreen(projectId: state.pathParameters['id']!),
+              ),
+            ],
+          ),
           _branch(AppRoutes.outreach, const OutreachScreen()),
           _branch(AppRoutes.money, const MoneyScreen()),
           _branch(AppRoutes.space, const SpaceScreen()),
@@ -113,8 +120,14 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-StatefulShellBranch _branch(String path, Widget screen) {
+StatefulShellBranch _branch(
+  String path,
+  Widget screen, {
+  List<RouteBase> routes = const [],
+}) {
   return StatefulShellBranch(
-    routes: [GoRoute(path: path, builder: (context, state) => screen)],
+    routes: [
+      GoRoute(path: path, builder: (context, state) => screen, routes: routes),
+    ],
   );
 }

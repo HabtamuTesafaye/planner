@@ -8,6 +8,7 @@ import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/sheet_frame.dart';
 import '../../../data/models/project.dart';
+import '../../../router_redirect.dart';
 import '../providers/projects_providers.dart';
 
 enum _Action { rename, toggleDone, delete }
@@ -81,7 +82,12 @@ class ProjectMenu extends ConsumerWidget {
         final e = await controller.delete(project);
         if (!context.mounted) return;
         if (e != null) return _message(context, e.message);
-        context.pop();
+        // Back to the list (also when this page was the first one open).
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(AppRoutes.projects);
+        }
     }
   }
 

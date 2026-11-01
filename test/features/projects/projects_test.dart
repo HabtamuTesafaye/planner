@@ -183,4 +183,42 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('This project is gone.'), findsOneWidget);
   });
+
+  testWidgets('every step done: a clear "Mark project done" button', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const ProjectScreen(projectId: 'p1'),
+      overrides: _overrides(
+        [_project],
+        [step('a', done: true), step('b', pos: 1, done: true)],
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Every step is done. Close the project?'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Mark project done'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('open steps: no done button, a hint about planning', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const ProjectScreen(projectId: 'p1'),
+      overrides: _overrides([_project], [step('a'), step('b', pos: 1)]),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Mark project done'), findsNothing);
+    expect(
+      find.text('Tap the sun on a step to plan it for today.'),
+      findsOneWidget,
+    );
+  });
 }

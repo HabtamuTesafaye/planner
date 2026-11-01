@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:planner/app.dart';
 import 'package:planner/core/config/app_config.dart';
@@ -205,6 +206,23 @@ void main() {
     // The form reaches down to the top of the keyboard.
     expect(bottom, closeTo(640 - keyboard, 1));
   });
+
+  testWidgets(
+    'a project opened from Today keeps the nav, back goes to Projects',
+    (tester) async {
+      useSmallPhone(tester);
+      await _pumpApp(tester);
+      // What the Today shortcut does after creating a project.
+      GoRouter.of(tester.element(find.byType(FloatingNavBar)))
+          .go('/projects/p1');
+      await tester.pumpAndSettle();
+      expect(find.byType(FloatingNavBar), findsOneWidget);
+      await tester.tap(find.byTooltip('Back to projects'));
+      await tester.pumpAndSettle();
+      expect(find.text(_marks['Projects']!), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('switching tabs through the real router never overlaps', (
     tester,
