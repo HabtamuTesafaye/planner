@@ -68,6 +68,10 @@ abstract final class AppSizes {
 
   /// App mark sizes: small (Welcome header) and large (launch, matches the
   /// native splash).
+  /// Space kept free under a list so a floating button never hides the
+  /// last row.
+  static const double fabClearance = 96;
+
   static const double brandMarkSmall = 56;
   static const double brandMarkLarge = 96;
 }

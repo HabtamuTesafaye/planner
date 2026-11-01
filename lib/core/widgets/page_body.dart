@@ -12,6 +12,9 @@ class PageBody extends StatelessWidget {
     required this.children,
     this.onRefresh,
     this.top,
+    this.subtitle,
+    this.largeTitle = false,
+    this.bottomPadding = AppSpacing.xxl,
     super.key,
   });
 
@@ -22,6 +25,15 @@ class PageBody extends StatelessWidget {
   /// Optional widget above the title, for example the space switcher.
   final Widget? top;
 
+  /// Muted line under the title.
+  final String? subtitle;
+
+  /// Fraunces display size instead of the screen-title size (Today's date).
+  final bool largeTitle;
+
+  /// Space under the content, larger when a floating button covers it.
+  final double bottomPadding;
+
   @override
   Widget build(BuildContext context) {
     final list = ListView(
@@ -30,14 +42,26 @@ class PageBody extends StatelessWidget {
         AppSpacing.lg,
         top == null ? AppSpacing.xl : AppSpacing.sm,
         AppSpacing.lg,
-        AppSpacing.xxl,
+        bottomPadding,
       ),
       children: [
         if (top != null) ...[top!, const SizedBox(height: AppSpacing.xs)],
         Semantics(
           header: true,
-          child: Text(title, style: context.text.headlineMedium),
+          child: Text(
+            title,
+            style: largeTitle
+                ? context.text.displayMedium
+                : context.text.headlineMedium,
+          ),
         ),
+        if (subtitle != null)
+          Text(
+            subtitle!,
+            style: context.text.titleMedium!.copyWith(
+              color: context.colors.muted,
+            ),
+          ),
         ...children,
       ],
     );

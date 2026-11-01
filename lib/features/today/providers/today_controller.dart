@@ -94,7 +94,13 @@ class TodayController extends Notifier<TaskOverlay> {
 
   TasksRepository get _repo => ref.read(tasksRepositoryProvider);
 
-  List<Task> get _today => ref.read(todayTasksProvider).value ?? const [];
+  /// Today's tasks as shown, computed from the sources directly (reading
+  /// todayTasksProvider here would be a loop: it is built from this state).
+  List<Task> get _today => mergeTasks(
+    ref.read(myTasksProvider).value ?? const [],
+    state,
+    ref.read(todayProvider),
+  );
 
   /// Adds a task for today in [spaceId]. Blocks a 4th in the app; the
   /// database blocks it too.

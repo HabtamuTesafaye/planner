@@ -126,6 +126,7 @@ abstract final class AppTheme {
       outlinedButtonTheme: components.outlinedButton,
       textButtonTheme: components.textButton,
       iconButtonTheme: components.iconButton,
+      floatingActionButtonTheme: components.fab,
       inputDecorationTheme: components.inputDecoration,
       chipTheme: components.chip,
       segmentedButtonTheme: components.segmentedButton,

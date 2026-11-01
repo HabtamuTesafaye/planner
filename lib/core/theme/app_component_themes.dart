@@ -80,6 +80,17 @@ class AppComponentThemes {
     ),
   );
 
+  FloatingActionButtonThemeData get fab => FloatingActionButtonThemeData(
+    backgroundColor: c.accentText,
+    foregroundColor: c.onAccent,
+    elevation: 0,
+    focusElevation: 0,
+    hoverElevation: 0,
+    highlightElevation: 0,
+    shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetAll),
+    extendedTextStyle: text.labelLarge,
+  );
+
   IconButtonThemeData get iconButton => IconButtonThemeData(
     style: IconButton.styleFrom(
       foregroundColor: c.text,

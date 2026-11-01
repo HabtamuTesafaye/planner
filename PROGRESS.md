@@ -20,6 +20,14 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## Phase 3 (Today) done
+- `Task`, `WeeklyGoal` models; `TasksRepository` (realtime stream of my tasks, add/toggle/delete/restore), `GoalsRepository` (fetch, upsert, clear).
+- `lib/core/utils/dates.dart` (week starts Monday, months, daysBetween, db date), `ids.dart` (uuid v4 for optimistic inserts).
+- `TodayController` + `TaskOverlay`: optimistic add/toggle/delete/undo, pruned when the live list agrees, rolled back with a friendly message on failure. 4th task blocked in the app (no request) and by the database (same message).
+- Today screen: weekday in Fraunces + date, goal card for the current space (sheet to edit/clear), "Today's three" with a 3-ring progress, task rows (CircleCheck, strike-through, space tag when >1 space, swipe right = done, left = delete + Undo, haptic at threshold), FAB "Add task" with a space picker, empty/error/skeleton states, re-reads the date on resume.
+- Shared: `core/widgets/sheet_frame.dart` (`SheetFrame`, `showAppSheet`), FAB theme, PageBody `largeTitle`/`subtitle`/`bottomPadding`, all sizes as tokens.
+- Tests: 168 passing (dates, ids, merge/prune, controller limit/rollback/undo, Today screen at 1.5x both themes).
+
 ## Phase 2b (spaces) done
 - Owner decided: Personal space for everyone plus any number of team spaces; 3 tasks a day across ALL spaces; projects with templates inside spaces. AGENTS.md sections 1, 5.3, 6 and 9 updated; new phase files 02b and 03b.
 - Migrations 011 (spaces, profile settings, new RPCs incl. leave_team(id)), 012 (projects, project_items, tasks.project_item_id, sync triggers), 013 (last_team_id not an FK; fixes account deletion). Isolation test: 132/132.
