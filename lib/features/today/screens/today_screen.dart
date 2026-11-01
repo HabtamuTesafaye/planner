@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,7 +50,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     super.initState();
     // A new day may have started while the app was in the background.
     _lifecycle = AppLifecycleListener(
-      onResume: () => ref.invalidate(todayProvider),
+      onResume: () {
+        ref.invalidate(todayProvider);
+        unawaited(ref.read(serverClockProvider.notifier).sync());
+      },
     );
   }
 

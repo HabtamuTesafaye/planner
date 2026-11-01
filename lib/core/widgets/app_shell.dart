@@ -59,6 +59,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           ..invalidate(spaceTasksProvider);
       }
     });
+    // "Today" follows the server's clock, not a possibly wrong phone clock.
+    unawaited(ref.read(serverClockProvider.notifier).sync());
     // Daily reminder follows the profile (also after sign-in on a new phone).
     ref.listenManual(
       currentProfileProvider.select((p) => p.value?.reminderTime),

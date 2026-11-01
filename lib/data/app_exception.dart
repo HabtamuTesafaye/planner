@@ -24,6 +24,7 @@ enum AppErrorKind {
   signedOut,
   googleNotSetUp,
   samePassword,
+  wrongDate,
   network,
   unknown,
 }
@@ -73,6 +74,9 @@ class AppException implements Exception {
     AppErrorKind.rateLimited =>
       'Too many tries in a short time. Wait a minute and try again.',
     AppErrorKind.signedOut => 'Your session ended. Please sign in again.',
+    AppErrorKind.wrongDate =>
+      "Your phone's date looks off. Turn on automatic date and time, "
+          'then try again.',
     AppErrorKind.samePassword =>
       "That's your current password. Pick a new one.",
     AppErrorKind.googleNotSetUp =>
@@ -144,6 +148,7 @@ class AppException implements Exception {
       'not_in_team' => AppErrorKind.notInTeam,
       'invalid_team_name' => AppErrorKind.invalidTeamName,
       'task_limit_reached' => AppErrorKind.taskLimit,
+      'invalid_day' => AppErrorKind.wrongDate,
       'immutable_column' || 'invalid_project_item' => AppErrorKind.notAllowed,
       'not_authenticated' => AppErrorKind.signedOut,
       _ => AppErrorKind.unknown,

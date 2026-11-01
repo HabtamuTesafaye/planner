@@ -174,4 +174,5 @@ Phase 0:
 - Fixed: stuck on a project opened from the Today shortcut (it replaced the whole stack, so Back had nowhere to go, and there was no nav). Project detail now lives inside the Projects tab: nav stays, Back always returns to the list. When every step is done, a clear "Mark project done" card appears (and "Reopen" once done); a hint explains the sun button, which is now tinted.
 - Step notes: migration 016 (`note` up to 2000 chars, `note_updated_at/by` stamped by a trigger, update grant on `note` only). Tap a step to edit its title and note; the first line shows under the step; "Edited by … · date". DB test 146/146.
 - Income sources: migration 017 (`source` up to 60 chars). Add income has a Source field with one-tap chips of earlier sources; the list shows the source as the title (note below); Money shows "By source" for the month when there are 2+. DB test 148/148.
-- Tests: 278 passing (+8 skipped renders).
+- Server time: migration 018 (`server_now()` RPC, `tasks_check_day` guard ±1 day of UTC). The app syncs the clock offset at start and on resume; "today" = server time in the phone's zone. DB test 152/152.
+- Tests: 282 passing (+8 skipped renders).

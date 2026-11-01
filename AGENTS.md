@@ -149,6 +149,7 @@ I have (or will create) a Supabase project named `planner-staging`. Use the free
 
 Rules:
 - A database trigger must reject a 4th task for the same `user_id` and `day` (across all spaces). The app also enforces it, but the database is the source of truth.
+- "Today" comes from the server's clock in the phone's time zone (`server_now()` RPC, owner's decision 2026-11-01), not the phone clock alone. The database rejects a task `day` more than one day from the UTC date (`invalid_day`).
 - Auto-create a `profiles` row on signup with a trigger.
 - Add indexes for `team_id`, `(user_id, day)` and `(team_id, next_follow_up)`.
 
