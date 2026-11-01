@@ -11,8 +11,9 @@ import '../widgets/google_button.dart';
 import '../widgets/today_preview.dart';
 
 /// First screen when signed out. The mark draws itself, then the words, a
-/// live preview of Today, and the actions arrive in order. The two actions sit in the bottom half, within
-/// thumb reach.
+/// live preview of Today, and the actions arrive in order. The mark and the
+/// words are centered; the actions sit in the bottom half, within thumb
+/// reach.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -44,8 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: AppSpacing.xl),
-                          const Align(
-                            alignment: Alignment.centerLeft,
+                          const Center(
                             child: BrandMark(
                               size: AppSizes.brandMarkSmall,
                               animate: true,
@@ -58,6 +58,7 @@ class WelcomeScreen extends StatelessWidget {
                               header: true,
                               child: Text(
                                 'Three things a day.\nOne shared plan.',
+                                textAlign: TextAlign.center,
                                 style: text.displaySmall,
                               ),
                             ),
@@ -69,6 +70,7 @@ class WelcomeScreen extends StatelessWidget {
                             child: Text(
                               'Projects, outreach and income for you and your '
                               'team, in one calm place.',
+                              textAlign: TextAlign.center,
                               style: text.bodyLarge!.copyWith(
                                 color: colors.muted,
                               ),

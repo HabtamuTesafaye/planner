@@ -8,6 +8,8 @@ abstract final class AppRoutes {
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
   static const checkEmail = '/check-email';
+  static const forgotPassword = '/forgot-password';
+  static const newPassword = '/new-password';
   static const newSpace = '/spaces/new';
   static const today = '/today';
   static const projects = '/projects';
@@ -16,7 +18,13 @@ abstract final class AppRoutes {
   static const space = '/space';
 
   /// Reachable while signed out.
-  static const signedOutRoutes = {welcome, signIn, signUp, checkEmail};
+  static const signedOutRoutes = {
+    welcome,
+    signIn,
+    signUp,
+    checkEmail,
+    forgotPassword,
+  };
 }
 
 /// Where to send the user, or null to stay. Pure so it can be tested.
@@ -25,10 +33,13 @@ abstract final class AppRoutes {
 /// * Signed out: the auth screens only (welcome by default).
 /// * Signed in: the app. Nobody is forced to create a team; everyone has a
 ///   Personal space. Auth and splash screens go to Today.
+/// * Signed in from a password-reset link ([recovering]): the new-password
+///   screen until a new password is saved.
 String? resolveRedirect({
   required AuthStatus auth,
   required SpacesStatus spaces,
   required String location,
+  bool recovering = false,
 }) {
   String? goTo(String target) => location == target ? null : target;
   final onSignedOutRoute = AppRoutes.signedOutRoutes.contains(location);
@@ -39,6 +50,8 @@ String? resolveRedirect({
     case AuthStatus.signedOut:
       return onSignedOutRoute ? null : AppRoutes.welcome;
     case AuthStatus.signedIn:
+      if (recovering) return goTo(AppRoutes.newPassword);
+      if (location == AppRoutes.newPassword) return AppRoutes.today;
       switch (spaces) {
         case SpacesStatus.loading:
         case SpacesStatus.error:

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:mocktail/mocktail.dart';
+
 import 'package:planner/data/models/contact.dart';
 import 'package:planner/data/models/income.dart';
 import 'package:planner/data/models/profile.dart';
@@ -19,6 +20,8 @@ import 'package:planner/features/review/providers/review_providers.dart';
 import 'package:planner/features/space/providers/progress_providers.dart';
 import 'package:planner/features/space/providers/space_providers.dart';
 import 'package:planner/features/today/providers/today_providers.dart';
+
+import '../helpers.dart';
 
 /// Realistic sample data for screenshots: a Wednesday in a team space.
 final shotToday = DateTime(2026, 11, 4, 9);
@@ -195,6 +198,7 @@ final _members = [
 /// Every override the app needs to run fully on sample data.
 List<Override> shotOverrides() => [
   currentUserIdProvider.overrideWith((ref) => Stream.value('u1')),
+  noPasswordRecovery,
   currentProfileProvider.overrideWith(
     (ref) async =>
         const Profile(id: 'u1', displayName: 'Habtamu', lastSpaceId: 't'),

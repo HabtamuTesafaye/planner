@@ -20,7 +20,7 @@ The app is successful if people open it every day because it is fast, clear and 
 5. **Weekly review** feeds next week's goal for the space.
 
 ### In scope (v1)
-- Email + password accounts
+- Email + password accounts, with "Forgot password?" (reset link by email, opens the app via the PKCE deep link; owner's decision 2026-11-01)
 - Spaces: an automatic Personal space for every user (private, cannot be left or joined), plus any number of team spaces (create, join with an invite code, leave). A space switcher at the top of the app.
 - Today: max 3 tasks per person per day **across all spaces**, plus one "goal of the week" for the current space
 - Projects: per space, created from a template or blank, each with a checklist; plan a step for today

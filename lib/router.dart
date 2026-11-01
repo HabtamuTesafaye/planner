@@ -6,6 +6,8 @@ import 'core/widgets/app_shell.dart';
 import 'core/widgets/fade_through_stack.dart';
 import 'features/auth/providers/auth_providers.dart';
 import 'features/auth/screens/check_email_screen.dart';
+import 'features/auth/screens/forgot_password_screen.dart';
+import 'features/auth/screens/new_password_screen.dart';
 import 'features/auth/screens/sign_in_screen.dart';
 import 'features/auth/screens/sign_up_screen.dart';
 import 'features/auth/screens/splash_screen.dart';
@@ -28,7 +30,8 @@ final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref
     ..listen(authStatusProvider, (_, _) => refresh.value++)
-    ..listen(spacesStatusProvider, (_, _) => refresh.value++);
+    ..listen(spacesStatusProvider, (_, _) => refresh.value++)
+    ..listen(passwordRecoveryProvider, (_, _) => refresh.value++);
 
   final router = GoRouter(
     initialLocation: AppRoutes.splash,
@@ -37,6 +40,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       auth: ref.read(authStatusProvider),
       spaces: ref.read(spacesStatusProvider),
       location: state.matchedLocation,
+      recovering: ref.read(passwordRecoveryProvider),
     ),
     routes: [
       GoRoute(
@@ -59,6 +63,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.checkEmail,
         builder: (context, state) =>
             CheckEmailScreen(email: state.uri.queryParameters['email'] ?? ''),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => ForgotPasswordScreen(
+          email: state.uri.queryParameters['email'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.newPassword,
+        builder: (context, state) => const NewPasswordScreen(),
       ),
       GoRoute(
         path: AppRoutes.newSpace,

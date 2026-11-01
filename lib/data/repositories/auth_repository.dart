@@ -108,6 +108,34 @@ class AuthRepository {
     }
   }
 
+  /// Emails a reset link. The link opens the app (PKCE deep link) and
+  /// signs the user in with a password-recovery event. The answer is the
+  /// same whether or not the email has an account.
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: AppConfig.authRedirectUrl,
+      );
+    } catch (e, s) {
+      throw AppException.from(e, s);
+    }
+  }
+
+  /// Fires once the user has opened a reset link and is signed in for it.
+  Stream<void> passwordRecoveries() => _auth.onAuthStateChange
+      .handleError((Object e, StackTrace s) => Log.error('Auth event', e, s))
+      .where((state) => state.event == AuthChangeEvent.passwordRecovery);
+
+  /// Sets a new password for the signed-in user.
+  Future<void> updatePassword(String password) async {
+    try {
+      await _auth.updateUser(UserAttributes(password: password));
+    } catch (e, s) {
+      throw AppException.from(e, s);
+    }
+  }
+
   /// Sends the confirmation email again.
   Future<void> resendConfirmation(String email) async {
     try {

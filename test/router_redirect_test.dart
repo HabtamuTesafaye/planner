@@ -67,4 +67,29 @@ void main() {
       expect(go(AuthStatus.signedIn, spaces, AppRoutes.splash), isNull);
     }
   });
+
+  group('password reset', () {
+    test('forgot password is reachable while signed out', () {
+      expect(go(AuthStatus.signedOut, any, AppRoutes.forgotPassword), isNull);
+    });
+
+    test('a reset link leads to the new-password screen', () {
+      String? rec(String location) => resolveRedirect(
+        auth: AuthStatus.signedIn,
+        spaces: SpacesStatus.ready,
+        location: location,
+        recovering: true,
+      );
+      expect(rec(AppRoutes.today), AppRoutes.newPassword);
+      expect(rec(AppRoutes.splash), AppRoutes.newPassword);
+      expect(rec(AppRoutes.newPassword), isNull);
+    });
+
+    test('once saved, the new-password screen moves on to Today', () {
+      expect(
+        go(AuthStatus.signedIn, SpacesStatus.ready, AppRoutes.newPassword),
+        AppRoutes.today,
+      );
+    });
+  });
 }

@@ -23,6 +23,7 @@ enum AppErrorKind {
   rateLimited,
   signedOut,
   googleNotSetUp,
+  samePassword,
   network,
   unknown,
 }
@@ -72,6 +73,8 @@ class AppException implements Exception {
     AppErrorKind.rateLimited =>
       'Too many tries in a short time. Wait a minute and try again.',
     AppErrorKind.signedOut => 'Your session ended. Please sign in again.',
+    AppErrorKind.samePassword =>
+      "That's your current password. Pick a new one.",
     AppErrorKind.googleNotSetUp =>
       'Google sign-in isn’t switched on yet. Use email for now.',
     AppErrorKind.network =>
@@ -112,6 +115,8 @@ class AppException implements Exception {
       case 'user_already_exists':
       case 'email_exists':
         return AppErrorKind.emailInUse;
+      case 'same_password':
+        return AppErrorKind.samePassword;
       case 'weak_password':
         return AppErrorKind.weakPassword;
       case 'email_address_invalid':

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:planner/core/theme/app_theme.dart';
+import 'package:planner/features/auth/providers/auth_providers.dart';
 
 /// Small phone (360 x 640 dp) at 1.5x font scale, in the given theme.
 void useSmallPhone(
@@ -40,3 +41,15 @@ Future<void> pumpScreen(
   );
   await tester.pump();
 }
+
+/// No password-reset link was opened. The real notifier listens to
+/// Supabase auth events, which full-app tests don't have.
+class NoPasswordRecovery extends PasswordRecoveryNotifier {
+  @override
+  bool build() => false;
+}
+
+/// Override for tests that pump the whole app.
+final noPasswordRecovery = passwordRecoveryProvider.overrideWith(
+  NoPasswordRecovery.new,
+);

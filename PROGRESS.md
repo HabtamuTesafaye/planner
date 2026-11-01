@@ -162,3 +162,9 @@ Phase 0:
 - PRs #1, #6 and #7 merged into `main` after checks (analyze clean, 257 tests, DB 140/140).
 - Issues closed: #3 (Supabase auth settings, done by owner), #5 (AI features, not planned by owner's decision), #2 (backup reminder; steps in README). Open: #4 device QA.
 - Google sign-in switched on in Supabase staging by the owner; verified from the public settings endpoint and the authorize redirect.
+
+## Auth fixes (2026-11-01, branch `feature/auth-fixes`)
+- Forgot password: "Forgot password?" on Sign in → reset screen (same reply whether or not the email has an account) → email link opens the app (PKCE, `passwordRecovery` event) → "Set a new password" screen → Today. Error `same_password` mapped to a friendly message.
+- Welcome: mark, headline and subtitle centered.
+- Google: owner's first try ended on the splash error; no Google user reached the database. Investigating with device logs.
+- Tests: 266 passing (+8 skipped renders).

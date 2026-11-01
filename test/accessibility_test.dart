@@ -69,6 +69,7 @@ void main() {
           ProviderScope(
             overrides: [
               currentUserIdProvider.overrideWith((ref) => Stream.value('u1')),
+              noPasswordRecovery,
               currentProfileProvider.overrideWith(
                 (ref) async => const Profile(id: 'u1', displayName: 'Abebe'),
               ),

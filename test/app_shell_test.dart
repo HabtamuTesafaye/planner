@@ -69,6 +69,7 @@ Future<void> _pumpApp(WidgetTester tester, {String? lastSpace}) async {
     ProviderScope(
       overrides: [
         currentUserIdProvider.overrideWith((ref) => Stream.value('u1')),
+        noPasswordRecovery,
         currentProfileProvider.overrideWith(
           (ref) async =>
               Profile(id: 'u1', displayName: 'Abebe', lastSpaceId: lastSpace),
@@ -221,6 +222,7 @@ void main() {
       ProviderScope(
         overrides: [
           currentUserIdProvider.overrideWith((ref) => Stream.value(null)),
+          noPasswordRecovery,
         ],
         child: const PlannerApp(config: _config),
       ),
