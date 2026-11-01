@@ -122,7 +122,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         for (final tab in ['Today', 'Projects', 'Outreach', 'Money', 'Space']) {
-          await tester.tap(find.widgetWithText(NavigationDestination, tab));
+          await tester.tap(find.byTooltip(tab));
           await tester.pumpAndSettle();
           await expectGuidelines(tester);
         }

@@ -45,6 +45,9 @@ void main() {
         'success on surface': (c.success, c.surface),
         'success on successSoft (won status pill)': (c.success, c.successSoft),
         'accentText on accentSoft (status pill)': (c.accentText, c.accentSoft),
+        'muted on accentSoft (top of the page wash)': (c.muted, c.accentSoft),
+        'text on tealSoft (quick action)': (c.text, c.tealSoft),
+        'text on amberSoft (quick action)': (c.text, c.amberSoft),
         // Snackbar: inverted colors.
         'snackbar text': (c.background, c.text),
       };
@@ -67,6 +70,11 @@ void main() {
         'success check on surface': (c.success, c.surface),
         'input border on surface': (c.border, c.surface),
         'input border on background': (c.border, c.background),
+        'quick action icon: accent': (c.accentText, c.accentSoft),
+        'quick action icon: teal': (c.teal, c.tealSoft),
+        'quick action icon: amber': (c.amber, c.amberSoft),
+        'quick action icon: success': (c.success, c.successSoft),
+        'nav item icon on surface': (c.muted, c.surface),
       };
       pairs.forEach((label, pair) {
         test(label, () {

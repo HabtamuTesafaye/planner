@@ -11,12 +11,16 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/progress_ring.dart';
+import '../../../core/widgets/round_icon_button.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../data/app_exception.dart';
 import '../../../data/models/task.dart';
 import '../../insights/screens/insights_screen.dart';
+import '../../money/screens/money_screen.dart';
+import '../../outreach/screens/outreach_screen.dart';
+import '../../projects/screens/projects_screen.dart';
 import '../../review/providers/review_providers.dart';
 import '../../review/screens/review_screen.dart';
 import '../../space/providers/space_providers.dart';
@@ -25,7 +29,9 @@ import '../providers/today_providers.dart';
 import '../widgets/add_task_sheet.dart';
 import '../widgets/goal_card.dart';
 import '../widgets/goal_sheet.dart';
+import '../widgets/quick_actions.dart';
 import '../widgets/task_row.dart';
+import '../widgets/today_blocks.dart';
 
 /// Today: the big date, the goal of the week for the current space, and
 /// my (max 3) tasks from every space.
@@ -93,6 +99,39 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
   }
 
+  Widget _shortcuts(String spaceName) => QuickActions(
+    actions: [
+      QuickAction(
+        icon: QuickIcons.project,
+        label: 'Project',
+        hint: 'New project in $spaceName',
+        tone: QuickTone.accent,
+        onTap: () => ProjectsScreen.startNew(context, ref, fromOtherTab: true),
+      ),
+      QuickAction(
+        icon: QuickIcons.contact,
+        label: 'Contact',
+        hint: 'Add a contact in $spaceName',
+        tone: QuickTone.teal,
+        onTap: () => OutreachScreen.openContact(context, ref),
+      ),
+      QuickAction(
+        icon: QuickIcons.income,
+        label: 'Income',
+        hint: 'Add income in $spaceName',
+        tone: QuickTone.success,
+        onTap: () => MoneyScreen.addIncome(context, ref),
+      ),
+      QuickAction(
+        icon: QuickIcons.review,
+        label: 'Review',
+        hint: 'Weekly review',
+        tone: QuickTone.amber,
+        onTap: () => context.push(ReviewScreen.path),
+      ),
+    ],
+  );
+
   Future<void> _editGoal(String spaceId, String? goal) =>
       showAppSheet<void>(context, GoalSheet(spaceId: spaceId, initial: goal));
 
@@ -132,10 +171,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             : null,
         top: Align(
           alignment: Alignment.centerRight,
-          child: IconButton(
+          child: RoundIconButton(
             onPressed: () => context.push(InsightsScreen.path),
             tooltip: 'Insights',
-            icon: const Icon(Symbols.insights),
+            icon: Symbols.insights,
           ),
         ),
         bottomPadding: AppSizes.fabClearance,
@@ -155,7 +194,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               padding: const EdgeInsets.only(top: AppSpacing.md),
               child: FadeSlideIn(
                 index: 1,
-                child: _ReviewPrompt(
+                child: ReviewPrompt(
                   onOpen: () => context.push(ReviewScreen.path),
                 ),
               ),
@@ -200,72 +239,18 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
             ],
             AsyncValue(:final error?) => [
-              _ErrorBlock(
+              TodayErrorBlock(
                 message: AppException.from(error).message,
                 onRetry: () => ref.invalidate(myTasksProvider),
               ),
             ],
             _ => [const SkeletonList()],
           },
+          if (space != null) ...[
+            SectionHeader(title: 'Add to ${space.name}'),
+            _shortcuts(space.name),
+          ],
         ],
-      ),
-    );
-  }
-}
-
-class _ErrorBlock extends StatelessWidget {
-  const _ErrorBlock({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(message, style: context.text.bodyLarge),
-          const SizedBox(height: AppSpacing.md),
-          OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
-        ],
-      ),
-    );
-  }
-}
-
-/// Gentle Sunday/Monday nudge when the weekly review is missing.
-class _ReviewPrompt extends StatelessWidget {
-  const _ReviewPrompt({required this.onOpen});
-
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Material(
-      color: colors.accentSoft,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlAll),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Row(
-            children: [
-              Icon(Symbols.edit_note, color: colors.accentText),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  'Take two minutes for your weekly review.',
-                  style: context.text.bodyLarge,
-                ),
-              ),
-              Icon(Symbols.chevron_right, color: colors.muted),
-            ],
-          ),
-        ),
       ),
     );
   }

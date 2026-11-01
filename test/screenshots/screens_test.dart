@@ -33,9 +33,6 @@ Future<void> _loadFonts() async {
     await loader.load();
   }
 
-  await family('Fraunces', [
-    for (final w in [400, 500, 600]) 'assets/fonts/Fraunces-$w.ttf',
-  ]);
   await family('Manrope', [
     for (final w in [400, 500, 600, 700]) 'assets/fonts/Manrope-$w.ttf',
   ]);
@@ -95,16 +92,16 @@ void main() {
         'Money',
         'Space',
       ].indexed) {
-        await tester.tap(find.widgetWithText(NavigationDestination, tab));
+        await tester.tap(find.byTooltip(tab));
         await _snap(tester, '${mode}_${i + 2}_${tab.toLowerCase()}');
       }
-      await tester.tap(find.widgetWithText(NavigationDestination, 'Projects'));
+      await tester.tap(find.byTooltip('Projects'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Website relaunch'));
       await _snap(tester, '${mode}_6_project');
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(NavigationDestination, 'Today'));
+      await tester.tap(find.byTooltip('Today'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Insights').first);
       await _snap(tester, '${mode}_7_insights');

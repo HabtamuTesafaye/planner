@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
+import '../../../core/widgets/card_material.dart';
 import '../../today/widgets/day_progress.dart';
 import '../progress_logic.dart';
 
@@ -34,13 +35,7 @@ class MemberCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Material(
-        color: colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.controlAll,
-          side: BorderSide(color: colors.divider),
-        ),
-        clipBehavior: Clip.antiAlias,
+      child: CardMaterial(
         child: InkWell(
           onTap: onTap,
           child: Padding(

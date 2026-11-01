@@ -21,9 +21,8 @@ class MockSpaceRepository extends Mock implements SpaceRepository {}
 void main() {
   testWidgets('Google: not switched on shows a calm message', (tester) async {
     final auth = MockAuthRepository();
-    when(
-      auth.signInWithGoogle,
-    ).thenThrow(const AppException(AppErrorKind.googleNotSetUp));
+    when(auth.signInWithGoogle)
+        .thenThrow(const AppException(AppErrorKind.googleNotSetUp));
     useSmallPhone(tester);
     await pumpScreen(
       tester,

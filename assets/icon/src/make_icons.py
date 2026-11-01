@@ -1,14 +1,15 @@
 """Draws the Planner app icon set from one geometry.
 
-Mark: a filled accent circle with a check (one task done) above three empty
-rings (three tasks a day). Based on the chosen AI concept, redrawn cleanly
-with the exact brand colors.
+Mark: a check inside a ring of three arcs (three tasks a day), white on a
+rounded stormy-blue tile. Compact, reads at 24 px, and the same shapes are
+drawn in code by lib/core/widgets/brand_mark.dart.
 
 Run from the repo root:  python3 assets/icon/src/make_icons.py
-Writes SVG sources to assets/icon/src/ and PNGs to assets/icon/.
+Writes PNGs to assets/icon/ and an SVG source to assets/icon/src/.
 Needs only Pillow.
 """
 
+import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -17,29 +18,25 @@ OUT = Path(__file__).resolve().parent.parent
 SRC = OUT / "src"
 
 ACCENT = "#2E4A6B"
-PAPER = "#F3F1EC"
-INK = "#1B2430"
-INK_DARK = "#ECEEF1"
 ACCENT_DARK = "#8EB0D6"
-PAPER_DARK = "#121519"
+PAGE_DARK = "#121519"
 WHITE = "#FFFFFF"
 
-# Geometry on a 1024 canvas. The whole mark fits inside the adaptive-icon
-# safe circle (radius ~313 around the center), so no launcher mask crops it.
 SIZE = 1024
-CX, CY, R = 512, 440, 172
-CHECK = [(450, 444), (494, 488), (582, 394)]
-CHECK_W = 36
-RING_Y, RING_R, RING_W, GAP = 700, 38, 15, 148
-RINGS = [(CX + dx, RING_Y) for dx in (-GAP, 0, GAP)]
+SS = 4  # supersampling for smooth edges
 
-# Notification icon: just the done circle, on a 96 canvas.
-N_SIZE, N_C, N_R = 96, 48, 40
-N_CHECK = [(29, 49), (42, 62), (68, 35)]
-N_CHECK_W = 10
+# Mark geometry as fractions of the tile side T (keep in sync with
+# brand_mark.dart).
+CORNER = 0.28  # tile corner radius
+RING_R = 0.30  # ring radius (to the middle of the stroke)
+STROKE = 0.075  # ring and check stroke width
+ARC_SWEEP = 100  # degrees per arc; 3 arcs + 3 gaps of 20 = 360
+ARC_START = -80  # first arc starts just right of 12 o'clock
+CHECK = [(-0.125, 0.005), (-0.035, 0.095), (0.13, -0.075)]
 
-LEGACY_SCALE = 1.3  # mark size on the full-square legacy icon
-SS = 4  # supersampling factor for smooth edges
+# On the 1024 splash canvas the tile is 384 px: 96 dp at 4x, the size the
+# in-app splash draws (AppSizes.brandMarkLarge), so the handoff is seamless.
+SPLASH_TILE = 384
 
 
 def _rgba(hex_color: str, alpha: int = 255) -> tuple[int, int, int, int]:
@@ -47,107 +44,109 @@ def _rgba(hex_color: str, alpha: int = 255) -> tuple[int, int, int, int]:
     return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), alpha)
 
 
-def _polyline(draw, pts, width, fill, s):
-    p = [(x * s, y * s) for x, y in pts]
-    draw.line(p, fill=fill, width=int(width * s), joint="curve")
-    r = width * s / 2
-    for x, y in (p[0], p[-1]):  # round caps
-        draw.ellipse((x - r, y - r, x + r, y + r), fill=fill)
+def _mark(draw, cx, cy, t, fill, s=SS):
+    """Ring of three arcs and a check, centered at (cx, cy), tile side t."""
+    r = RING_R * t
+    w = STROKE * t
+    box = [(cx - r - w / 2) * s, (cy - r - w / 2) * s,
+           (cx + r + w / 2) * s, (cy + r + w / 2) * s]
+    for i in range(3):
+        a0 = ARC_START + i * 120
+        a1 = a0 + ARC_SWEEP
+        draw.arc(box, a0, a1, fill=fill, width=int(w * s))
+        for a in (a0, a1):  # round caps
+            x = cx + r * math.cos(math.radians(a))
+            y = cy + r * math.sin(math.radians(a))
+            draw.ellipse(((x - w / 2) * s, (y - w / 2) * s,
+                          (x + w / 2) * s, (y + w / 2) * s), fill=fill)
+    pts = [((cx + dx * t) * s, (cy + dy * t) * s) for dx, dy in CHECK]
+    draw.line(pts, fill=fill, width=int(w * s), joint="curve")
+    for x, y in (pts[0], pts[-1]):
+        rr = w * s / 2
+        draw.ellipse((x - rr, y - rr, x + rr, y + rr), fill=fill)
 
 
-def _circle(draw, cx, cy, r, s, fill=None, outline=None, width=0):
-    if outline:
-        # Center the stroke on the radius, like SVG.
-        ro = (r + width / 2) * s
-        draw.ellipse(
-            (cx * s - ro, cy * s - ro, cx * s + ro, cy * s + ro),
-            outline=outline,
-            width=int(width * s),
-        )
-    else:
-        draw.ellipse(
-            (cx * s - r * s, cy * s - r * s, cx * s + r * s, cy * s + r * s),
-            fill=fill,
-        )
+def _canvas(size=SIZE, bg=None):
+    img = Image.new("RGBA", (size * SS, size * SS), _rgba(bg) if bg else (0, 0, 0, 0))
+    return img, ImageDraw.Draw(img)
 
 
-def _finish(img: Image.Image, size: int) -> Image.Image:
+def _done(img, size=SIZE):
     return img.resize((size, size), Image.Resampling.LANCZOS)
 
 
-def colored_mark(accent, check, ring, bg=None) -> Image.Image:
-    s = SS
-    img = Image.new("RGBA", (SIZE * s, SIZE * s), _rgba(bg) if bg else (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    _circle(d, CX, CY, R, s, fill=_rgba(accent))
-    _polyline(d, CHECK, CHECK_W, _rgba(check), s)
-    for x, y in RINGS:
-        _circle(d, x, y, RING_R, s, outline=_rgba(ring), width=RING_W)
-    return _finish(img, SIZE)
-
-
-def white_cutout(size, c, r, check, check_w, rings=()) -> Image.Image:
-    """Solid white shape with the check punched out (real transparency)."""
-    s = SS
-    alpha = Image.new("L", (size * s, size * s), 0)
-    d = ImageDraw.Draw(alpha)
-    _circle(d, c[0], c[1], r, s, fill=255)
-    _polyline(d, check, check_w, 0, s)
-    for x, y in rings:
-        _circle(d, x, y, RING_R, s, outline=255, width=RING_W)
-    img = Image.new("RGBA", alpha.size, _rgba(WHITE))
-    img.putalpha(alpha)
-    return _finish(img, size)
-
-
-def _svg_mark(accent, check, ring, bg=None) -> str:
-    pts = " ".join(f"L{x},{y}" for x, y in CHECK[1:])
-    body = f'<rect width="{SIZE}" height="{SIZE}" fill="{bg}"/>' if bg else ""
-    body += f'<circle cx="{CX}" cy="{CY}" r="{R}" fill="{accent}"/>'
-    body += (
-        f'<path d="M{CHECK[0][0]},{CHECK[0][1]} {pts}" fill="none" stroke="{check}" '
-        f'stroke-width="{CHECK_W}" stroke-linecap="round" stroke-linejoin="round"/>'
+def tile(t, tile_color, mark_color, size=SIZE):
+    """Rounded tile of side t with the mark, centered on a clear canvas."""
+    img, d = _canvas(size)
+    c = size / 2
+    h = t / 2
+    d.rounded_rectangle(
+        ((c - h) * SS, (c - h) * SS, (c + h) * SS, (c + h) * SS),
+        radius=CORNER * t * SS,
+        fill=_rgba(tile_color),
     )
-    for x, y in RINGS:
-        body += (
-            f'<circle cx="{x}" cy="{y}" r="{RING_R}" fill="none" '
-            f'stroke="{ring}" stroke-width="{RING_W}"/>'
+    _mark(d, c, c, t, _rgba(mark_color))
+    return _done(img, size)
+
+
+def bare_mark(t, color, size=SIZE):
+    img, d = _canvas(size)
+    _mark(d, size / 2, size / 2, t, _rgba(color))
+    return _done(img, size)
+
+
+def _svg() -> str:
+    t, c = SPLASH_TILE, SIZE / 2
+    r, w = RING_R * t, STROKE * t
+    parts = [
+        f'<rect x="{c - t / 2}" y="{c - t / 2}" width="{t}" height="{t}" '
+        f'rx="{CORNER * t}" fill="{ACCENT}"/>'
+    ]
+    for i in range(3):
+        a0 = math.radians(ARC_START + i * 120)
+        a1 = math.radians(ARC_START + i * 120 + ARC_SWEEP)
+        x0, y0 = c + r * math.cos(a0), c + r * math.sin(a0)
+        x1, y1 = c + r * math.cos(a1), c + r * math.sin(a1)
+        parts.append(
+            f'<path d="M{x0:.1f},{y0:.1f} A{r},{r} 0 0 1 {x1:.1f},{y1:.1f}" '
+            f'fill="none" stroke="{WHITE}" stroke-width="{w}" stroke-linecap="round"/>'
         )
+    pts = " L".join(f"{c + dx * t:.1f},{c + dy * t:.1f}" for dx, dy in CHECK)
+    parts.append(
+        f'<path d="M{pts}" fill="none" stroke="{WHITE}" stroke-width="{w}" '
+        'stroke-linecap="round" stroke-linejoin="round"/>'
+    )
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" '
-        f'viewBox="0 0 {SIZE} {SIZE}">{body}</svg>\n'
+        f'viewBox="0 0 {SIZE} {SIZE}">{"".join(parts)}</svg>\n'
     )
 
 
 def main() -> None:
-    variants = {
-        # Adaptive foreground (background color is set in config).
-        "icon_foreground": (ACCENT, PAPER, INK, None),
-        # Dark splash: dark-theme accent and light rings so they stay visible.
-        "icon_foreground_dark": (ACCENT_DARK, PAPER_DARK, INK_DARK, None),
-    }
-    for name, (a, c, r, bg) in variants.items():
-        colored_mark(a, c, r, bg).save(OUT / f"{name}.png", optimize=True)
-        (SRC / f"{name}.svg").write_text(_svg_mark(a, c, r, bg))
+    # Adaptive icon (Android 8+): accent background (set in config) and a
+    # white mark sized to stay inside the launcher's safe circle (r ~313).
+    adaptive_t = 760
+    bare_mark(adaptive_t, WHITE).save(OUT / "icon_foreground.png", optimize=True)
+    # Themed icon (Android 13+): same shapes, white; the system tints it.
+    bare_mark(adaptive_t, WHITE).save(OUT / "icon_monochrome.png", optimize=True)
 
-    # Legacy full icon (Android 7): no launcher mask, so the mark can be
-    # larger. Scale the foreground up around the center and put it on paper.
-    big = colored_mark(ACCENT, PAPER, INK).resize(
-        (int(SIZE * LEGACY_SCALE),) * 2, Image.Resampling.LANCZOS
-    )
-    off = (SIZE - big.width) // 2
-    full = Image.new("RGBA", (SIZE, SIZE), _rgba(PAPER))
-    full.alpha_composite(big.crop((-off, -off, -off + SIZE, -off + SIZE)))
-    full.save(OUT / "icon.png", optimize=True)
+    # Legacy icon (Android 7): the whole tile, edge to edge.
+    tile(SIZE, ACCENT, WHITE).save(OUT / "icon.png", optimize=True)
 
-    # Themed icon (Android 13+): white, check cut out.
-    white_cutout(SIZE, (CX, CY), R, CHECK, CHECK_W, RINGS).save(
-        OUT / "icon_monochrome.png", optimize=True
+    # Native splash: the tile at 96 dp, light and dark.
+    tile(SPLASH_TILE, ACCENT, WHITE).save(OUT / "splash.png", optimize=True)
+    tile(SPLASH_TILE, ACCENT_DARK, PAGE_DARK).save(
+        OUT / "splash_dark.png", optimize=True
     )
-    # Notification: bold done circle only, white, check cut out.
-    white_cutout(N_SIZE, (N_C, N_C), N_R, N_CHECK, N_CHECK_W).save(
-        OUT / "notification.png", optimize=True
-    )
+
+    # Notification icon: white mark on 96 px, as large as fits.
+    bare_mark(128, WHITE, size=96).save(OUT / "notification.png", optimize=True)
+
+    for old in ("icon_foreground_dark.png",):
+        (OUT / old).unlink(missing_ok=True)
+    for old in SRC.glob("*.svg"):
+        old.unlink()
+    (SRC / "mark.svg").write_text(_svg())
     print("Wrote icon set to", OUT)
 
 

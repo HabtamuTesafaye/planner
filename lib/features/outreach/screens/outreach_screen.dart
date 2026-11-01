@@ -42,7 +42,13 @@ class OutreachScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _open(BuildContext context, WidgetRef ref, [Contact? c]) async {
+  /// Add (or edit [c]) a contact in the current space. Also used by the
+  /// quick actions on Today.
+  static Future<void> openContact(
+    BuildContext context,
+    WidgetRef ref, [
+    Contact? c,
+  ]) async {
     final space = ref.read(currentSpaceProvider);
     if (space == null) return;
     await showAppSheet<bool>(
@@ -95,7 +101,7 @@ class OutreachScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         // Every tab stays alive, so each button needs its own hero tag.
         heroTag: 'fab-outreach',
-        onPressed: () => _open(context, ref),
+        onPressed: () => openContact(context, ref),
         icon: const Icon(Symbols.add),
         label: const Text('Add contact'),
       ),
@@ -139,7 +145,7 @@ class OutreachScreen extends ConsumerWidget {
                 contact: c,
                 today: today,
                 ownerName: isTeam ? names[c.ownerId] : null,
-                onOpen: () => _open(context, ref, c),
+                onOpen: () => openContact(context, ref, c),
                 onStatus: () async {
                   final s = await pickStatus(context, c.status);
                   if (s != null && context.mounted) {
@@ -169,7 +175,7 @@ class OutreachScreen extends ConsumerWidget {
                 message: 'No contacts yet.',
                 detail: 'Add the first business you message.',
                 actionLabel: 'Add contact',
-                onAction: () => _open(context, ref),
+                onAction: () => openContact(context, ref),
               ),
             ],
             AsyncValue(hasValue: true) when list.isEmpty => [

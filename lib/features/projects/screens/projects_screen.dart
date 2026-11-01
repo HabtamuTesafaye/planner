@@ -24,14 +24,25 @@ class ProjectsScreen extends ConsumerWidget {
 
   static String path(String id) => '/projects/$id';
 
-  Future<void> _new(BuildContext context, WidgetRef ref) async {
+  /// New project in the current space, then open it. Also used by the
+  /// quick actions on Today, which pass [fromOtherTab] to switch tabs.
+  static Future<void> startNew(
+    BuildContext context,
+    WidgetRef ref, {
+    bool fromOtherTab = false,
+  }) async {
     final space = ref.read(currentSpaceProvider);
     if (space == null) return;
     final id = await showAppSheet<String>(
       context,
       NewProjectSheet(spaceId: space.id),
     );
-    if (id != null && context.mounted) await context.push(path(id));
+    if (id == null || !context.mounted) return;
+    if (fromOtherTab) {
+      context.go(path(id));
+    } else {
+      await context.push(path(id));
+    }
   }
 
   @override
@@ -57,7 +68,7 @@ class ProjectsScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         // Every tab stays alive, so each button needs its own hero tag.
         heroTag: 'fab-projects',
-        onPressed: () => _new(context, ref),
+        onPressed: () => startNew(context, ref),
         icon: const Icon(Symbols.add),
         label: const Text('New project'),
       ),
@@ -77,7 +88,7 @@ class ProjectsScreen extends ConsumerWidget {
                 message: 'No projects yet.',
                 detail: 'Start one from a template and keep its steps here.',
                 actionLabel: 'New project',
-                onAction: () => _new(context, ref),
+                onAction: () => startNew(context, ref),
               ),
             ],
             AsyncValue(hasValue: true, :final value?) => [

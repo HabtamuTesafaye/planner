@@ -36,14 +36,6 @@ flutter:
   # Bundled fonts (OFL). If a file is missing, Flutter falls back to the
   # system font for that family without crashing.
   fonts:
-    - family: Fraunces
-      fonts:
-        - asset: assets/fonts/Fraunces-400.ttf
-          weight: 400
-        - asset: assets/fonts/Fraunces-500.ttf
-          weight: 500
-        - asset: assets/fonts/Fraunces-600.ttf
-          weight: 600
     - family: Manrope
       fonts:
         - asset: assets/fonts/Manrope-400.ttf

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/theme/app_decor.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/theme_context.dart';
@@ -45,11 +46,7 @@ class InviteCodeCard extends StatelessWidget {
         AppSpacing.xs,
         AppSpacing.md,
       ),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppRadius.controlAll,
-        border: Border.all(color: colors.divider),
-      ),
+      decoration: AppDecor.card(colors),
       child: Row(
         children: [
           Expanded(

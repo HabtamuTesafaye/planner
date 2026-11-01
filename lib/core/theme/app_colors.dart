@@ -22,6 +22,12 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.success,
     required this.successSoft,
     required this.activity,
+    required this.shadow,
+    required this.cardEdge,
+    required this.teal,
+    required this.tealSoft,
+    required this.amber,
+    required this.amberSoft,
   });
 
   /// Page background.
@@ -73,6 +79,20 @@ class AppColors extends ThemeExtension<AppColors> {
   /// surface in each theme). Zero uses [surfaceSunken].
   final List<Color> activity;
 
+  /// Soft shadow under cards (light theme only; dark uses [cardEdge]).
+  final Color shadow;
+
+  /// Hairline around cards: invisible in light (the shadow lifts them),
+  /// a divider line in dark where shadows don't show.
+  final Color cardEdge;
+
+  /// Extra hues for the round quick actions on Today, so each action is
+  /// recognisable at a glance. Icon color on its soft wash (3:1 or more).
+  final Color teal;
+  final Color tealSoft;
+  final Color amber;
+  final Color amberSoft;
+
   static const AppColors light = AppColors(
     background: Color(0xFFF3F1EC),
     surface: Color(0xFFFFFFFF),
@@ -89,6 +109,12 @@ class AppColors extends ThemeExtension<AppColors> {
     success: Color(0xFF2A7046),
     successSoft: Color(0xFFE2F0E7),
     activity: [Color(0xFF86C09E), Color(0xFF4C9A6C), Color(0xFF2A7046)],
+    shadow: Color(0x101B2430),
+    cardEdge: Color(0x00FFFFFF),
+    teal: Color(0xFF1D6670),
+    tealSoft: Color(0xFFDCEEEF),
+    amber: Color(0xFF85570A),
+    amberSoft: Color(0xFFF6EAD2),
   );
 
   static const AppColors dark = AppColors(
@@ -107,6 +133,12 @@ class AppColors extends ThemeExtension<AppColors> {
     success: Color(0xFF5BB27F),
     successSoft: Color(0xFF1C2E23),
     activity: [Color(0xFF2C5640), Color(0xFF3F8A5E), Color(0xFF6CC392)],
+    shadow: Color(0x00000000),
+    cardEdge: Color(0xFF272C34),
+    teal: Color(0xFF72C6CE),
+    tealSoft: Color(0xFF172E32),
+    amber: Color(0xFFE3B462),
+    amberSoft: Color(0xFF332818),
   );
 
   @override
@@ -126,6 +158,12 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? success,
     Color? successSoft,
     List<Color>? activity,
+    Color? shadow,
+    Color? cardEdge,
+    Color? teal,
+    Color? tealSoft,
+    Color? amber,
+    Color? amberSoft,
   }) {
     return AppColors(
       background: background ?? this.background,
@@ -143,6 +181,12 @@ class AppColors extends ThemeExtension<AppColors> {
       success: success ?? this.success,
       successSoft: successSoft ?? this.successSoft,
       activity: activity ?? this.activity,
+      shadow: shadow ?? this.shadow,
+      cardEdge: cardEdge ?? this.cardEdge,
+      teal: teal ?? this.teal,
+      tealSoft: tealSoft ?? this.tealSoft,
+      amber: amber ?? this.amber,
+      amberSoft: amberSoft ?? this.amberSoft,
     );
   }
 
@@ -169,6 +213,12 @@ class AppColors extends ThemeExtension<AppColors> {
         for (var i = 0; i < activity.length; i++)
           l(activity[i], other.activity[i]),
       ],
+      shadow: l(shadow, other.shadow),
+      cardEdge: l(cardEdge, other.cardEdge),
+      teal: l(teal, other.teal),
+      tealSoft: l(tealSoft, other.tealSoft),
+      amber: l(amber, other.amber),
+      amberSoft: l(amberSoft, other.amberSoft),
     );
   }
 }

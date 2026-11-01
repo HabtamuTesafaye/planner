@@ -38,7 +38,9 @@ class MoneyScreen extends ConsumerWidget {
       ..showSnackBar(SnackBar(content: Text(text), action: action));
   }
 
-  Future<void> _addIncome(BuildContext context, WidgetRef ref) async {
+  /// Add an income entry to the current space. Also used by the quick
+  /// actions on Today.
+  static Future<void> addIncome(BuildContext context, WidgetRef ref) async {
     final space = ref.read(currentSpaceProvider);
     if (space == null) return;
     await showAppSheet<void>(
@@ -151,7 +153,7 @@ class MoneyScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         // Every tab stays alive, so each button needs its own hero tag.
         heroTag: 'fab-money',
-        onPressed: () => _addIncome(context, ref),
+        onPressed: () => addIncome(context, ref),
         icon: const Icon(Symbols.add),
         label: const Text('Add income'),
       ),
@@ -209,7 +211,7 @@ class MoneyScreen extends ConsumerWidget {
                 message: 'No income logged this month.',
                 detail: 'Entries you add count toward the monthly target.',
                 actionLabel: 'Add income',
-                onAction: () => _addIncome(context, ref),
+                onAction: () => addIncome(context, ref),
               ),
           ],
         ],
