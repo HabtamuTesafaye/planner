@@ -74,7 +74,11 @@ class SkeletonList extends StatelessWidget {
             if (i > 0) const SizedBox(height: AppSpacing.lg),
             Row(
               children: [
-                const Skeleton(width: 26, height: 26, radius: 13),
+                const Skeleton(
+                  width: AppSizes.checkCircle,
+                  height: AppSizes.checkCircle,
+                  radius: AppSizes.checkCircle / 2,
+                ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: FractionallySizedBox(

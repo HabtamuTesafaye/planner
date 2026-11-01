@@ -29,8 +29,10 @@ class PrimaryButton extends StatelessWidget {
                   key: const ValueKey('loading'),
                   label: '$label, working',
                   child: const SizedBox.square(
-                    dimension: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    dimension: AppSizes.inlineSpinner,
+                    child: CircularProgressIndicator(
+                      strokeWidth: AppSizes.inlineSpinnerStroke,
+                    ),
                   ),
                 )
               : Text(label, key: const ValueKey('label')),

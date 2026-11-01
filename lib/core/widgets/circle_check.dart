@@ -27,7 +27,7 @@ class CircleCheck extends StatelessWidget {
   /// What is being checked, for screen readers (for example the task title).
   final String label;
 
-  static const double _size = 26;
+  static const double _size = AppSizes.checkCircle;
 
   /// Light haptic on completing (a small reward), a softer tick on undo.
   /// Follows the system "touch feedback" setting.
@@ -68,7 +68,10 @@ class CircleCheck extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: value ? colors.success : Colors.transparent,
-                border: Border.all(color: borderColor, width: 1.5),
+                border: Border.all(
+                  color: borderColor,
+                  width: AppSizes.ringStroke,
+                ),
               ),
               child: AnimatedSwitcher(
                 duration: AppDurations.normal,
@@ -78,7 +81,7 @@ class CircleCheck extends StatelessWidget {
                     ? Icon(
                         Symbols.check,
                         key: const ValueKey('checked'),
-                        size: 18,
+                        size: AppSizes.checkMark,
                         weight: 600,
                         color: colors.surface,
                       )

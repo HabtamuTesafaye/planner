@@ -316,6 +316,7 @@ After each phase: summarize what changed, tell me exactly how to test it on my p
 - Do not disable RLS, use the `service_role` key in the app, or write security logic only on the client.
 - Do not swallow errors silently or show raw exception text to the user.
 - Do not hardcode colors, sizes or fonts inside screens; use the theme tokens.
+- No raw numbers in widgets: every size, gap, radius, stroke and duration comes from a named token (`AppSpacing`, `AppSizes`, `AppRadius`, `AppDurations`, `AppTextStyles`). If a new size is needed, add a token first. Sizes are in dp (density-independent); layouts stay flexible (`Expanded`, `Flexible`, `Wrap`, `FractionallySizedBox`, max width 600 dp). Fixed dp is right for touch targets (min 48 dp) and icons; proportions are right for layout.
 - Do not use deprecated APIs. Fix analyzer warnings instead of ignoring them.
 - Do not start the next phase before I approve the current one.
 

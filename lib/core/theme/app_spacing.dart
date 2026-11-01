@@ -43,6 +43,33 @@ abstract final class AppSizes {
 
   /// Thin progress bar height.
   static const double progressBar = 6;
+
+  /// Visible circle of the task checkbox (its tap area is [touchTarget]).
+  static const double checkCircle = 26;
+
+  /// Check mark inside [checkCircle].
+  static const double checkMark = 18;
+
+  /// Outline width for rings and the checkbox.
+  static const double ringStroke = 1.5;
+
+  /// Small progress ring (Today's three slots).
+  static const double progressDot = 12;
+
+  /// Tiny inline icon next to label text (for example a space tag).
+  static const double tagIcon = 14;
+
+  /// Minimum height of a list row with a checkbox.
+  static const double rowMinHeight = 64;
+
+  /// Spinner inside a button while it works.
+  static const double inlineSpinner = 20;
+  static const double inlineSpinnerStroke = 2;
+
+  /// App mark sizes: small (Welcome header) and large (launch, matches the
+  /// native splash).
+  static const double brandMarkSmall = 56;
+  static const double brandMarkLarge = 96;
 }
 
 /// Animation durations (max 250 ms).

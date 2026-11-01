@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_motion.dart';
+import '../theme/app_spacing.dart';
 import '../theme/theme_context.dart';
 
 /// The app mark: a filled circle with a check (one task done) above three
@@ -13,7 +14,11 @@ import '../theme/theme_context.dart';
 /// drawn, then the rings appear one by one. Each piece moves for about
 /// 250 ms; the whole reveal takes 700 ms.
 class BrandMark extends StatelessWidget {
-  const BrandMark({this.size = 96, this.animate = false, super.key});
+  const BrandMark({
+    this.size = AppSizes.brandMarkLarge,
+    this.animate = false,
+    super.key,
+  });
 
   final double size;
   final bool animate;

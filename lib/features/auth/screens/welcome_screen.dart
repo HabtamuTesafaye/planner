@@ -43,7 +43,10 @@ class WelcomeScreen extends StatelessWidget {
                         const SizedBox(height: AppSpacing.xl),
                         const Align(
                           alignment: Alignment.centerLeft,
-                          child: BrandMark(size: 56, animate: true),
+                          child: BrandMark(
+                            size: AppSizes.brandMarkSmall,
+                            animate: true,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.xl),
                         FadeSlideIn(

@@ -122,7 +122,7 @@ class _NewSpaceScreenState extends ConsumerState<NewSpaceScreen> {
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _submit(),
                     style: const TextStyle(
-                      letterSpacing: 2,
+                      letterSpacing: AppTextStyles.codeTracking,
                       fontFeatures: AppTextStyles.tabular,
                     ),
                     decoration: const InputDecoration(

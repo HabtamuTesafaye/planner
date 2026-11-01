@@ -12,6 +12,10 @@ abstract final class AppTextStyles {
 
   static const List<FontFeature> tabular = [FontFeature.tabularFigures()];
 
+  /// Extra letter spacing for codes (invite codes): easier to read out.
+  static const double codeTracking = 2;
+  static const double codeTrackingLarge = 3;
+
   static TextStyle _serif(double size, FontWeight weight, double height) {
     return TextStyle(
       fontFamily: serif,

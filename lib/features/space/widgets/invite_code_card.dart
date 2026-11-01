@@ -48,7 +48,7 @@ class InviteCodeCard extends StatelessWidget {
                   child: Text(
                     JoinCode.display(code),
                     style: context.text.headlineSmall!.copyWith(
-                      letterSpacing: 3,
+                      letterSpacing: AppTextStyles.codeTrackingLarge,
                       fontFeatures: AppTextStyles.tabular,
                     ),
                   ),
