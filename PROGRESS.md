@@ -27,6 +27,8 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Welcome: mark draws itself, then a staggered heading, 3 points and buttons. Auth pages ease in. Team setup cross-fades between forms. Splash: centered mark matching the native splash, "Getting your team ready…" after 1.5 s, error with retry.
 - Motion rules written into AGENTS.md section 7 ("Motion"). Tests in `test/core/widgets/motion_test.dart` (reduce motion, ≤250 ms, hidden tabs not tappable or readable).
 - Notification icon (`assets/icon/notification.png`) still to wire in Phase 7.
+- Bug fixed: tabs overlapped after switching, because TickerMode wrapped the fade and froze it. TickerMode now wraps only the tab content; a regression test checks old tab opacity reaches 0.
+- Welcome: the 3-point list was replaced with `TodayPreview`, a live example card (first task ticks itself after 1.4 s; circles tappable) to fill the empty space on tall phones.
 
 ## Phase 2 (auth and team) done
 - `lib/data/`: `supabase_client.dart` (init + client provider), `app_exception.dart` (the ONE place errors become friendly messages), models `Profile`, `Team`, `TeamMember`, repositories `AuthRepository`, `TeamRepository`, `ProfileRepository`.
