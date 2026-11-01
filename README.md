@@ -1,53 +1,85 @@
-# Planner build brief
+# Planner
 
-A step-by-step brief for building the team planner app (Flutter + Supabase) with an AI coding agent.
+A calm daily planner for a two-person founding team: three tasks a day, a goal of the week, a shared outreach pipeline, monthly income against a target, and a weekly review. Android only. Flutter + Supabase.
 
-## What is in this folder
+The build brief lives in `AGENTS.md` (product, stack, design, rules) and `phases/` (one file per phase). Progress is tracked in `PROGRESS.md`.
 
-| File | Purpose |
-|---|---|
-| `CLAUDE.md` | Tells Claude Code to load `AGENTS.md` (Codex reads `AGENTS.md` directly). |
-| `PROGRESS.md` | Live status so Claude Code and Codex can hand over to each other without losing track. |
-| `docs/TOOLS.md` | Which skills to install and the exact commands, rules for skills, and how to switch between Claude Code and Codex. |
-| `AGENTS.md` | The permanent reference: product scope, stack and libraries, compatibility, Supabase schema and security, design system, rules. |
-| `phases/00-foundation.md` | Project, theme, shared widgets, navigation shell |
-| `phases/01-backend.md` | Supabase tables, security (RLS), functions, tests |
-| `phases/02-auth-and-team.md` | Sign up, sign in, create and join a team |
-| `phases/03-today.md` | Daily tasks (max 3) and weekly goal |
-| `phases/04-outreach.md` | Shared contact pipeline and follow-ups |
-| `phases/05-money.md` | Monthly income against a target |
-| `phases/06-team-and-review.md` | Team progress and weekly review |
-| `phases/07-polish-and-release.md` | Offline handling, reminders, accessibility, release APK |
+## Requirements
 
-Each phase file has: objective, tasks, do and do-not lists, a done-when test, and what the agent must report back.
+- Flutter stable (built with 3.47.9 / Dart 3.13.7)
+- Android SDK 36, a phone or emulator on Android 7.0 (API 24) or newer
+- Node.js (only for `npx supabase` and the agent skills)
 
-## How to use it
+## Run it
 
-1. Create a new Flutter project folder and put `AGENTS.md` and the `phases/` folder in the root.
-2. Download the fonts Fraunces and Manrope from Google Fonts and put the files in `assets/fonts/`.
-3. Create a free Supabase project named `planner-staging` (needed from Phase 1).
-4. Run `git init` and commit these files so the first commit is the brief itself.
-5. Give your coding agent this message to start (it will ask your permission before installing the skills in `docs/TOOLS.md`):
+1. Get packages:
+   ```
+   flutter pub get
+   ```
+2. Create your env file from the example. It is git-ignored, so it never gets committed:
+   ```
+   cp env/example.json env/staging.json
+   ```
+   Fill in `SUPABASE_URL` and `SUPABASE_ANON_KEY` from the Supabase dashboard (Project Settings → API). Only the **anon** key goes here. Never use the `service_role` key in the app or the repo.
+3. Run on a connected phone:
+   ```
+   flutter run --dart-define-from-file=env/staging.json
+   ```
 
-   > Read AGENTS.md fully. Then do `phases/00-foundation.md` only. Follow it exactly and stop when it asks you to report back.
+If you run without `--dart-define-from-file`, the app shows a **Setup needed** screen explaining what is missing instead of crashing.
 
-6. Test the result on your phone. If it is good, send the next message:
+Until the Supabase project exists (Phase 1), you can run with the example file to see the UI:
+```
+flutter run --dart-define-from-file=env/example.json
+```
 
-   > Phase 0 is approved. Now do `phases/01-backend.md` only. Stop when it asks you to report back.
+## Checks
 
-   Repeat with the next file each time. If something is wrong, tell the agent exactly what to fix before moving on.
+```
+flutter analyze   # must report no issues
+flutter test      # includes the WCAG contrast test for every color pair
+```
 
-## Tips
+## Fonts
 
-- One phase at a time. Do not let the agent skip ahead.
-- Commit to git after every approved phase.
-- Phases 0 to 3 already give you a usable app. Phases 4 to 7 can follow when you have time.
-- Never paste your Supabase `service_role` key anywhere. The app only uses the URL and the anon key.
+Fraunces (headings, dates, big numbers) and Manrope (everything else) are bundled in `assets/fonts/` as static TTFs from Google Fonts, under the SIL Open Font License (license files are next to the fonts). Nothing is downloaded at runtime.
 
-## If you hit your Claude Code limit
+## Design notes
 
-Open the project in Codex and send:
+- All colors, spacing, radii and type live in `lib/core/theme/`. Screens read them via `context.colors` and `context.text`.
+- Palette: stormy blue accent (`#2E4A6B` light, `#8EB0D6` dark) on soft beige-gray (`#F3F1EC` light, `#121519` dark), with a warm clay **attention** color (`#A9431A` / `#F0905F`) for overdue items and errors. Full table in `AGENTS.md` section 7.
+- Every text pair passes WCAG AA (4.5:1) and every border and icon passes 3:1 in both themes. `test/core/theme/contrast_test.dart` checks this, so a color change that breaks contrast fails the tests.
+- Font scaling is honored up to 1.5x.
 
-> Read AGENTS.md, then PROGRESS.md, then the current phase file it points to. Continue from the next step. Commit as you go and update PROGRESS.md before you stop.
+## App icon
 
-Details are in `docs/TOOLS.md`. This only works if the agent keeps committing and keeps `PROGRESS.md` current, which the brief tells it to do.
+The icon set lives in `assets/icon/`. It is drawn by `assets/icon/src/make_icons.py` (Pillow only) from one set of shapes: a filled blue circle with a check (one task done) above three empty rings (three tasks a day). To change colors or shapes, edit the constants at the top of the script and run:
+```
+python3 assets/icon/src/make_icons.py
+```
+It is wired into the launcher and splash in Phase 7.
+
+## Release signing (not committed)
+
+Release builds read `android/key.properties`, which is git-ignored. Without it, release builds are signed with the debug key so `flutter run --release` works locally. The full release steps come in Phase 7. In short:
+
+1. Create a keystore outside the repo:
+   ```
+   keytool -genkey -v -keystore ~/keys/planner-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias planner
+   ```
+2. Create `android/key.properties`:
+   ```
+   storePassword=...
+   keyPassword=...
+   keyAlias=planner
+   storeFile=/home/you/keys/planner-release.jks
+   ```
+3. Back up the keystore and passwords somewhere safe. If you lose them, you can't ship updates to the same app.
+
+## Supabase
+
+Setup steps (migrations, email confirmation, keys, the free-plan 7-day pause and how to restore) are added in Phase 1.
+
+## Agent skills
+
+Installed per `docs/TOOLS.md` into `.agents/skills/` (Codex) with symlinks in `.claude/skills/` (Claude Code). `AGENTS.md` overrides any skill advice.

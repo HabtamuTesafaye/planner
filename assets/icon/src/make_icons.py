@@ -16,10 +16,12 @@ from PIL import Image, ImageDraw
 OUT = Path(__file__).resolve().parent.parent
 SRC = OUT / "src"
 
-ACCENT = "#D9480F"
-PAPER = "#F6F3EE"
-INK = "#1A1A1A"
-INK_DARK = "#F2EEE8"
+ACCENT = "#2E4A6B"
+PAPER = "#F3F1EC"
+INK = "#1B2430"
+INK_DARK = "#ECEEF1"
+ACCENT_DARK = "#8EB0D6"
+PAPER_DARK = "#121519"
 WHITE = "#FFFFFF"
 
 # Geometry on a 1024 canvas. The whole mark fits inside the adaptive-icon
@@ -121,8 +123,8 @@ def main() -> None:
     variants = {
         # Adaptive foreground (background color is set in config).
         "icon_foreground": (ACCENT, PAPER, INK, None),
-        # Dark splash: rings in light ink so they stay visible.
-        "icon_foreground_dark": (ACCENT, PAPER, INK_DARK, None),
+        # Dark splash: dark-theme accent and light rings so they stay visible.
+        "icon_foreground_dark": (ACCENT_DARK, PAPER_DARK, INK_DARK, None),
     }
     for name, (a, c, r, bg) in variants.items():
         colored_mark(a, c, r, bg).save(OUT / f"{name}.png", optimize=True)

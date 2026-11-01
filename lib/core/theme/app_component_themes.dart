@@ -107,13 +107,13 @@ class AppComponentThemes {
       enabledBorder: border(c.border),
       disabledBorder: border(c.divider),
       focusedBorder: border(c.accentText, 1.5),
-      errorBorder: border(c.accentText),
-      focusedErrorBorder: border(c.accentText, 1.5),
+      errorBorder: border(c.attention),
+      focusedErrorBorder: border(c.attention, 1.5),
       labelStyle: text.bodyMedium!.copyWith(color: c.muted),
       floatingLabelStyle: text.labelMedium!.copyWith(color: c.text),
       hintStyle: text.bodyMedium!.copyWith(color: c.muted),
       helperStyle: text.bodySmall,
-      errorStyle: text.bodySmall!.copyWith(color: c.accentText),
+      errorStyle: text.bodySmall!.copyWith(color: c.attention),
       helperMaxLines: 2,
       errorMaxLines: 3,
     );
@@ -151,8 +151,7 @@ class AppComponentThemes {
     behavior: SnackBarBehavior.floating,
     backgroundColor: c.text,
     contentTextStyle: text.bodyMedium!.copyWith(color: c.background),
-    // The dark-theme accent reads well on the light-on-dark snackbar and
-    // vice versa.
+    // The snackbar is inverted, so it uses the other theme's accent.
     actionTextColor: c == AppColors.light
         ? AppColors.dark.accentText
         : AppColors.light.accentText,

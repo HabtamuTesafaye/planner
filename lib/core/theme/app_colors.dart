@@ -18,6 +18,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.accentText,
     required this.onAccent,
     required this.accentSoft,
+    required this.attention,
     required this.success,
     required this.successSoft,
   });
@@ -43,12 +44,12 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Input and outlined button borders (stronger than [divider]).
   final Color border;
 
-  /// Brand accent for non-text use: icons, indicators, progress (3:1 rule).
+  /// Stormy blue brand accent: primary actions, active tab, indicators.
   final Color accent;
 
-  /// Accent for text and filled buttons. In light mode the brand accent
-  /// `#D9480F` is only 3.9:1 on the background, so text uses a slightly
-  /// deeper shade that passes WCAG AA (4.5:1). In dark mode it equals [accent].
+  /// Accent used for text and filled buttons. Equal to [accent] in this
+  /// palette (both pass WCAG AA); kept separate so the brand color can
+  /// change without breaking text contrast.
   final Color accentText;
 
   /// Text and icons placed on an [accentText] fill.
@@ -57,6 +58,9 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Very light accent wash: selected chips, nav indicator.
   final Color accentSoft;
 
+  /// Warm clay for things that need attention: overdue follow-ups, errors.
+  final Color attention;
+
   /// Completed state.
   final Color success;
 
@@ -64,33 +68,35 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color successSoft;
 
   static const AppColors light = AppColors(
-    background: Color(0xFFF6F3EE),
+    background: Color(0xFFF3F1EC),
     surface: Color(0xFFFFFFFF),
-    surfaceSunken: Color(0xFFEDE8E0),
-    text: Color(0xFF1A1A1A),
-    muted: Color(0xFF6B665E),
-    divider: Color(0xFFE4DED4),
-    border: Color(0xFFCFC7BA),
-    accent: Color(0xFFD9480F),
-    accentText: Color(0xFFBC3E0B),
+    surfaceSunken: Color(0xFFE9E6DF),
+    text: Color(0xFF1B2430),
+    muted: Color(0xFF5D6570),
+    divider: Color(0xFFE2DFD8),
+    border: Color(0xFF828993),
+    accent: Color(0xFF2E4A6B),
+    accentText: Color(0xFF2E4A6B),
     onAccent: Color(0xFFFFFFFF),
-    accentSoft: Color(0xFFFBE6DC),
-    success: Color(0xFF2F7D4F),
+    accentSoft: Color(0xFFE1E8F0),
+    attention: Color(0xFFA9431A),
+    success: Color(0xFF2A7046),
     successSoft: Color(0xFFE2F0E7),
   );
 
   static const AppColors dark = AppColors(
-    background: Color(0xFF141311),
-    surface: Color(0xFF1D1B19),
-    surfaceSunken: Color(0xFF262320),
-    text: Color(0xFFF2EEE8),
-    muted: Color(0xFFA39D93),
-    divider: Color(0xFF2E2B27),
-    border: Color(0xFF45403A),
-    accent: Color(0xFFF26B38),
-    accentText: Color(0xFFF26B38),
-    onAccent: Color(0xFF141311),
-    accentSoft: Color(0xFF3A231A),
+    background: Color(0xFF121519),
+    surface: Color(0xFF1A1E24),
+    surfaceSunken: Color(0xFF232830),
+    text: Color(0xFFECEEF1),
+    muted: Color(0xFF9BA4AF),
+    divider: Color(0xFF272C34),
+    border: Color(0xFF6B7380),
+    accent: Color(0xFF8EB0D6),
+    accentText: Color(0xFF8EB0D6),
+    onAccent: Color(0xFF121519),
+    accentSoft: Color(0xFF1F2C3C),
+    attention: Color(0xFFF0905F),
     success: Color(0xFF5BB27F),
     successSoft: Color(0xFF1C2E23),
   );
@@ -108,6 +114,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? accentText,
     Color? onAccent,
     Color? accentSoft,
+    Color? attention,
     Color? success,
     Color? successSoft,
   }) {
@@ -123,6 +130,7 @@ class AppColors extends ThemeExtension<AppColors> {
       accentText: accentText ?? this.accentText,
       onAccent: onAccent ?? this.onAccent,
       accentSoft: accentSoft ?? this.accentSoft,
+      attention: attention ?? this.attention,
       success: success ?? this.success,
       successSoft: successSoft ?? this.successSoft,
     );
@@ -144,6 +152,7 @@ class AppColors extends ThemeExtension<AppColors> {
       accentText: l(accentText, other.accentText),
       onAccent: l(onAccent, other.onAccent),
       accentSoft: l(accentSoft, other.accentSoft),
+      attention: l(attention, other.attention),
       success: l(success, other.success),
       successSoft: l(successSoft, other.successSoft),
     );

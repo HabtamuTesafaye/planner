@@ -37,6 +37,10 @@ void main() {
         'accentText on background': (c.accentText, c.background),
         'accentText on surface': (c.accentText, c.surface),
         'onAccent on accentText (filled button)': (c.onAccent, c.accentText),
+        'attention on background': (c.attention, c.background),
+        'attention on surface': (c.attention, c.surface),
+        'attention on surfaceSunken': (c.attention, c.surfaceSunken),
+        'surface on attention (error fill)': (c.surface, c.attention),
         'success on background': (c.success, c.background),
         'success on surface': (c.success, c.surface),
         // Snackbar: inverted colors.
@@ -59,6 +63,8 @@ void main() {
         'accent on background': (c.accent, c.background),
         'accent on surface': (c.accent, c.surface),
         'success check on surface': (c.success, c.surface),
+        'input border on surface': (c.border, c.surface),
+        'input border on background': (c.border, c.background),
       };
       pairs.forEach((label, pair) {
         test(label, () {

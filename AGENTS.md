@@ -165,7 +165,7 @@ Bottom tabs: **Today, Outreach, Money, Team**.
 
 **Outreach**
 - Filter by status (`SegmentedButton` or chips) and "Mine / Everyone".
-- Sorted with overdue follow-ups first, shown in the accent color with "3 days overdue".
+- Sorted with overdue follow-ups first, shown in the attention color with "3 days overdue".
 - Add and edit in a bottom sheet. Quick status change from the list. Mark "followed up today" in one tap (sets next follow-up with a date picker).
 
 **Money**
@@ -184,21 +184,27 @@ Bottom tabs: **Today, Outreach, Money, Team**.
 
 ## 7. Design system
 
-Feel: a calm paper planner. Editorial, warm, spacious. Not a startup dashboard.
+Feel: a calm, reliable planner. Stormy blue on soft beige-gray: trustworthy, secure, quiet. Editorial and spacious. Not a startup dashboard.
 
 ### Tokens (define once in `lib/core/theme/`)
 
 | Token | Light | Dark |
 |---|---|---|
-| Background | `#F6F3EE` | `#141311` |
-| Surface | `#FFFFFF` | `#1D1B19` |
-| Text | `#1A1A1A` | `#F2EEE8` |
-| Muted text | `#6B665E` | `#A39D93` |
-| Divider | `#E4DED4` | `#2E2B27` |
-| Accent (primary actions, overdue, active tab) | `#D9480F` | `#F26B38` |
-| Success (completed) | `#2F7D4F` | `#5BB27F` |
+| Background (soft beige-gray) | `#F3F1EC` | `#121519` |
+| Surface | `#FFFFFF` | `#1A1E24` |
+| Sunken surface (skeletons, tracks) | `#E9E6DF` | `#232830` |
+| Text | `#1B2430` | `#ECEEF1` |
+| Muted text | `#5D6570` | `#9BA4AF` |
+| Divider | `#E2DFD8` | `#272C34` |
+| Border (inputs, outlined buttons) | `#828993` | `#6B7380` |
+| Accent, stormy blue (primary actions, active tab, links) | `#2E4A6B` | `#8EB0D6` |
+| Accent soft (selected chip, nav indicator) | `#E1E8F0` | `#1F2C3C` |
+| Attention, warm clay (overdue, errors) | `#A9431A` | `#F0905F` |
+| Success (completed) | `#2A7046` | `#5BB27F` |
 
-Check text contrast (WCAG AA, 4.5:1) for every text and background pair, including the accent on both themes.
+Text on the accent uses white in light mode and `#121519` in dark mode.
+
+Check text contrast (WCAG AA, 4.5:1) for every text and background pair, including the accent and attention colors on both themes, and 3:1 for borders and icons. `test/core/theme/contrast_test.dart` enforces this.
 
 - Spacing scale: 4, 8, 12, 16, 24, 32. Corner radius: 12 for inputs and buttons, 16 for sheets. No heavy shadows; use dividers and surface color instead.
 - Type scale: Fraunces for display (date, big numbers, screen titles). Manrope for body 15 to 16, labels 13, with real hierarchy. Numbers use tabular figures.

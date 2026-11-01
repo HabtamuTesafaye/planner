@@ -10,7 +10,7 @@ Phase 3 approved.
 1. Models and repository: `Contact`, `ContactsRepository` (stream for the team, add, update, delete, change status, set follow-up).
 2. Outreach screen:
    - Filter by status and by "Mine / Everyone".
-   - Sorted with overdue follow-ups first, shown in the accent color with plain text such as "3 days overdue".
+   - Sorted with overdue follow-ups first, shown in the attention color with plain text such as "3 days overdue".
    - Each row: name, business, status chip, next follow-up, who owns it.
 3. Add and edit in a bottom sheet: name (required), business, channel, status, next follow-up date, price (optional), notes.
 4. Quick actions from the list: change status, and "Followed up" which asks for the next follow-up date.
