@@ -28,7 +28,14 @@ class EntryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final text = context.text;
+    final source = entry.source.trim();
+    final note = entry.note.trim();
+    // The source names the row; the note moves to the line under it.
+    final title = source.isNotEmpty
+        ? source
+        : (note.isNotEmpty ? note : 'Income');
     final meta = [
+      if (source.isNotEmpty && note.isNotEmpty) note,
       ?addedBy,
       DateFormat.MMMd().format(entry.createdAt),
     ].join(' · ');
@@ -59,10 +66,7 @@ class EntryRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    entry.note.isEmpty ? 'Income' : entry.note,
-                    style: text.bodyLarge,
-                  ),
+                  Text(title, style: text.bodyLarge),
                   Text(meta, style: text.bodySmall),
                 ],
               ),

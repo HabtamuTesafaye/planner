@@ -12,18 +12,63 @@ import 'package:planner/features/today/providers/today_providers.dart';
 
 import '../../helpers.dart';
 
-IncomeEntry entry(String id, DateTime month, int cents, {int minute = 0}) =>
-    IncomeEntry(
-      id: id,
-      spaceId: 's1',
-      userId: 'u1',
-      month: month,
-      cents: cents,
-      note: 'Note $id',
-      createdAt: DateTime(2026, 11, 2, 9, minute),
-    );
+IncomeEntry entry(
+  String id,
+  DateTime month,
+  int cents, {
+  int minute = 0,
+  String source = '',
+}) => IncomeEntry(
+  id: id,
+  spaceId: 's1',
+  userId: 'u1',
+  month: month,
+  cents: cents,
+  note: 'Note $id',
+  source: source,
+  createdAt: DateTime(2026, 11, 2, 9, minute),
+);
 
 void main() {
+  group('income sources', () {
+    final nov = DateTime(2026, 11);
+    test('earlier sources: newest first, no duplicates, blanks skipped', () {
+      final list = [
+        entry('a', nov, 100, minute: 1, source: 'Salary'),
+        entry('b', nov, 100, minute: 2, source: 'Café client'),
+        entry('c', nov, 100, minute: 3, source: 'salary'),
+        entry('d', nov, 100, minute: 4),
+      ];
+      expect(knownSources(list), ['salary', 'Café client']);
+    });
+
+    test('totals per source, largest first; no source counts as Other', () {
+      final rows = totalsBySource([
+        entry('a', nov, 100000, source: 'Salary'),
+        entry('b', nov, 50000, source: 'salary'),
+        entry('c', nov, 200000, source: 'Café client'),
+        entry('d', nov, 700),
+      ]);
+      expect(rows.map((r) => r.label), ['Café client', 'Salary', otherSource]);
+      expect(rows.map((r) => r.cents), [200000, 150000, 700]);
+    });
+
+    test('source goes to the database trimmed', () {
+      final e = entry('a', nov, 100, source: '  Salary ');
+      expect(e.toInsertJson()['source'], 'Salary');
+      expect(
+        IncomeEntry.fromJson(const {
+          'id': 'x',
+          'team_id': 's1',
+          'month': '2026-11-01',
+          'amount': 10,
+          'created_at': '2026-11-02T09:00:00Z',
+        }).source,
+        '',
+      );
+    });
+  });
+
   group('month boundaries', () {
     test('31st at 23:59 is still that month; the 1st is the next', () {
       expect(monthOf(DateTime(2026, 10, 31, 23, 59)), DateTime(2026, 10));
@@ -112,7 +157,8 @@ void main() {
           ),
           incomeEntriesProvider.overrideWith(
             (ref) => Stream.value([
-              entry('a', DateTime(2026, 11), 1250000),
+              entry('a', DateTime(2026, 11), 1000000, source: 'Salary'),
+              entry('c', DateTime(2026, 11), 250000, source: 'Café client'),
               entry('b', DateTime(2026, 10), 300000),
             ]),
           ),
@@ -129,6 +175,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('12,500 ETB'), findsWidgets);
       expect(find.text('25% of 50,000 ETB'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('By source'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('By source'), findsOneWidget);
       // Below the fold on a small phone; the list builds it when scrolled to.
       await tester.scrollUntilVisible(
         find.text('Previous months'),

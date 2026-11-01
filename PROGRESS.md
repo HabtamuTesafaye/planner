@@ -173,4 +173,5 @@ Phase 0:
 - Fixed: add/edit sheets were cut off with an empty band above the keyboard. Sheets opened inside the tab (already shrunk for the keyboard by the shell) and SheetFrame added the keyboard height again. Sheets now open on the root navigator, above tabs and nav bar.
 - Fixed: stuck on a project opened from the Today shortcut (it replaced the whole stack, so Back had nowhere to go, and there was no nav). Project detail now lives inside the Projects tab: nav stays, Back always returns to the list. When every step is done, a clear "Mark project done" card appears (and "Reopen" once done); a hint explains the sun button, which is now tinted.
 - Step notes: migration 016 (`note` up to 2000 chars, `note_updated_at/by` stamped by a trigger, update grant on `note` only). Tap a step to edit its title and note; the first line shows under the step; "Edited by … · date". DB test 146/146.
-- Tests: 275 passing (+8 skipped renders).
+- Income sources: migration 017 (`source` up to 60 chars). Add income has a Source field with one-tap chips of earlier sources; the list shows the source as the title (note below); Money shows "By source" for the month when there are 2+. DB test 148/148.
+- Tests: 278 passing (+8 skipped renders).

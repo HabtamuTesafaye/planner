@@ -310,6 +310,15 @@ select pg_temp.expect_error('Income month must be the first day',
              values (%L, date_trunc('month', current_date)::date + 1, 10) $q$,
          pg_temp.val('teamA')),
   '%check constraint%');
+select pg_temp.expect_affected('A adds income with a source',
+  format($q$ insert into public.income_entries (team_id, month, amount, source)
+             values (%L, date_trunc('month', current_date)::date, 500, 'Café client') $q$,
+         pg_temp.val('teamA')), 1);
+select pg_temp.expect_error('An income source longer than 60 characters is rejected',
+  format($q$ insert into public.income_entries (team_id, month, amount, source)
+             values (%L, date_trunc('month', current_date)::date, 5, repeat('x', 61)) $q$,
+         pg_temp.val('teamA')),
+  '%check constraint%');
 select pg_temp.expect_affected('A sets the monthly target',
   format($q$ insert into public.monthly_targets (team_id, month, target)
              values (%L, date_trunc('month', current_date)::date, 50000) $q$,
