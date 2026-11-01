@@ -26,11 +26,11 @@ void main() {
       });
 
       test('uses bundled fonts with system fallbacks', () {
-        expect(theme.textTheme.displayMedium!.fontFamily, AppTextStyles.serif);
+        expect(theme.textTheme.displayMedium!.fontFamily, AppTextStyles.sans);
         expect(theme.textTheme.bodyLarge!.fontFamily, AppTextStyles.sans);
         expect(
           theme.textTheme.displayMedium!.fontFamilyFallback,
-          contains('serif'),
+          contains('sans-serif'),
         );
         expect(
           theme.textTheme.displayLarge!.fontFeatures,

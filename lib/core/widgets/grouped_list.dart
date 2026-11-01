@@ -22,12 +22,12 @@ class GroupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    const radius = Radius.circular(AppRadius.control);
+    const radius = Radius.circular(AppRadius.card);
     final shape = BorderRadius.vertical(
       top: isFirst ? radius : Radius.zero,
       bottom: isLast ? radius : Radius.zero,
     );
-    final side = BorderSide(color: colors.divider);
+    final side = BorderSide(color: colors.cardEdge);
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: shape,

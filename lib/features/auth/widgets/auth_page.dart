@@ -5,9 +5,11 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
+import '../../../core/widgets/page_wash.dart';
+import '../../../core/widgets/round_icon_button.dart';
 
 /// Layout for the sign-in, sign-up and setup screens: optional back
-/// button, Fraunces title, short subtitle, scrollable body that stays above
+/// button, bold title, short subtitle, scrollable body that stays above
 /// the keyboard, centered at max 600 dp on large screens.
 class AuthPage extends StatelessWidget {
   const AuthPage({
@@ -26,63 +28,66 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.maxContentWidth,
-            ),
-            child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.sm,
-                AppSpacing.lg,
-                AppSpacing.xxl,
+      body: PageWash(
+        child: SafeArea(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.maxContentWidth,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (showBack && context.canPop())
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        onPressed: context.pop,
-                        tooltip: 'Back',
-                        icon: const Icon(Symbols.arrow_back),
-                      ),
-                    )
-                  else
-                    const SizedBox(height: AppSpacing.xl),
-                  const SizedBox(height: AppSpacing.lg),
-                  FadeSlideIn(
-                    child: Semantics(
-                      header: true,
-                      child: Text(title, style: context.text.headlineMedium),
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    FadeSlideIn(
-                      index: 1,
-                      child: Text(
-                        subtitle!,
-                        style: context.text.bodyLarge!.copyWith(
-                          color: context.colors.muted,
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  AppSpacing.xxl,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (showBack && context.canPop())
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: RoundIconButton(
+                          onPressed: context.pop,
+                          tooltip: 'Back',
+                          icon: Symbols.arrow_back,
                         ),
+                      )
+                    else
+                      const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.lg),
+                    FadeSlideIn(
+                      child: Semantics(
+                        header: true,
+                        child: Text(title, style: context.text.headlineMedium),
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      FadeSlideIn(
+                        index: 1,
+                        child: Text(
+                          subtitle!,
+                          style: context.text.bodyLarge!.copyWith(
+                            color: context.colors.muted,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.xl),
+                    FadeSlideIn(
+                      index: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: children,
                       ),
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.xl),
-                  FadeSlideIn(
-                    index: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: children,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

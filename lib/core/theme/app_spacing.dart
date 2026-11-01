@@ -21,6 +21,10 @@ abstract final class AppRadius {
   /// Bottom sheets and dialogs.
   static const double sheet = 16;
 
+  /// Cards and grouped lists.
+  static const double card = 20;
+
+  static const BorderRadius cardAll = BorderRadius.all(Radius.circular(card));
   static const BorderRadius controlAll = BorderRadius.all(
     Radius.circular(control),
   );
@@ -88,6 +92,17 @@ abstract final class AppSizes {
   /// Space kept free under a list so a floating button never hides the
   /// last row.
   static const double fabClearance = 96;
+
+  /// Card shadow: soft and small (no heavy shadows, cheap to draw).
+  static const double shadowBlur = 16;
+  static const double shadowOffset = 2;
+
+  /// Floating bottom bar: height of the pill and of each round item.
+  static const double navBar = 64;
+  static const double navItem = 48;
+
+  /// Round quick action on Today.
+  static const double quickAction = 56;
 
   static const double brandMarkSmall = 56;
   static const double brandMarkLarge = 96;

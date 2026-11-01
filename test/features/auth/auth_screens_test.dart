@@ -19,6 +19,29 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 class MockSpaceRepository extends Mock implements SpaceRepository {}
 
 void main() {
+  testWidgets('Google: not switched on shows a calm message', (tester) async {
+    final auth = MockAuthRepository();
+    when(auth.signInWithGoogle)
+        .thenThrow(const AppException(AppErrorKind.googleNotSetUp));
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const SignInScreen(),
+      overrides: [authRepositoryProvider.overrideWithValue(auth)],
+    );
+    final google = find.text('Continue with Google');
+    await tester.ensureVisible(google);
+    await tester.pumpAndSettle();
+    await tester.tap(google);
+    await tester.pumpAndSettle();
+    verify(auth.signInWithGoogle).called(1);
+    expect(
+      find.text(const AppException(AppErrorKind.googleNotSetUp).message),
+      findsOneWidget,
+    );
+    expect(google, findsOneWidget); // Button is usable again.
+  });
+
   group('screens fit a small phone at 1.5x text, both themes', () {
     final screens = <String, Widget>{
       'welcome': const WelcomeScreen(),

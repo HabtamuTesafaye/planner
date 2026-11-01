@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
+import '../../../core/widgets/card_material.dart';
 
 /// "Goal of the week" for the current space. Tap to edit.
 class GoalCard extends StatelessWidget {
@@ -28,13 +29,7 @@ class GoalCard extends StatelessWidget {
           ? 'Goal of the week in $spaceName: $goal. Double tap to edit.'
           : 'Set a goal of the week for $spaceName.',
       excludeSemantics: true,
-      child: Material(
-        color: colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.controlAll,
-          side: BorderSide(color: colors.divider),
-        ),
-        clipBehavior: Clip.antiAlias,
+      child: CardMaterial(
         child: InkWell(
           onTap: onTap,
           child: Padding(

@@ -16,6 +16,7 @@ import '../../features/space/providers/progress_providers.dart';
 import '../../features/space/providers/space_providers.dart';
 import '../../features/today/providers/today_providers.dart';
 import '../theme/theme_context.dart';
+import 'floating_nav_bar.dart';
 import 'offline_banner.dart';
 
 /// Bottom-tab shell: Today, Projects, Outreach, Money, Space. Also shows
@@ -26,32 +27,12 @@ class AppShell extends ConsumerStatefulWidget {
 
   final StatefulNavigationShell navigationShell;
 
-  static const _destinations = [
-    NavigationDestination(
-      icon: Icon(Symbols.edit_note),
-      selectedIcon: Icon(Symbols.edit_note, weight: 500),
-      label: 'Today',
-    ),
-    NavigationDestination(
-      icon: Icon(Symbols.folder_open),
-      selectedIcon: Icon(Symbols.folder_open, weight: 500),
-      label: 'Projects',
-    ),
-    NavigationDestination(
-      icon: Icon(Symbols.handshake),
-      selectedIcon: Icon(Symbols.handshake, weight: 500),
-      label: 'Outreach',
-    ),
-    NavigationDestination(
-      icon: Icon(Symbols.payments),
-      selectedIcon: Icon(Symbols.payments, weight: 500),
-      label: 'Money',
-    ),
-    NavigationDestination(
-      icon: Icon(Symbols.workspaces),
-      selectedIcon: Icon(Symbols.workspaces, weight: 500),
-      label: 'Space',
-    ),
+  static const _items = [
+    NavItem(icon: Symbols.edit_note, label: 'Today'),
+    NavItem(icon: Symbols.folder_open, label: 'Projects'),
+    NavItem(icon: Symbols.handshake, label: 'Outreach'),
+    NavItem(icon: Symbols.payments, label: 'Money'),
+    NavItem(icon: Symbols.workspaces, label: 'Space'),
   ];
 
   @override
@@ -98,21 +79,19 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final online = ref.watch(isOnlineProvider);
     return Scaffold(
+      // Same color as the top of each tab's wash, so the status bar area
+      // and the page read as one surface.
+      backgroundColor: context.colors.accentSoft,
       body: Column(
         children: [
           SafeArea(bottom: false, child: OfflineBanner(visible: !online)),
           Expanded(child: widget.navigationShell),
         ],
       ),
-      bottomNavigationBar: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: context.colors.divider)),
-        ),
-        child: NavigationBar(
-          selectedIndex: widget.navigationShell.currentIndex,
-          onDestinationSelected: _onSelect,
-          destinations: AppShell._destinations,
-        ),
+      bottomNavigationBar: FloatingNavBar(
+        items: AppShell._items,
+        selectedIndex: widget.navigationShell.currentIndex,
+        onSelect: _onSelect,
       ),
     );
   }

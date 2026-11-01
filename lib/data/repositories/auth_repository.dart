@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -59,6 +62,47 @@ class AuthRepository {
   Future<void> signIn({required String email, required String password}) async {
     try {
       await _auth.signInWithPassword(email: email.trim(), password: password);
+    } catch (e, s) {
+      throw AppException.from(e, s);
+    }
+  }
+
+  /// Whether Google sign-in is switched on for this Supabase project (public
+  /// auth settings; no secrets involved). Unknown counts as off.
+  Future<bool> isGoogleEnabled() async {
+    final config = AppConfig.fromEnvironment();
+    final http = HttpClient()..connectionTimeout = const Duration(seconds: 8);
+    try {
+      final request = await http.getUrl(
+        Uri.parse('${config.supabaseUrl}/auth/v1/settings'),
+      );
+      request.headers.set('apikey', config.supabaseAnonKey);
+      final response = await request.close();
+      final body = await response.transform(utf8.decoder).join();
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      final external = json['external'] as Map<String, dynamic>? ?? const {};
+      return external['google'] == true;
+    } on Object catch (e, s) {
+      Log.error('Could not read auth settings', e, s);
+      return false;
+    } finally {
+      http.close();
+    }
+  }
+
+  /// Opens Google sign-in in the browser. When it finishes, Google sends the
+  /// user back to the app (deep link), and supabase_flutter completes the
+  /// sign-in with PKCE; the router then moves on by itself.
+  Future<void> signInWithGoogle() async {
+    try {
+      if (!await isGoogleEnabled()) {
+        throw const AppException(AppErrorKind.googleNotSetUp);
+      }
+      await _auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: AppConfig.authRedirectUrl,
+        authScreenLaunchMode: LaunchMode.externalApplication,
+      );
     } catch (e, s) {
       throw AppException.from(e, s);
     }

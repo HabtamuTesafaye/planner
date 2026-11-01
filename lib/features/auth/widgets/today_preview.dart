@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/theme/app_decor.dart';
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
@@ -71,11 +72,7 @@ class _TodayPreviewState extends State<TodayPreview> {
             AppSpacing.sm,
             AppSpacing.sm,
           ),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: AppRadius.sheetAll,
-            border: Border.all(color: colors.divider),
-          ),
+          decoration: AppDecor.card(colors),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

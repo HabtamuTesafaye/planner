@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_decor.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 
@@ -16,11 +17,7 @@ class InsightCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppRadius.controlAll,
-        border: Border.all(color: colors.divider),
-      ),
+      decoration: AppDecor.card(colors),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

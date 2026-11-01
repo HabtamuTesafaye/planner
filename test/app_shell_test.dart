@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:planner/app.dart';
 import 'package:planner/core/config/app_config.dart';
+import 'package:planner/core/widgets/floating_nav_bar.dart';
 import 'package:planner/data/models/profile.dart';
 import 'package:planner/data/models/space.dart';
 import 'package:planner/data/models/team_member.dart';
@@ -109,7 +110,7 @@ Future<void> _scrollSpaceTo(WidgetTester tester, String text) async {
 }
 
 Future<void> _openTab(WidgetTester tester, String tab) async {
-  await tester.tap(find.widgetWithText(NavigationDestination, tab));
+  await tester.tap(find.byTooltip(tab));
   await tester.pumpAndSettle();
 }
 
@@ -128,7 +129,7 @@ void main() {
     ) async {
       useSmallPhone(tester, brightness: brightness);
       await _pumpApp(tester);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(FloatingNavBar), findsOneWidget);
       for (final tab in ['Projects', 'Outreach', 'Money', 'Space', 'Today']) {
         await _openTab(tester, tab);
         expect(find.text(_marks[tab]!), findsOneWidget);
@@ -226,7 +227,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Create an account'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(FloatingNavBar), findsNothing);
   });
 
   testWidgets('missing config shows setup screen instead of crashing', (

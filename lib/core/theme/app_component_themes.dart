@@ -14,6 +14,9 @@ class AppComponentThemes {
   static const _controlShape = RoundedRectangleBorder(
     borderRadius: AppRadius.controlAll,
   );
+
+  /// Buttons, segmented tabs and the floating button are pills.
+  static const _pill = StadiumBorder();
   static const _minButton = Size(64, AppSizes.touchTarget);
   static const _buttonPadding = EdgeInsets.symmetric(
     horizontal: AppSpacing.xl,
@@ -51,7 +54,7 @@ class AppComponentThemes {
       disabledForegroundColor: c.muted,
       minimumSize: _minButton,
       padding: _buttonPadding,
-      shape: _controlShape,
+      shape: _pill,
       textStyle: text.labelLarge,
       elevation: 0,
     ),
@@ -63,7 +66,7 @@ class AppComponentThemes {
       disabledForegroundColor: c.muted,
       minimumSize: _minButton,
       padding: _buttonPadding,
-      shape: _controlShape,
+      shape: _pill,
       side: BorderSide(color: c.border),
       textStyle: text.labelLarge,
     ),
@@ -75,7 +78,7 @@ class AppComponentThemes {
       disabledForegroundColor: c.muted,
       minimumSize: _minButton,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      shape: _controlShape,
+      shape: _pill,
       textStyle: text.labelLarge,
     ),
   );
@@ -87,7 +90,7 @@ class AppComponentThemes {
     focusElevation: 0,
     hoverElevation: 0,
     highlightElevation: 0,
-    shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetAll),
+    shape: _pill,
     extendedTextStyle: text.labelLarge,
   );
 
@@ -149,12 +152,12 @@ class AppComponentThemes {
     style: SegmentedButton.styleFrom(
       backgroundColor: c.surface,
       foregroundColor: c.muted,
-      selectedBackgroundColor: c.accentSoft,
-      selectedForegroundColor: c.text,
-      side: BorderSide(color: c.border),
+      selectedBackgroundColor: c.accentText,
+      selectedForegroundColor: c.onAccent,
+      side: BorderSide(color: c.divider),
       textStyle: text.labelMedium,
       minimumSize: const Size(0, AppSizes.touchTarget),
-      shape: _controlShape,
+      shape: _pill,
     ),
   );
 

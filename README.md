@@ -45,7 +45,7 @@ flutter run --release --dart-define-from-file=env/staging.json
 | **Space** | This week for every member (calm facts, no scores), weekly review, invite code (copy/share), settings (daily reminder, theme), sign out, leave space. |
 
 - **Spaces:** tap the space name at the top of a tab to switch, create a team space, or join one with a code. Nobody is forced to create a team.
-- **Accounts:** email + password (min 8). With email confirmation on, the link opens the app and signs you in.
+- **Accounts:** email + password (min 8), or **Continue with Google** (once switched on, see "Google sign-in" below). With email confirmation on, the link opens the app and signs you in.
 - **Offline:** a calm banner appears, data already loaded stays on screen, save buttons pause with a short reason (typed text is kept), and everything refreshes when the connection returns.
 - **Daily reminder:** Space → Settings. Inexact on purpose (no exact-alarm permission), rescheduled after a reboot, follows the phone's time zone.
 - **Motion:** short (≤ 250 ms), Material 3 easing, predictive back, and everything turns off with Android's "Remove animations".
@@ -59,7 +59,7 @@ flutter test      # includes the WCAG contrast test for every color pair
 
 ## Fonts
 
-Fraunces (headings, dates, big numbers) and Manrope (everything else) are bundled in `assets/fonts/` as static TTFs from Google Fonts, under the SIL Open Font License (license files are next to the fonts). Nothing is downloaded at runtime.
+Manrope (every text style; headings are weight 700 with tight tracking) is bundled in `assets/fonts/` as static TTFs from Google Fonts, under the SIL Open Font License (the license file is next to the fonts). Nothing is downloaded at runtime.
 
 ## Design notes
 
@@ -70,7 +70,7 @@ Fraunces (headings, dates, big numbers) and Manrope (everything else) are bundle
 
 ## App icon
 
-The icon set lives in `assets/icon/`. It is drawn by `assets/icon/src/make_icons.py` (Pillow only) from one set of shapes: a filled blue circle with a check (one task done) above three empty rings (three tasks a day). To change colors or shapes, edit the constants at the top of the script and run:
+The icon set lives in `assets/icon/`. It is drawn by `assets/icon/src/make_icons.py` (Pillow only) from one set of shapes: a check inside a ring of three arcs (three tasks a day), white on a rounded stormy-blue tile. `lib/core/widgets/brand_mark.dart` draws the same shapes in code. To change colors or shapes, edit the constants at the top of the script and run:
 ```
 python3 assets/icon/src/make_icons.py
 ```
@@ -79,6 +79,7 @@ Launcher icon and native splash are generated from it:
 dart run flutter_launcher_icons
 dart run flutter_native_splash:create --path=flutter_native_splash.yaml
 ```
+The notification icon (`assets/icon/notification.png`) is copied by hand into `android/app/src/main/res/drawable-*/ic_stat_planner.png` (24, 36, 48, 72, 96 px).
 
 ## Release build
 
@@ -146,6 +147,17 @@ The backend is a Supabase project (staging: `planner-staging`, region eu-central
    - URL Configuration → **Redirect URLs**: add `com.elvaris.planner://login-callback`. Confirmation emails then open the app, which signs the user in. Without it, Supabase falls back to the Site URL.
    - URL Configuration → **Site URL**: set it to `com.elvaris.planner://login-callback` too (or a page you own). The default `http://localhost:3000` makes confirmation links end on an error page.
 5. **Prove isolation** (see below).
+
+### Google sign-in (optional)
+The app already has "Continue with Google" (Welcome, Sign in, Sign up). Until the provider is on, tapping it shows "Google sign-in isn't switched on yet". To switch it on:
+1. **Google Cloud Console** → APIs & Services → OAuth consent screen: set it up (External, app name "Planner", your support email). Add yourself as a test user while it is in testing.
+2. Credentials → Create credentials → OAuth client ID → type **Web application**. Authorized redirect URI:
+   `https://jhdzewceymvxpdbxcpbd.supabase.co/auth/v1/callback`
+   (for another project: `https://<project-ref>.supabase.co/auth/v1/callback`). Copy the client ID and client secret.
+3. **Supabase dashboard** → Authentication → Sign In / Providers → Google: enable, paste the client ID and secret, save. The secret stays in Supabase, never in the app or the repo.
+4. Authentication → URL Configuration → Redirect URLs must include `com.elvaris.planner://login-callback` (already needed for email links).
+
+How it works: the app opens Google in the browser; Google returns to Supabase, which sends the browser back to `com.elvaris.planner://login-callback`; the app finishes the sign-in with PKCE. A new Google account gets its profile (name from Google) and Personal space from the same sign-up trigger as email accounts. If someone signs in with Google using an email that already has a password account, Supabase links them to the same user.
 
 ### Isolation and rules test
 ```

@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+
+import '../theme/app_decor.dart';
+import '../theme/app_spacing.dart';
+import '../theme/theme_context.dart';
+
+/// One tab of [FloatingNavBar].
+class NavItem {
+  const NavItem({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+}
+
+/// Bottom navigation as a floating pill. Each tab is a round 48 dp button;
+/// the selected one fills with the accent and grows to show its name.
+/// Every tab has a tooltip and is announced as a selected or unselected
+/// tab by TalkBack.
+class FloatingNavBar extends StatelessWidget {
+  const FloatingNavBar({
+    required this.items,
+    required this.selectedIndex,
+    required this.onSelect,
+    super.key,
+  });
+
+  final List<NavItem> items;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return ColoredBox(
+      color: colors.background,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.sm,
+            AppSpacing.lg,
+            AppSpacing.md,
+          ),
+          child: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.maxContentWidth,
+                minHeight: AppSizes.navBar,
+              ),
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: colors.surface,
+                  shape: StadiumBorder(
+                    side: BorderSide(color: colors.cardEdge),
+                  ),
+                  shadows: AppDecor.shadow(colors),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      for (final (i, item) in items.indexed)
+                        _NavButton(
+                          item: item,
+                          selected: i == selectedIndex,
+                          onTap: () => onSelect(i),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  const _NavButton({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final NavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final fg = selected ? colors.onAccent : colors.muted;
+    final button = Semantics(
+      button: true,
+      selected: selected,
+      label: item.label,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: item.label,
+        excludeFromSemantics: true,
+        child: Material(
+          type: MaterialType.transparency,
+          shape: const StadiumBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: AnimatedContainer(
+              duration: AppDurations.normal,
+              curve: Curves.easeOutCubic,
+              constraints: const BoxConstraints(
+                minWidth: AppSizes.navItem,
+                minHeight: AppSizes.navItem,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: selected ? AppSpacing.lg : AppSpacing.md,
+              ),
+              decoration: ShapeDecoration(
+                color: selected ? colors.accentText : Colors.transparent,
+                shape: const StadiumBorder(),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    item.icon,
+                    color: fg,
+                    size: AppSizes.icon,
+                    weight: selected ? 500 : 300,
+                  ),
+                  if (selected) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    Flexible(
+                      child: Text(
+                        item.label,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.fade,
+                        style: context.text.labelMedium!.copyWith(color: fg),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    // The selected tab takes the free space it needs; the others stay round.
+    return selected ? Flexible(child: button) : button;
+  }
+}

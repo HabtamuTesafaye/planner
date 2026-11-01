@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
+import '../../../core/widgets/card_material.dart';
 import '../../../core/widgets/thin_progress_bar.dart';
 import '../../../data/models/project.dart';
 import '../templates.dart';
@@ -32,13 +33,7 @@ class ProjectCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Material(
-        color: colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.controlAll,
-          side: BorderSide(color: colors.divider),
-        ),
-        clipBehavior: Clip.antiAlias,
+      child: CardMaterial(
         child: InkWell(
           onTap: onTap,
           child: Padding(
