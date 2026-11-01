@@ -83,10 +83,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: InsightsScreen.path,
-        builder: (context, state) => const InsightsScreen(),
-      ),
-      GoRoute(
         path: ReviewScreen.path,
         builder: (context, state) => const ReviewScreen(),
       ),
@@ -101,6 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             FadeThroughStack(index: shell.currentIndex, children: children),
         branches: [
           _branch(AppRoutes.today, const TodayScreen()),
+          _branch(InsightsScreen.path, const InsightsScreen()),
           _branch(AppRoutes.projects, const ProjectsScreen()),
           _branch(AppRoutes.outreach, const OutreachScreen()),
           _branch(AppRoutes.money, const MoneyScreen()),

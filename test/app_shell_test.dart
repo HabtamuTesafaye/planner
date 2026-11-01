@@ -117,6 +117,7 @@ Future<void> _openTab(WidgetTester tester, String tab) async {
 
 const _marks = {
   'Today': 'Nothing planned yet.',
+  'Insights': 'Your rhythm across every space.',
   'Projects': 'No projects yet.',
   'Outreach': 'No contacts yet.',
   'Money': 'No income logged this month.',
@@ -125,19 +126,46 @@ const _marks = {
 
 void main() {
   for (final brightness in Brightness.values) {
-    testWidgets('signed in: 5 tabs fit a small phone ($brightness, 1.5x)', (
+    testWidgets('signed in: 6 tabs fit a small phone ($brightness, 1.5x)', (
       tester,
     ) async {
       useSmallPhone(tester, brightness: brightness);
       await _pumpApp(tester);
       expect(find.byType(FloatingNavBar), findsOneWidget);
-      for (final tab in ['Projects', 'Outreach', 'Money', 'Space', 'Today']) {
+      for (final tab in [
+        'Insights',
+        'Projects',
+        'Outreach',
+        'Money',
+        'Space',
+        'Today',
+      ]) {
         await _openTab(tester, tab);
         expect(find.text(_marks[tab]!), findsOneWidget);
         expect(tester.takeException(), isNull);
       }
     });
   }
+
+  testWidgets('nav: the selected name shows only when it fits', (tester) async {
+    Finder navLabel(String text) => find.descendant(
+      of: find.byType(FloatingNavBar),
+      matching: find.text(text),
+    );
+    // Small phone at 1.5x text: six round tabs, no room for a name.
+    useSmallPhone(tester);
+    await _pumpApp(tester);
+    expect(navLabel('Today'), findsNothing);
+    expect(find.byTooltip('Today'), findsOneWidget);
+
+    // A large phone at normal text size: the name appears. (The test font
+    // is wider than Manrope, so this needs more room than a real phone.)
+    tester.view.physicalSize = const Size(480, 900) * 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 1;
+    await tester.pumpAndSettle();
+    expect(navLabel('Today'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('switching tabs through the real router never overlaps', (
     tester,

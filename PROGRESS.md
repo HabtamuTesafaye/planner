@@ -166,5 +166,6 @@ Phase 0:
 ## Auth fixes (2026-11-01, branch `feature/auth-fixes`)
 - Forgot password: "Forgot password?" on Sign in → reset screen (same reply whether or not the email has an account) → email link opens the app (PKCE, `passwordRecovery` event) → "Set a new password" screen → Today. Error `same_password` mapped to a friendly message.
 - Welcome: mark, headline and subtitle centered.
+- Insights is now a bottom tab (second). The round Insights button on Today and the Insights link on Space are gone. The nav shows the selected tab's name only when it fits (six round tabs on small phones or large text).
 - Google: owner's first try ended on the splash error; no Google user reached the database. Investigating with device logs.
-- Tests: 266 passing (+8 skipped renders).
+- Tests: 267 passing (+8 skipped renders).

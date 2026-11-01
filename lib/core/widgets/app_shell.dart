@@ -29,6 +29,7 @@ class AppShell extends ConsumerStatefulWidget {
 
   static const _items = [
     NavItem(icon: Symbols.edit_note, label: 'Today'),
+    NavItem(icon: Symbols.insights, label: 'Insights'),
     NavItem(icon: Symbols.folder_open, label: 'Projects'),
     NavItem(icon: Symbols.handshake, label: 'Outreach'),
     NavItem(icon: Symbols.payments, label: 'Money'),

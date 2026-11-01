@@ -16,7 +16,6 @@ import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/space_repository.dart';
 import '../../../router_redirect.dart';
 import '../../auth/providers/auth_providers.dart';
-import '../../insights/screens/insights_screen.dart';
 import '../../review/providers/review_providers.dart';
 import '../../review/screens/review_screen.dart';
 import '../providers/progress_providers.dart';
@@ -153,12 +152,6 @@ class _SpaceScreenState extends ConsumerState<SpaceScreen> {
             _ => [const SkeletonList(rows: 2)],
           },
           ReviewEntry(onOpen: () => context.push(ReviewScreen.path)),
-          const SizedBox(height: AppSpacing.sm),
-          OutlinedButton.icon(
-            onPressed: () => context.push(InsightsScreen.path),
-            icon: const Icon(Symbols.insights),
-            label: const Text('Insights and activity'),
-          ),
           if (space.isPersonal) ...[
             const SectionHeader(title: 'Work with others'),
             OutlinedButton.icon(

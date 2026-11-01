@@ -170,7 +170,7 @@ Rules:
 
 ## 6. Screens and behavior
 
-Bottom tabs: **Today, Projects, Outreach, Money, Space**. A **space switcher** sits at the top of every tab except Today: tap it to switch space, create a team space or join one with a code. The selected space is remembered (stored on the profile).
+Bottom tabs: **Today, Insights, Projects, Outreach, Money, Space** (Insights moved into the nav by owner's decision, 2026-11-01). A **space switcher** sits at the top of every tab except Today: tap it to switch space, create a team space or join one with a code. The selected space is remembered (stored on the profile).
 
 **Auth**: welcome screen, sign up (name, email, password), sign in. No team is required: after sign-in you land in your Personal space. Session persists. Friendly error messages (wrong password, no connection, email in use).
 

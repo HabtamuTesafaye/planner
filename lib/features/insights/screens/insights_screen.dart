@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/utils/dates.dart';
 import '../../../core/utils/money.dart';
+import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../data/app_exception.dart';
@@ -43,62 +42,25 @@ class InsightsScreen extends ConsumerWidget {
     final space = ref.watch(currentSpaceProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.maxContentWidth,
+      body: PageBody(
+        title: 'Insights',
+        subtitle: 'Your rhythm across every space.',
+        onRefresh: () async => ref.invalidate(activityTasksProvider),
+        children: [
+          ...switch (tasks) {
+            AsyncValue(hasValue: true, :final value?) => _personal(
+              context,
+              value,
+              today,
             ),
-            child: RefreshIndicator(
-              onRefresh: () async => ref.invalidate(activityTasksProvider),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.sm,
-                  AppSpacing.lg,
-                  AppSpacing.xxl,
-                ),
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      onPressed: () => context.pop(),
-                      tooltip: 'Back',
-                      icon: const Icon(Symbols.arrow_back),
-                    ),
-                  ),
-                  Semantics(
-                    header: true,
-                    child: Text('Insights', style: context.text.headlineMedium),
-                  ),
-                  Text(
-                    'Your rhythm across every space.',
-                    style: context.text.bodyLarge!.copyWith(
-                      color: context.colors.muted,
-                    ),
-                  ),
-                  ...switch (tasks) {
-                    AsyncValue(hasValue: true, :final value?) => _personal(
-                      context,
-                      value,
-                      today,
-                    ),
-                    AsyncValue(:final error?) => [
-                      const SizedBox(height: AppSpacing.xl),
-                      Text(AppException.from(error).message),
-                    ],
-                    _ => const [
-                      SizedBox(height: AppSpacing.xl),
-                      SkeletonList(),
-                    ],
-                  },
-                  if (space != null) ..._space(context, ref, space.name, today),
-                ],
-              ),
-            ),
-          ),
-        ),
+            AsyncValue(:final error?) => [
+              const SizedBox(height: AppSpacing.xl),
+              Text(AppException.from(error).message),
+            ],
+            _ => const [SizedBox(height: AppSpacing.xl), SkeletonList()],
+          },
+          if (space != null) ..._space(context, ref, space.name, today),
+        ],
       ),
     );
   }
