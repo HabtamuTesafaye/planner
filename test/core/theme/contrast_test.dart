@@ -74,6 +74,19 @@ void main() {
     });
   }
 
+  test('activity heatmap ramp: visible on the card, steps get stronger', () {
+    for (final (c, stronger) in [
+      (AppColors.light, (double a, double b) => a < b), // darker = more
+      (AppColors.dark, (double a, double b) => a < b), // brighter vs surface
+    ]) {
+      final ratios = [for (final a in c.activity) contrast(a, c.surface)];
+      expect(ratios.first, greaterThanOrEqualTo(2.0)); // ordinal floor
+      for (var i = 1; i < ratios.length; i++) {
+        expect(stronger(ratios[i - 1], ratios[i]), isTrue, reason: '$ratios');
+      }
+    }
+  });
+
   test('snackbar action color is readable on the snackbar', () {
     // Light theme snackbar is dark and uses the dark accent, and vice versa.
     expect(

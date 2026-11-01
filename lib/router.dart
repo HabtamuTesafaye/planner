@@ -10,6 +10,7 @@ import 'features/auth/screens/sign_in_screen.dart';
 import 'features/auth/screens/sign_up_screen.dart';
 import 'features/auth/screens/splash_screen.dart';
 import 'features/auth/screens/welcome_screen.dart';
+import 'features/insights/screens/insights_screen.dart';
 import 'features/money/screens/money_screen.dart';
 import 'features/outreach/screens/outreach_screen.dart';
 import 'features/projects/screens/project_screen.dart';
@@ -66,6 +67,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               ? NewSpaceMode.join
               : NewSpaceMode.create,
         ),
+      ),
+      GoRoute(
+        path: InsightsScreen.path,
+        builder: (context, state) => const InsightsScreen(),
       ),
       GoRoute(
         path: ReviewScreen.path,

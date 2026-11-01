@@ -20,6 +20,13 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## Insights dashboard (branch `feature/insights-dashboard`, PR open)
+- `lib/features/insights/`: `insights_logic.dart` (done per day, heatmap weeks, weekly totals, summary: this/last week, active days 30, completion 30, strongest weekday; no streaks or scores), `activityTasksProvider` (26 weeks of my tasks + live merge), screen `/insights` (opened from Today's top-right icon and from the Space tab).
+- Widgets drawn with plain Flutter + tokens: `ActivityHeatmap` (GitHub-style, weeks that fit, tap a day), `SimpleBarChart` (single series, tap to read), `StatTile`/`StatGrid`, `BreakdownBars`, `InsightCard`.
+- Colour: `AppColors.activity` 3-step green ramp, validated with the dataviz ordinal checks (light and dark) and covered by `contrast_test.dart`. Chart tokens in `AppSizes` (`chartGap`, `barRadius`, `chartHeight`, `heatCellMin`).
+- Tests: 235 passing.
+- New: `HANDOFF.md` for the next agent. Repo pushed to GitHub (public).
+
 ## Phase 7 (Polish and release) done
 - Offline: `lib/data/connectivity.dart` (`isOnlineProvider`, unknown = online), OfflineBanner wired in AppShell, PrimaryButton pauses saving with a reason (typed text kept), live data refreshed on reconnect.
 - Daily reminder: `lib/data/reminders/reminder_service.dart` (inexact, `nextReminder`, full time zone database so Africa/Addis_Ababa works), permission asked with an explanation (works if denied), boot receiver, notification icon `ic_stat_planner`, synced from the profile in AppShell.
