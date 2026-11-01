@@ -13,6 +13,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/page_wash.dart';
 import '../../../core/widgets/round_icon_button.dart';
+import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/thin_progress_bar.dart';
 import '../../../data/models/project.dart';
@@ -25,6 +26,7 @@ import '../widgets/add_step_field.dart';
 import '../widgets/project_menu.dart';
 import '../widgets/project_status_card.dart';
 import '../widgets/step_row.dart';
+import '../widgets/step_sheet.dart';
 
 /// One project: progress, checklist, and "plan for today" on each step.
 class ProjectScreen extends ConsumerWidget {
@@ -213,7 +215,7 @@ class ProjectScreen extends ConsumerWidget {
       ),
       if (project.isDone || (list.isNotEmpty && done == list.length))
         const SizedBox(height: AppSpacing.lg),
-      if (!project.isDone && done < list.length && planned.isEmpty) ...[
+      if (!project.isDone && done < list.length) ...[
         Row(
           children: [
             Icon(
@@ -224,7 +226,7 @@ class ProjectScreen extends ConsumerWidget {
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
-                'Tap the sun on a step to plan it for today.',
+                'Tap a step to add a note. Tap the sun to plan it for today.',
                 style: context.text.bodySmall!.copyWith(
                   color: context.colors.muted,
                 ),
@@ -250,6 +252,7 @@ class ProjectScreen extends ConsumerWidget {
               },
               onPlan: () => _plan(context, ref, item),
               onDelete: () => _delete(context, ref, item),
+              onOpen: () => showAppSheet<bool>(context, StepSheet(item: item)),
             ),
           ),
         ),

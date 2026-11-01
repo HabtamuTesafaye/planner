@@ -172,4 +172,5 @@ Phase 0:
 - Fixed: daily reminder switch did nothing in release builds. Resource shrinking removed `ic_stat_planner` (loaded by name), so the notification plugin failed to initialize before the permission prompt. Kept via `res/raw/keep.xml`; permission request now fails safe.
 - Fixed: add/edit sheets were cut off with an empty band above the keyboard. Sheets opened inside the tab (already shrunk for the keyboard by the shell) and SheetFrame added the keyboard height again. Sheets now open on the root navigator, above tabs and nav bar.
 - Fixed: stuck on a project opened from the Today shortcut (it replaced the whole stack, so Back had nowhere to go, and there was no nav). Project detail now lives inside the Projects tab: nav stays, Back always returns to the list. When every step is done, a clear "Mark project done" card appears (and "Reopen" once done); a hint explains the sun button, which is now tinted.
-- Tests: 273 passing (+8 skipped renders).
+- Step notes: migration 016 (`note` up to 2000 chars, `note_updated_at/by` stamped by a trigger, update grant on `note` only). Tap a step to edit its title and note; the first line shows under the step; "Edited by … · date". DB test 146/146.
+- Tests: 275 passing (+8 skipped renders).

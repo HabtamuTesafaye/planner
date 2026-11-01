@@ -496,6 +496,17 @@ select pg_temp.expect_affected('C checks off a shared step',
   $q$ update public.project_items set done = true where title = 'Pick domain' $q$, 1);
 select pg_temp.expect_count('...and done_at is set by the database',
   $q$ select 1 from public.project_items where title = 'Pick domain' and done_at is not null $q$, 1);
+select pg_temp.expect_affected('C writes a note on a shared step',
+  $q$ update public.project_items set note = 'Ask Hana for the login' where title = 'Pick domain' $q$, 1);
+select pg_temp.expect_count('...the database stamps who wrote it and when',
+  format($q$ select 1 from public.project_items where title = 'Pick domain'
+            and note_updated_by = %L and note_updated_at is not null $q$, pg_temp.val('C')), 1);
+select pg_temp.expect_error('C cannot forge who wrote the note',
+  format($q$ update public.project_items set note_updated_by = %L where title = 'Pick domain' $q$,
+         pg_temp.val('A')), '%permission denied%');
+select pg_temp.expect_error('A note longer than 2000 characters is rejected',
+  $q$ update public.project_items set note = repeat('x', 2001) where title = 'Pick domain' $q$,
+  '%check constraint%');
 select pg_temp.expect_affected('C cannot delete A''s project',
   format('delete from public.projects where id = %L', pg_temp.val('projA')), 0);
 select pg_temp.expect_error('C cannot move a project to another space',
@@ -532,6 +543,10 @@ select pg_temp.expect_error('B cannot add a step to team A''s project',
   '%');
 select pg_temp.expect_affected('B cannot check off team A''s steps',
   format('update public.project_items set done = false where project_id = %L', pg_temp.val('projA')), 0);
+select pg_temp.expect_count('B cannot read the notes on team A''s steps',
+  $q$ select 1 from public.project_items where note is not null $q$, 0);
+select pg_temp.expect_affected('B cannot write a note on team A''s steps',
+  format('update public.project_items set note = ''x'' where project_id = %L', pg_temp.val('projA')), 0);
 
 select pg_temp.act_as('A');
 select pg_temp.expect_affected('A (creator) can delete the project',

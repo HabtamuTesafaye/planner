@@ -18,6 +18,7 @@ class StepRow extends StatelessWidget {
     required this.onToggle,
     required this.onPlan,
     required this.onDelete,
+    required this.onOpen,
     super.key,
   });
 
@@ -26,6 +27,9 @@ class StepRow extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onPlan;
   final VoidCallback onDelete;
+
+  /// Opens the step: title and note.
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -57,16 +61,54 @@ class StepRow extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.xs),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                child: AnimatedDefaultTextStyle(
-                  duration: AppMotion.of(context, AppDurations.normal),
-                  style: context.text.bodyLarge!.copyWith(
-                    color: item.done ? colors.muted : colors.text,
-                    decoration: item.done ? TextDecoration.lineThrough : null,
-                    decorationColor: colors.muted,
+              child: InkWell(
+                onTap: onOpen,
+                borderRadius: AppRadius.controlAll,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.sm,
+                    horizontal: AppSpacing.xs,
                   ),
-                  child: Text(item.title),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: AppMotion.of(context, AppDurations.normal),
+                        style: context.text.bodyLarge!.copyWith(
+                          color: item.done ? colors.muted : colors.text,
+                          decoration: item.done
+                              ? TextDecoration.lineThrough
+                              : null,
+                          decorationColor: colors.muted,
+                        ),
+                        child: Text(item.title),
+                      ),
+                      if (item.hasNote)
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.xs),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Symbols.sticky_note_2,
+                                size: AppSizes.tagIcon,
+                                color: colors.muted,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(
+                                child: Text(
+                                  item.note!.trim().split('\n').first,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.text.bodySmall!.copyWith(
+                                    color: colors.muted,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -181,6 +181,12 @@ class ProjectsController extends Notifier<ItemOverlay> {
     return error;
   }
 
+  Future<AppException?> editStep(
+    ProjectItem item, {
+    required String title,
+    required String? note,
+  }) => _try(() => _repo.updateItem(item.id, title: title, note: note));
+
   Future<AppException?> restoreStep(ProjectItem item) =>
       _try(() => _repo.restoreItem(item));
 
