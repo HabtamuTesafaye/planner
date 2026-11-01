@@ -10,11 +10,15 @@ class ThinProgressBar extends StatelessWidget {
   const ThinProgressBar({
     required this.value,
     required this.semanticLabel,
+    this.height = AppSizes.progressBar,
     super.key,
   });
 
   final double value;
   final String semanticLabel;
+
+  /// Bar thickness; [AppSizes.progressBarHero] for a screen's main number.
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +30,9 @@ class ThinProgressBar extends StatelessWidget {
       value: '${(clamped * 100).round()}%',
       excludeSemantics: true,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppSizes.progressBar),
+        borderRadius: BorderRadius.circular(height),
         child: SizedBox(
-          height: AppSizes.progressBar,
+          height: height,
           child: ColoredBox(
             color: colors.surfaceSunken,
             child: Align(

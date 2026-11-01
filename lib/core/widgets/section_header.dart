@@ -22,7 +22,7 @@ class SectionHeader extends StatelessWidget {
               header: true,
               child: Text(
                 title,
-                style: context.text.labelMedium!.copyWith(
+                style: context.text.titleSmall!.copyWith(
                   color: context.colors.muted,
                 ),
               ),

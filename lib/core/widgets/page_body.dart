@@ -18,6 +18,7 @@ class PageBody extends StatelessWidget {
     this.itemCount = 0,
     this.itemBuilder,
     this.footer = const [],
+    this.trailing,
     super.key,
   });
 
@@ -45,26 +46,45 @@ class PageBody extends StatelessWidget {
   /// Widgets after the lazy list.
   final List<Widget> footer;
 
+  /// Optional widget at the end of the title row (for example a progress
+  /// ring on Today).
+  final Widget? trailing;
+
   @override
   Widget build(BuildContext context) {
     final header = [
       if (top != null) ...[top!, const SizedBox(height: AppSpacing.xs)],
-      Semantics(
-        header: true,
-        child: Text(
-          title,
-          style: largeTitle
-              ? context.text.displayMedium
-              : context.text.headlineMedium,
-        ),
-      ),
-      if (subtitle != null)
-        Text(
-          subtitle!,
-          style: context.text.titleMedium!.copyWith(
-            color: context.colors.muted,
+      Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    style: largeTitle
+                        ? context.text.displayMedium
+                        : context.text.headlineMedium,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: context.text.titleMedium!.copyWith(
+                      color: context.colors.muted,
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
+          if (trailing != null) ...[
+            const SizedBox(width: AppSpacing.md),
+            trailing!,
+          ],
+        ],
+      ),
       ...children,
     ];
     final builder = itemBuilder;

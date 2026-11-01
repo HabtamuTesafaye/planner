@@ -55,6 +55,21 @@ void main() {
     expect(weeks.every((d) => d.weekday == DateTime.monday), isTrue);
   });
 
+  test('month labels never collide or hang off the edge', () {
+    // 26 weeks ending in the week of Nov 2: starts in May (1 column of May).
+    final weeks = heatmapWeeks(_today, 26);
+    final cols = monthLabelColumns(weeks);
+    for (var i = 1; i < cols.length; i++) {
+      expect(cols[i] - cols[i - 1], greaterThanOrEqualTo(4));
+    }
+    expect(weeks.length - cols.last, greaterThanOrEqualTo(3));
+    // A short partial first month gives way to the next month's label.
+    final firstMonthColumns = weeks
+        .takeWhile((w) => w.month == weeks.first.month)
+        .length;
+    if (firstMonthColumns < 4) expect(cols.first, firstMonthColumns);
+  });
+
   test('weekly totals oldest first', () {
     final weekly = weeklyDone(doneByDay(tasks), _today, 2);
     expect(weekly.map((w) => w.done), [1, 3]);

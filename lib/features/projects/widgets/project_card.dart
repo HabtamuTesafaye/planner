@@ -48,10 +48,23 @@ class ProjectCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      project.isDone ? Symbols.task_alt : template.icon,
-                      size: AppSizes.iconSmall,
-                      color: project.isDone ? colors.success : colors.accent,
+                    // Icon on a soft tinted tile.
+                    Container(
+                      width: AppSizes.iconTile,
+                      height: AppSizes.iconTile,
+                      decoration: BoxDecoration(
+                        color: project.isDone
+                            ? colors.successSoft
+                            : colors.accentSoft,
+                        borderRadius: AppRadius.controlAll,
+                      ),
+                      child: Icon(
+                        project.isDone ? Symbols.task_alt : template.icon,
+                        size: AppSizes.iconSmall,
+                        color: project.isDone
+                            ? colors.success
+                            : colors.accentText,
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(

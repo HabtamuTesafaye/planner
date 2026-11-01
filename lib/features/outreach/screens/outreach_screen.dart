@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
@@ -92,6 +93,8 @@ class OutreachScreen extends ConsumerWidget {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        // Every tab stays alive, so each button needs its own hero tag.
+        heroTag: 'fab-outreach',
         onPressed: () => _open(context, ref),
         icon: const Icon(Symbols.add),
         label: const Text('Add contact'),
@@ -104,51 +107,55 @@ class OutreachScreen extends ConsumerWidget {
         itemCount: list.length,
         itemBuilder: (context, i) {
           final c = list[i];
-          return Dismissible(
-            key: ValueKey('contact-${c.id}'),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: context.colors.surfaceSunken,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-              child: Icon(Symbols.delete, color: context.colors.attention),
-            ),
-            confirmDismiss: (_) async {
-              if (!await _confirmDelete(context, c)) return false;
-              try {
-                final ok = await repo().delete(c.id);
-                if (!ok && context.mounted) {
-                  _message(
-                    context,
-                    const AppException(AppErrorKind.notAllowed).message,
-                  );
-                }
-                return ok;
-              } on AppException catch (e) {
-                if (context.mounted) _message(context, e.message);
-                return false;
-              }
-            },
-            child: ContactRow(
-              contact: c,
-              today: today,
-              ownerName: isTeam ? names[c.ownerId] : null,
-              onOpen: () => _open(context, ref, c),
-              onStatus: () async {
-                final s = await pickStatus(context, c.status);
-                if (s != null && context.mounted) {
-                  await _run(context, () => repo().setStatus(c.id, s));
-                }
-              },
-              onFollowedUp: () async {
-                final next = await pickFollowUp(context, today: today);
-                if (next != null && context.mounted) {
-                  await _run(context, () => repo().setFollowUp(c.id, next));
-                  if (context.mounted) {
-                    _message(context, 'Next follow-up saved');
+          return GroupTile(
+            isFirst: i == 0,
+            isLast: i == list.length - 1,
+            child: Dismissible(
+              key: ValueKey('contact-${c.id}'),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: context.colors.surfaceSunken,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                child: Icon(Symbols.delete, color: context.colors.attention),
+              ),
+              confirmDismiss: (_) async {
+                if (!await _confirmDelete(context, c)) return false;
+                try {
+                  final ok = await repo().delete(c.id);
+                  if (!ok && context.mounted) {
+                    _message(
+                      context,
+                      const AppException(AppErrorKind.notAllowed).message,
+                    );
                   }
+                  return ok;
+                } on AppException catch (e) {
+                  if (context.mounted) _message(context, e.message);
+                  return false;
                 }
               },
+              child: ContactRow(
+                contact: c,
+                today: today,
+                ownerName: isTeam ? names[c.ownerId] : null,
+                onOpen: () => _open(context, ref, c),
+                onStatus: () async {
+                  final s = await pickStatus(context, c.status);
+                  if (s != null && context.mounted) {
+                    await _run(context, () => repo().setStatus(c.id, s));
+                  }
+                },
+                onFollowedUp: () async {
+                  final next = await pickFollowUp(context, today: today);
+                  if (next != null && context.mounted) {
+                    await _run(context, () => repo().setFollowUp(c.id, next));
+                    if (context.mounted) {
+                      _message(context, 'Next follow-up saved');
+                    }
+                  }
+                },
+              ),
             ),
           );
         },

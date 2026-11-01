@@ -10,6 +10,7 @@ import '../../../core/theme/theme_context.dart';
 import '../../../core/utils/ids.dart';
 import '../../../core/utils/money.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/sheet_frame.dart';
@@ -148,6 +149,8 @@ class MoneyScreen extends ConsumerWidget {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        // Every tab stays alive, so each button needs its own hero tag.
+        heroTag: 'fab-money',
         onPressed: () => _addIncome(context, ref),
         icon: const Icon(Symbols.add),
         label: const Text('Add income'),
@@ -160,15 +163,24 @@ class MoneyScreen extends ConsumerWidget {
           ..invalidate(incomeEntriesProvider)
           ..invalidate(monthlyTargetProvider),
         itemCount: thisMonth.length,
-        itemBuilder: (context, i) => EntryRow(
-          entry: thisMonth[i],
-          addedBy: isTeam ? names[thisMonth[i].userId] : null,
-          onDelete: () => _delete(context, ref, thisMonth[i]),
+        itemBuilder: (context, i) => GroupTile(
+          isFirst: i == 0,
+          isLast: i == thisMonth.length - 1,
+          child: EntryRow(
+            entry: thisMonth[i],
+            addedBy: isTeam ? names[thisMonth[i].userId] : null,
+            onDelete: () => _delete(context, ref, thisMonth[i]),
+          ),
         ),
         footer: [
           if (history.isNotEmpty) ...[
             const SectionHeader(title: 'Previous months'),
-            for (final h in history) _MonthRow(month: h.month, cents: h.cents),
+            GroupedSection(
+              children: [
+                for (final h in history)
+                  _MonthRow(month: h.month, cents: h.cents),
+              ],
+            ),
           ],
         ],
         children: [
@@ -216,9 +228,9 @@ class _MonthRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(minHeight: AppSizes.touchTarget),
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: context.colors.divider)),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
       ),
       child: Row(
         children: [

@@ -9,6 +9,7 @@ Repo: https://github.com/HabtamuTesafaye/planner (public). Default branch `main`
 ## 1. State right now (2026-11-01)
 
 - **All planned phases are built:** 0–7, plus 2b (spaces) and 3b (projects). Tags `phase-0` … `phase-7`.
+- **Open PR #6:** `feature/ui-polish` (stacked on #1) polishes the calm style: grouped rounded lists, a progress ring on Today, tinted status pills and icon tiles, bolder money bar, fixed FAB hero-tag clash.
 - **Open PR #1:** `feature/insights-dashboard` adds the Insights dashboard (activity heatmap, weekly bars, stat tiles, income per month, outreach breakdown). Review and merge it first.
 - **Owner status:** the owner is testing on a Redmi phone (Android 16) and will send comments. Nothing is blocked on code.
 - **Checks on `main` + the PR:** `flutter analyze` clean; `flutter test` 235 passing; DB isolation test 139/139.
@@ -60,6 +61,12 @@ flutter build apk --release --split-per-abi --dart-define-from-file=env/staging.
 Release builds need `android/key.properties` (git-ignored) pointing at `~/keys/planner-release.jks`. They fail on purpose without it.
 
 Secrets that are **never** in git: `env/staging.json`, `env/staging.db-password`, `android/key.properties`, the keystore. Never use the Supabase `service_role` key anywhere.
+
+Design review without a phone: render every screen (real fonts and icons, light and dark) to PNG:
+```
+flutter test test/screenshots --dart-define=SHOTS_DIR=/tmp/shots
+```
+Sample data lives in `test/screenshots/fixtures.dart`. Look at the images before and after any UI change.
 
 Device: Xiaomi blocks automated taps and asks the user to tap Install for every `adb install`. Screenshots work (`adb exec-out screencap -p`); don't capture when the notification shade is focused (private notifications).
 

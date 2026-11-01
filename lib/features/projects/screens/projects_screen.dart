@@ -55,6 +55,8 @@ class ProjectsScreen extends ConsumerWidget {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        // Every tab stays alive, so each button needs its own hero tag.
+        heroTag: 'fab-projects',
         onPressed: () => _new(context, ref),
         icon: const Icon(Symbols.add),
         label: const Text('New project'),
