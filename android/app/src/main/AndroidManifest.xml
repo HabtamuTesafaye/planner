@@ -1,5 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Needed in release builds to reach Supabase (Flutter only adds it to
+         debug and profile builds). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- No backups: the login session must not be copied to cloud backups
+         or to another device. allowBackup covers Android 11 and below;
+         dataExtractionRules covers Android 12+ (cloud and device transfer). -->
     <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:label="Planner"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

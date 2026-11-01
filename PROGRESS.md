@@ -3,7 +3,7 @@
 This file lets any agent (Claude Code or Codex) pick up exactly where the last one stopped. Keep it short and always current.
 
 ## Current state
-- Current phase: 0 (Foundation): code done, waiting for the first on-device run and the user's approval
+- Current phase: 0 (Foundation): DONE and verified on the phone, waiting for the user's "go" for Phase 1
 - Last completed phase: none approved yet
 - Tool used last: Claude Code
 
@@ -21,7 +21,11 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
 ## In progress
-- First debug build (`flutter build apk --debug --dart-define-from-file=env/example.json`). The first build on this machine downloads Gradle, NDK and the Flutter engine over a slow link. Then: install on the phone (adb device `VCXG7LF6ROVOCUKV`, Android 16), check both themes, send the Phase 0 report.
+(nothing). Phase 0 report sent.
+- Verified on the Redmi phone (adb `VCXG7LF6ROVOCUKV`, Android 16): app launches, edge-to-edge, light and dark themes correct, no Flutter errors in logcat. adb input injection is blocked on this Xiaomi, so tab taps were checked by the user and by widget tests.
+- Phase 0 security audit in `docs/security-audit.md`. Fixed: INTERNET permission for release builds, backups disabled.
+- Trail of Bits security plugins installed (see `docs/TOOLS.md`).
+- Xiaomi needs "Install via USB" on, and the user taps Install on each adb install.
 
 ## Decisions made (and why)
 - Package id `com.elvaris.planner`, app name "Planner" (user). Assumptions 1, 2, 3, 5 confirmed.
@@ -36,7 +40,7 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Confirm SMTP uses a NEW Gmail app password (the old one was pasted in chat and should be revoked).
 
 ## Next step
-Finish the Phase 0 on-device check and report. Then wait for "go" before `phases/01-backend.md`.
+Wait for the user's "go", then `phases/01-backend.md`. Supabase project `planner-staging` already exists (ref `jhdzewceymvxpdbxcpbd`); push migrations with `npx supabase@2.122.0` using the password in `env/staging.db-password`. Run the Supabase security advisor and the full audit at the end of Phase 1.
 
 ## How to test the latest work
 1. `flutter pub get`
