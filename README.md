@@ -33,6 +33,13 @@ Until the Supabase project exists (Phase 1), you can run with the example file t
 flutter run --dart-define-from-file=env/example.json
 ```
 
+## Accounts and teams (Phase 2)
+
+- Sign up with name, email and password (min 8). With email confirmation on, the app shows "Check your email". Tap the link, then sign in.
+- After signing in: create a team (you get an 8-character invite code) or join one with a teammate's code. Codes ignore case, spaces and dashes.
+- The session is kept by Supabase on the device (excluded from backups), so closing the app keeps you signed in.
+- Team tab (temporary until Phase 6): team name, invite code with a copy button, members (pull down to refresh), sign out and leave team.
+
 ## Checks
 
 ```

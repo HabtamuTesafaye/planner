@@ -3,8 +3,8 @@
 This file lets any agent (Claude Code or Codex) pick up exactly where the last one stopped. Keep it short and always current.
 
 ## Current state
-- Current phase: 1 (Backend): DONE, waiting for the user's approval before Phase 2
-- Last completed phase: 0 (approved: the user said go)
+- Current phase: 2 (Auth and team): DONE, waiting for the user's two-phone test and approval
+- Last completed phase: 1 (approved: the user said go)
 - Tool used last: Claude Code
 
 ## Done
@@ -19,6 +19,14 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Tests: contrast (all token pairs, both themes), theme smoke, config, CircleCheck semantics and 48 dp target, 4 tabs at 360x640 and 1.5x font in both themes, setup screen. 67 passing; `flutter analyze` clean.
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
+
+## Phase 2 (auth and team) done
+- `lib/data/`: `supabase_client.dart` (init + client provider), `app_exception.dart` (the ONE place errors become friendly messages), models `Profile`, `Team`, `TeamMember`, repositories `AuthRepository`, `TeamRepository`, `ProfileRepository`.
+- Providers: `currentUserIdProvider`, `authStatusProvider`, `currentProfileProvider` (auth); `currentTeamProvider`, `teamMembersProvider`, `teamStatusProvider` (team). `teamStatusProvider` treats `isReloading` (user changed) as loading, so a previous user's team is never shown.
+- Router: pure `resolveRedirect` in `lib/router_redirect.dart` (splash / welcome / team setup / tabs), re-run on auth or team changes.
+- Screens: Welcome, Sign up, Sign in (with "send the email again" when unconfirmed), Check email, Splash (loading, or error with retry), Team setup (new team / join with code). Temporary Team tab: name, invite code + copy, members (pull to refresh), sign out, leave team (with a confirmation that says what will happen).
+- Tests: 124 passing (error mapping, redirects, join code formatter, validators, models, all auth screens at 360x640 and 1.5x in both themes, wrong password and wrong code messages).
+- Verified against the live backend with temporary users (since deleted): wrong password, create team, wrong code, join with lowercase and spaced code, both see the same team and members, leave.
 
 ## Phase 1 (backend) done
 - Migrations 001–010 in `supabase/migrations/`, pushed to `planner-staging` cleanly in order. 010 adds column-level UPDATE grants (hardening found in the audit).
@@ -52,7 +60,7 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - Confirm SMTP uses a NEW Gmail app password (the old one was pasted in chat and should be revoked).
 
 ## Next step
-Wait for the user's approval of Phase 1, then `phases/02-auth-and-team.md`. Email confirmation is ON, so sign-up shows "check your email". After restarting Claude Code, optionally run `/security-review` and `/insecure-defaults:audit` (Trail of Bits) as a second opinion on Phase 1.
+Wait for the user's two-phone test and approval of Phase 2, then `phases/03-today.md`. Email confirmation is ON, so sign-up shows "check your email". After restarting Claude Code, optionally run `/security-review` and `/insecure-defaults:audit` (Trail of Bits) as a second opinion on Phase 1.
 
 ## How to test the latest work
 Phase 1:
