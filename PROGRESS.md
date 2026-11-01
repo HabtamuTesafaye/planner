@@ -20,6 +20,13 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## Phase 3b (Projects) done
+- `Project`, `ProjectItem` models, `projectProgress`; `ProjectsRepository` (realtime projects + steps per space, create with template steps, rename, status, delete with permission check, add/toggle/delete/restore steps).
+- Templates in code (`lib/features/projects/templates.dart`): Blank, Client project, Product launch, Content plan, Event.
+- `ProjectsController` + `ItemOverlay` (optimistic step toggles/deletes). Projects tab: cards with thin progress bar, Done section, FAB New project (sheet with template options), empty/error/skeleton. Project screen `/projects/:id`: checklist, Plan for today (uses Today's controller; respects the 3 limit; shows "Today" when planned), add step inline, swipe delete + Undo, menu (rename, mark done/active, delete with confirm).
+- `core/widgets/thin_progress_bar.dart` (reused by Money). New error kind `notAllowed`.
+- Tests: 178 passing.
+
 ## Phase 3 (Today) done
 - `Task`, `WeeklyGoal` models; `TasksRepository` (realtime stream of my tasks, add/toggle/delete/restore), `GoalsRepository` (fetch, upsert, clear).
 - `lib/core/utils/dates.dart` (week starts Monday, months, daysBetween, db date), `ids.dart` (uuid v4 for optimistic inserts).

@@ -12,6 +12,7 @@ import 'features/auth/screens/splash_screen.dart';
 import 'features/auth/screens/welcome_screen.dart';
 import 'features/money/screens/money_screen.dart';
 import 'features/outreach/screens/outreach_screen.dart';
+import 'features/projects/screens/project_screen.dart';
 import 'features/projects/screens/projects_screen.dart';
 import 'features/space/providers/space_providers.dart';
 import 'features/space/screens/new_space_screen.dart';
@@ -64,6 +65,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               ? NewSpaceMode.join
               : NewSpaceMode.create,
         ),
+      ),
+      GoRoute(
+        path: '/projects/:id',
+        builder: (context, state) =>
+            ProjectScreen(projectId: state.pathParameters['id']!),
       ),
       StatefulShellRoute(
         builder: (context, state, shell) => AppShell(navigationShell: shell),

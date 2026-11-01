@@ -19,6 +19,7 @@ enum AppErrorKind {
   notInTeam,
   invalidTeamName,
   taskLimit,
+  notAllowed,
   rateLimited,
   signedOut,
   network,
@@ -65,6 +66,8 @@ class AppException implements Exception {
     AppErrorKind.invalidTeamName =>
       'Give the space a name of up to 60 characters.',
     AppErrorKind.taskLimit => 'Three is the limit. Finish or remove one first.',
+    AppErrorKind.notAllowed =>
+      'Only the person who added this, or the space owner, can do that.',
     AppErrorKind.rateLimited =>
       'Too many tries in a short time. Wait a minute and try again.',
     AppErrorKind.signedOut => 'Your session ended. Please sign in again.',
@@ -133,6 +136,7 @@ class AppException implements Exception {
       'not_in_team' => AppErrorKind.notInTeam,
       'invalid_team_name' => AppErrorKind.invalidTeamName,
       'task_limit_reached' => AppErrorKind.taskLimit,
+      'immutable_column' || 'invalid_project_item' => AppErrorKind.notAllowed,
       'not_authenticated' => AppErrorKind.signedOut,
       _ => AppErrorKind.unknown,
     };

@@ -9,6 +9,7 @@ import 'package:planner/data/models/space.dart';
 import 'package:planner/data/models/team_member.dart';
 import 'package:planner/data/repositories/profile_repository.dart';
 import 'package:planner/features/auth/providers/auth_providers.dart';
+import 'package:planner/features/projects/providers/projects_providers.dart';
 import 'package:planner/features/space/providers/space_providers.dart';
 import 'package:planner/features/space/screens/space_screen.dart';
 import 'package:planner/features/today/providers/today_providers.dart';
@@ -72,6 +73,8 @@ Future<void> _pumpApp(WidgetTester tester, {String? lastSpace}) async {
         profileRepositoryProvider.overrideWithValue(_FakeProfiles()),
         myTasksProvider.overrideWith((ref) => Stream.value(const [])),
         weeklyGoalProvider.overrideWith((ref) async => null),
+        projectsProvider.overrideWith((ref) => Stream.value(const [])),
+        projectItemsProvider.overrideWith((ref) => Stream.value(const [])),
       ],
       child: const PlannerApp(config: _config),
     ),
