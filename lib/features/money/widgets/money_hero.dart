@@ -55,6 +55,7 @@ class MoneyHero extends StatelessWidget {
           ThinProgressBar(
             value: progress,
             semanticLabel: 'Progress toward the monthly target',
+            height: AppSizes.progressBarHero,
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(

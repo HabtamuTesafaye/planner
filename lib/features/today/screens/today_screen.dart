@@ -8,7 +8,9 @@ import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/page_body.dart';
+import '../../../core/widgets/progress_ring.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
@@ -21,7 +23,6 @@ import '../../space/providers/space_providers.dart';
 import '../providers/today_controller.dart';
 import '../providers/today_providers.dart';
 import '../widgets/add_task_sheet.dart';
-import '../widgets/day_progress.dart';
 import '../widgets/goal_card.dart';
 import '../widgets/goal_sheet.dart';
 import '../widgets/task_row.dart';
@@ -107,6 +108,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        // Every tab stays alive, so each button needs its own hero tag.
+        heroTag: 'fab-today',
         onPressed: () => _addTask(count),
         icon: const Icon(Symbols.add),
         label: const Text('Add task'),
@@ -118,6 +121,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         title: DateFormat.EEEE().format(today),
         subtitle: DateFormat.MMMMd().format(today),
         largeTitle: true,
+        trailing: tasks.hasValue
+            ? ProgressRing(
+                done: done,
+                total: Task.dailyLimit,
+                semanticLabel:
+                    '$done of $count tasks done today, '
+                    '${Task.dailyLimit - count} free',
+              )
+            : null,
         top: Align(
           alignment: Alignment.centerRight,
           child: IconButton(
@@ -148,10 +160,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
               ),
             ),
-          SectionHeader(
-            title: 'Today’s three',
-            trailing: DayProgress(planned: count, done: done),
-          ),
+          const SectionHeader(title: 'Today’s three'),
           ...switch (tasks) {
             AsyncValue(hasValue: true, :final value?) when value.isEmpty => [
               EmptyState(
@@ -166,11 +175,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 FadeSlideIn(
                   key: ValueKey('in-${task.id}'),
                   index: i,
-                  child: TaskRow(
-                    task: task,
-                    spaceName: names.length > 1 ? names[task.spaceId] : null,
-                    onToggle: () => _toggle(task),
-                    onDelete: () => _delete(task),
+                  child: GroupTile(
+                    isFirst: i == 0,
+                    isLast: i == value.length - 1,
+                    child: TaskRow(
+                      task: task,
+                      spaceName: names.length > 1 ? names[task.spaceId] : null,
+                      onToggle: () => _toggle(task),
+                      onDelete: () => _delete(task),
+                    ),
                   ),
                 ),
               if (value.length >= Task.dailyLimit)

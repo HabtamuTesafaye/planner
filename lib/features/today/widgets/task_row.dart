@@ -62,9 +62,11 @@ class TaskRow extends StatelessWidget {
       onDismissed: (_) => onDelete(),
       child: Container(
         constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: colors.divider)),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xs,
+          AppSpacing.xs,
+          AppSpacing.lg,
+          AppSpacing.xs,
         ),
         child: Row(
           children: [

@@ -85,17 +85,16 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                   height: text.labelSmall!.fontSize! * 1.6,
                   child: Stack(
                     children: [
-                      for (final (i, monday) in mondays.indexed)
-                        if (i == 0 || monday.month != mondays[i - 1].month)
-                          Positioned(
-                            left: i * (cell + gap),
-                            child: ExcludeSemantics(
-                              child: Text(
-                                DateFormat.MMM().format(monday),
-                                style: text.labelSmall,
-                              ),
+                      for (final i in monthLabelColumns(mondays))
+                        Positioned(
+                          left: i * (cell + gap),
+                          child: ExcludeSemantics(
+                            child: Text(
+                              DateFormat.MMM().format(mondays[i]),
+                              style: text.labelSmall,
                             ),
                           ),
+                        ),
                     ],
                   ),
                 ),
@@ -234,4 +233,24 @@ class _Legend extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Columns that get a month label: where a month starts, at least
+/// four columns apart and not at the very right edge, so labels never
+/// collide or get cut off. A short partial month at the left gives way to
+/// the next full one.
+List<int> monthLabelColumns(List<DateTime> mondays) {
+  const minGap = 4;
+  final starts = [
+    for (var i = 0; i < mondays.length; i++)
+      if (i == 0 || mondays[i].month != mondays[i - 1].month) i,
+  ];
+  if (starts.length > 1 && starts[1] - starts[0] < minGap) starts.removeAt(0);
+  final result = <int>[];
+  for (final i in starts) {
+    final roomBefore = result.isEmpty || i - result.last >= minGap;
+    final roomAfter = mondays.length - i >= minGap - 1;
+    if (roomBefore && roomAfter) result.add(i);
+  }
+  return result;
 }

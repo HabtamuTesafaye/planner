@@ -47,9 +47,7 @@ class StepRow extends StatelessWidget {
       onDismissed: (_) => onDelete(),
       child: Container(
         constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: colors.divider)),
-        ),
+        padding: const EdgeInsets.only(left: AppSpacing.xs),
         child: Row(
           children: [
             CircleCheck(

@@ -68,6 +68,16 @@ abstract final class AppSizes {
 
   /// App mark sizes: small (Welcome header) and large (launch, matches the
   /// native splash).
+  /// Today's progress ring.
+  static const double progressRing = 56;
+  static const double progressRingStroke = 5;
+
+  /// Thicker bar for a screen's main number (Money).
+  static const double progressBarHero = 10;
+
+  /// Rounded square behind a list or card icon.
+  static const double iconTile = 40;
+
   /// Charts: gap between adjacent marks, rounded data ends, plot height,
   /// smallest heatmap cell.
   static const double chartGap = 2;

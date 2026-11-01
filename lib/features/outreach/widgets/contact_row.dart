@@ -43,9 +43,11 @@ class ContactRow extends StatelessWidget {
       onTap: onOpen,
       child: Container(
         constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: colors.divider)),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.xs,
+          AppSpacing.md,
         ),
         child: Row(
           children: [
@@ -61,11 +63,7 @@ class ContactRow extends StatelessWidget {
                     runSpacing: AppSpacing.xs,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      ActionChip(
-                        label: Text(contact.status.label),
-                        onPressed: onStatus,
-                        tooltip: 'Change status',
-                      ),
+                      _StatusPill(status: contact.status, onTap: onStatus),
                       if (date != null && !contact.status.isClosed)
                         Text(
                           followUpText(date, today),
@@ -88,6 +86,69 @@ class ContactRow extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Soft tinted status label; tap to change. Won leads read green, dropped
+/// ones muted, open ones in the accent tint. The word always says it, so
+/// color is never the only signal.
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.status, required this.onTap});
+
+  final ContactStatus status;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final (bg, fg) = switch (status) {
+      ContactStatus.paid => (colors.successSoft, colors.success),
+      ContactStatus.dead => (colors.surfaceSunken, colors.muted),
+      _ => (colors.accentSoft, colors.accentText),
+    };
+    return Semantics(
+      button: true,
+      label: 'Status ${status.label}. Double tap to change.',
+      excludeSemantics: true,
+      // The touch area is 48 dp tall; only the small pill inside is painted.
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: AppSizes.touchTarget),
+          child: Center(
+            widthFactor: 1,
+            child: DecoratedBox(
+              decoration: ShapeDecoration(
+                color: bg,
+                shape: const StadiumBorder(),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.xs,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      status.label,
+                      style: context.text.labelMedium!.copyWith(color: fg),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Icon(
+                      Symbols.expand_more,
+                      size: AppSizes.tagIcon,
+                      color: fg,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

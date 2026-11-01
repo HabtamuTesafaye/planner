@@ -49,9 +49,9 @@ class EntryRow extends StatelessWidget {
       onDismissed: (_) => onDelete(),
       child: Container(
         constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: colors.divider)),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
         ),
         child: Row(
           children: [

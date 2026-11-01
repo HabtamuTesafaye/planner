@@ -7,6 +7,7 @@ import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../core/widgets/thin_progress_bar.dart';
 import '../../../data/models/project.dart';
@@ -169,15 +170,19 @@ class ProjectScreen extends ConsumerWidget {
         FadeSlideIn(
           key: ValueKey('in-${item.id}'),
           index: i,
-          child: StepRow(
-            item: item,
-            plannedToday: planned.contains(item.id),
-            onToggle: () async {
-              final e = await controller.toggleStep(item);
-              if (e != null && context.mounted) _message(context, e.message);
-            },
-            onPlan: () => _plan(context, ref, item),
-            onDelete: () => _delete(context, ref, item),
+          child: GroupTile(
+            isFirst: i == 0,
+            isLast: i == list.length - 1,
+            child: StepRow(
+              item: item,
+              plannedToday: planned.contains(item.id),
+              onToggle: () async {
+                final e = await controller.toggleStep(item);
+                if (e != null && context.mounted) _message(context, e.message);
+              },
+              onPlan: () => _plan(context, ref, item),
+              onDelete: () => _delete(context, ref, item),
+            ),
           ),
         ),
       AddStepField(

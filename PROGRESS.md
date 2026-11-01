@@ -20,6 +20,12 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## UI polish (branch `feature/ui-polish`, stacked on the insights PR)
+- Screenshot tool: `test/screenshots/` (skipped unless `--dart-define=SHOTS_DIR=...`), real fonts + icons, all tabs, project, insights, welcome, sign in, review, light and dark.
+- Polish: `GroupTile`/`GroupedSection` (rows grouped on rounded surface cards with inset dividers) on Today, project steps, Outreach (lazy), Money; `ProgressRing` (done/3) in Today's header via `PageBody.trailing`; project icons on tinted tiles; Outreach status as a soft tinted pill (48 dp touch area, small painted pill); Money hero bar 10 dp; section headers `titleSmall`.
+- Bugs found by the renders: four tab FABs shared one hero tag (now unique per tab); heatmap month labels collided ("MayJun") and clipped at the edge (`monthLabelColumns`).
+- Tests: 240 passing (+8 screenshot renders skipped by default).
+
 ## Insights dashboard (branch `feature/insights-dashboard`, PR open)
 - `lib/features/insights/`: `insights_logic.dart` (done per day, heatmap weeks, weekly totals, summary: this/last week, active days 30, completion 30, strongest weekday; no streaks or scores), `activityTasksProvider` (26 weeks of my tasks + live merge), screen `/insights` (opened from Today's top-right icon and from the Space tab).
 - Widgets drawn with plain Flutter + tokens: `ActivityHeatmap` (GitHub-style, weeks that fit, tap a day), `SimpleBarChart` (single series, tap to read), `StatTile`/`StatGrid`, `BreakdownBars`, `InsightCard`.

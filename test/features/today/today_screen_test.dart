@@ -71,6 +71,13 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Wednesday'), findsOneWidget);
+      // On a small phone at 1.5x the third task sits just below the fold.
+      await tester.scrollUntilVisible(
+        find.text('Task c'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
       expect(find.byType(CircleCheck), findsNWidgets(3));
       expect(tester.takeException(), isNull);
     });

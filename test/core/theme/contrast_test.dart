@@ -43,6 +43,8 @@ void main() {
         'surface on attention (error fill)': (c.surface, c.attention),
         'success on background': (c.success, c.background),
         'success on surface': (c.success, c.surface),
+        'success on successSoft (won status pill)': (c.success, c.successSoft),
+        'accentText on accentSoft (status pill)': (c.accentText, c.accentSoft),
         // Snackbar: inverted colors.
         'snackbar text': (c.background, c.text),
       };
