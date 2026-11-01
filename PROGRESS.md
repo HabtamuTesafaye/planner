@@ -20,6 +20,13 @@ This file lets any agent (Claude Code or Codex) pick up exactly where the last o
 - App icon set drawn in `assets/icon/` by `assets/icon/src/make_icons.py` (not wired yet: Phase 7).
 - Supabase project `planner-staging` created via CLI (ref `jhdzewceymvxpdbxcpbd`, eu-central-1). `env/staging.json` holds URL + anon key only. DB password in `env/staging.db-password` (git-ignored, chmod 600).
 
+## Phase 6 (Space and review) done
+- `WeeklyReview` model, `ReviewsRepository` (space reviews; upsert; next goal → next week's goal of the week), `TasksRepository.watchSpaceTasks`.
+- `progress_logic.dart` (`MemberProgress`, `buildProgress`: today planned/done, done this week, contacts this week, goal, last review), `review_logic.dart` (`reviewWeek` with Monday grace day, `showReviewPrompt` Sun/Mon only).
+- Space tab: member cards (calm wording, no scores; tap → read-only sheet with today's tasks + latest review), weekly review entry, invite with copy + share (share_plus), settings (daily reminder time on/off + picker, theme System/Light/Dark, saved on the profile), sign out, leave space. Personal space shows your own card, review, create/join.
+- Review screen `/review`: 3 fields, save, past reviews of everyone in the space. Today shows a gentle prompt on Sunday/Monday when the review is missing (never on stale or loading data).
+- Tests: 211 passing.
+
 ## Phase 5 (Money) done
 - `IncomeEntry`, `MonthlyTarget` (amounts as integer cents; exact `centsToDb` strings), `MoneyRepository` (realtime entries per space, target fetch/upsert, add, delete with permission check, restore).
 - `money_logic.dart`: `monthOf`, `monthTotal`, `previousMonths`, `entriesOf`, `targetProgress`.
