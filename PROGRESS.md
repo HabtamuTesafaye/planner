@@ -161,3 +161,4 @@ Phase 0:
 ## Merge and issue cleanup (2026-11-01)
 - PRs #1, #6 and #7 merged into `main` after checks (analyze clean, 257 tests, DB 140/140).
 - Issues closed: #3 (Supabase auth settings, done by owner), #5 (AI features, not planned by owner's decision), #2 (backup reminder; steps in README). Open: #4 device QA.
+- Google sign-in switched on in Supabase staging by the owner; verified from the public settings endpoint and the authorize redirect.

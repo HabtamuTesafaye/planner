@@ -76,10 +76,9 @@ Device: Xiaomi blocks automated taps and asks the user to tap Install for every 
 | Item | Owner | Where |
 |---|---|---|
 | Back up `~/keys/planner-release.jks` + `android/key.properties` (README "Release build") | Owner | — |
-| Switch on Google sign-in: Google Cloud OAuth client (Web) + Supabase provider (README "Google sign-in") | Owner | — |
 | Device checks not automatable here: TalkBack walk-through, reminder arrives, airplane mode, Android 7 phone | Owner | #4, `docs/qa-checklist.md` (👤 rows) |
 
-Closed: #3 Supabase auth settings (done by the owner). #5 AI features: owner's decision, not planned; do not build.
+Closed: #3 Supabase auth settings (done by the owner). Google provider switched on in staging (2026-11-01, verified: settings report google=true, authorize redirects to Google). #5 AI features: owner's decision, not planned; do not build.
 
 ## 6. Working rules (from AGENTS.md and the owner)
 
