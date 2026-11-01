@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../theme/app_spacing.dart';
@@ -26,6 +29,17 @@ class CircleCheck extends StatelessWidget {
 
   static const double _size = 26;
 
+  /// Light haptic on completing (a small reward), a softer tick on undo.
+  /// Follows the system "touch feedback" setting.
+  void _toggle() {
+    final next = !value;
+    // Fire and forget: haptics never block the UI.
+    unawaited(
+      next ? HapticFeedback.lightImpact() : HapticFeedback.selectionClick(),
+    );
+    onChanged!(next);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -39,9 +53,9 @@ class CircleCheck extends StatelessWidget {
       enabled: enabled,
       label: label,
       excludeSemantics: true,
-      onTap: enabled ? () => onChanged!(!value) : null,
+      onTap: enabled ? _toggle : null,
       child: InkResponse(
-        onTap: enabled ? () => onChanged!(!value) : null,
+        onTap: enabled ? _toggle : null,
         radius: AppSizes.touchTarget / 2,
         child: SizedBox.square(
           dimension: AppSizes.touchTarget,

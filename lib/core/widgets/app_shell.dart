@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -35,6 +38,9 @@ class AppShell extends StatelessWidget {
   ];
 
   void _onSelect(int index) {
+    if (index != navigationShell.currentIndex) {
+      unawaited(HapticFeedback.selectionClick());
+    }
     navigationShell.goBranch(
       index,
       // Tapping the active tab returns it to its first page.

@@ -151,6 +151,12 @@
       "skillPath": "skills/flutter-use-http-package/SKILL.md",
       "computedHash": "17efcf4da9933afaf9c1d41940bd6b92f1ae73dcae4bf6c59cfe24f7e487ee9f"
     },
+    "mobile-design": {
+      "source": "vudovn/antigravity-kit",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/mobile-design/SKILL.md",
+      "computedHash": "fa81c2c9f375b276100c3fd05744e2cad91aac7c317de26932f9bb2c73d033d1"
+    },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",

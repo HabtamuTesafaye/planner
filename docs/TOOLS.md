@@ -11,6 +11,14 @@ Skills are folders with a `SKILL.md` that the agent loads only when a task match
 | `supabase/agent-skills`, skill `supabase` | Supabase auth, Realtime, RLS, migrations, security checks | `npx skills add supabase/agent-skills --skill supabase -a claude-code -a codex -y` |
 | `supabase/agent-skills`, skill `supabase-postgres-best-practices` | Schema, index, RLS and query best practices | `npx skills add supabase/agent-skills --skill supabase-postgres-best-practices -a claude-code -a codex -y` |
 
+### Mobile design skill (approved by the user)
+
+| Skill source | What it gives the agent | Install |
+|---|---|---|
+| `vudovn/antigravity-kit`, skill `mobile-design` | Touch and thumb-zone ergonomics, haptics, Material 3 and Android conventions, Flutter performance checklists. 13 markdown guides plus `scripts/mobile_audit.py` (Python standard library only, read-only, no network). | `npx skills add vudovn/antigravity-kit --skill mobile-design -a claude-code -a codex -y` |
+
+AGENTS.md wins over this skill. Ignore its advice on iOS/HIG (Android only), offline-first storage like Room or SQLite (v1 is online-first), and BLoC, GetX or Redux (we use Riverpod). Its audit script is written mostly for React Native: treat "touch target" hits on icon sizes, "no dark mode" and "no testing framework" as false positives for this project.
+
 ### Security plugins (Claude Code only, approved by the user)
 
 From the official Trail of Bits repo `trailofbits/skills`. Installed at project scope, so `.claude/settings.json` enables them for anyone who opens the repo in Claude Code.

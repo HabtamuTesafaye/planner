@@ -209,7 +209,8 @@ Check text contrast (WCAG AA, 4.5:1) for every text and background pair, includi
 - Spacing scale: 4, 8, 12, 16, 24, 32. Corner radius: 12 for inputs and buttons, 16 for sheets. No heavy shadows; use dividers and surface color instead.
 - Type scale: Fraunces for display (date, big numbers, screen titles). Manrope for body 15 to 16, labels 13, with real hierarchy. Numbers use tabular figures.
 - Icons: outlined, consistent size 22 to 24. No emoji as icons.
-- Touch targets at least 48 x 48 dp. Primary actions in the bottom half of the screen.
+- Touch targets at least 48 x 48 dp. Primary actions in the bottom half of the screen (thumb zone); destructive actions never in the easiest-to-reach spot.
+- Haptics: light haptic when completing a task, selection tick on tab change and filter change, and at a swipe-action threshold. Use Flutter's built-in `HapticFeedback` only (no package). Never on every scroll or keystroke.
 - Every screen has designed loading (skeleton), empty and error states with short, human copy. No lorem ipsum, no "Something went wrong" alone.
 - Accessibility: semantic labels on icon buttons and the custom checkbox, correct focus order, works with TalkBack.
 
