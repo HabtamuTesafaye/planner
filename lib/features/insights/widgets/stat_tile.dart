@@ -65,18 +65,35 @@ class StatGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final scale = MediaQuery.textScalerOf(context).scale(1);
-        final perRow = scale > _oneColumnAboveTextScale ? 1 : 2;
-        final width =
-            (constraints.maxWidth - AppSpacing.md * (perRow - 1)) / perRow;
-        return Wrap(
-          spacing: AppSpacing.md,
-          runSpacing: AppSpacing.md,
-          children: [for (final t in tiles) SizedBox(width: width, child: t)],
-        );
-      },
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    final perRow = scale > _oneColumnAboveTextScale ? 1 : 2;
+    final rows = [
+      for (var i = 0; i < tiles.length; i += perRow)
+        tiles.sublist(i, (i + perRow).clamp(0, tiles.length)),
+    ];
+    return Column(
+      children: [
+        for (final (r, row) in rows.indexed) ...[
+          if (r > 0) const SizedBox(height: AppSpacing.md),
+          // Tiles in a row share one height.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, tile) in row.indexed) ...[
+                  if (i > 0) const SizedBox(width: AppSpacing.md),
+                  Expanded(child: tile),
+                ],
+                // Keep a lone last tile at half width.
+                if (row.length < perRow) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  const Expanded(child: SizedBox.shrink()),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
