@@ -150,10 +150,36 @@ begin
 exception when others then
   perform pg_temp.ok('A creates a team with a valid 8-char code', false, sqlerrm);
 end $$;
-select pg_temp.expect_error('A cannot create a second team',
-  $q$ select public.create_team('rls-test-A2') $q$, 'already_in_team');
+select pg_temp.expect_count('A got a personal space at sign-up',
+  $q$ select 1 from public.teams t join public.team_members m on m.team_id = t.id
+      where t.kind = 'personal' and m.role = 'owner' $q$, 1);
+do $$
+begin
+  perform pg_temp.put('personalA', (select t.id::text from public.teams t
+    where t.kind = 'personal' and t.created_by = auth.uid()));
+end $$;
+select pg_temp.expect_count('A''s personal space has no join code',
+  format('select 1 from public.teams where id = %L and join_code is null',
+         pg_temp.val('personalA')), 1);
+select pg_temp.expect_error('A cannot leave the personal space',
+  format('select public.leave_team(%L)', pg_temp.val('personalA')),
+  'cannot_leave_personal');
+do $$
+declare t public.teams;
+begin
+  t := public.create_team('rls-test-A2');
+  perform pg_temp.put('teamA2', t.id::text);
+  perform pg_temp.ok('A can create a second team space', true, null);
+exception when others then
+  perform pg_temp.ok('A can create a second team space', false, sqlerrm);
+end $$;
 
 select pg_temp.act_as('B');
+do $$
+begin
+  perform pg_temp.put('personalB', (select t.id::text from public.teams t
+    where t.kind = 'personal' and t.created_by = auth.uid()));
+end $$;
 do $$
 declare t public.teams;
 begin
@@ -165,6 +191,11 @@ exception when others then
 end $$;
 
 select pg_temp.act_as('C');
+do $$
+begin
+  perform pg_temp.put('personalC', (select t.id::text from public.teams t
+    where t.kind = 'personal' and t.created_by = auth.uid()));
+end $$;
 select pg_temp.expect_error('Blank team name is rejected',
   $q$ select public.create_team('   ') $q$, 'invalid_team_name');
 select pg_temp.expect_error('Joining with a wrong code fails',
@@ -184,9 +215,21 @@ exception when others then
   perform pg_temp.ok('C joins team A with the code (any case, spaces ok)', false, sqlerrm);
 end $$;
 
-select pg_temp.act_as('B');
-select pg_temp.expect_error('B (already in a team) cannot join team A',
-  format('select public.join_team(%L)', pg_temp.val('codeA')), 'already_in_team');
+select pg_temp.expect_error('C cannot join team A twice',
+  format('select public.join_team(%L)', pg_temp.val('codeA')), 'already_member');
+select pg_temp.expect_count('C now belongs to two spaces (personal + team A)',
+  'select 1 from public.team_members where user_id = auth.uid()', 2);
+select pg_temp.expect_affected('C can select team A as its current space',
+  format('update public.profiles set last_team_id = %L where id = auth.uid()',
+         pg_temp.val('teamA')), 1);
+select pg_temp.expect_count('...and it is stored',
+  format('select 1 from public.profiles where id = auth.uid() and last_team_id = %L',
+         pg_temp.val('teamA')), 1);
+select pg_temp.expect_affected('Selecting a space C is not in is ignored',
+  format('update public.profiles set last_team_id = %L where id = auth.uid()',
+         pg_temp.val('teamB')), 1);
+select pg_temp.expect_count('...the stored value is cleared, not B''s space',
+  'select 1 from public.profiles where id = auth.uid() and last_team_id is null', 1);
 
 -- 2. A's data and database rules -------------------------------------------
 select pg_temp.act_as('A');
@@ -280,14 +323,22 @@ select pg_temp.act_as('B');
 select pg_temp.expect_count('B cannot read team A: ' || tbl,
   format('select 1 from public.%I where team_id = %L', tbl, pg_temp.val('teamA')), 0)
 from unnest(array['tasks', 'weekly_goals', 'weekly_reviews', 'contacts',
-                  'income_entries', 'monthly_targets', 'team_members']) tbl;
+                  'income_entries', 'monthly_targets', 'team_members',
+                  'projects', 'project_items']) tbl;
 select pg_temp.expect_count('B cannot read team A: teams',
   format('select 1 from public.teams where id = %L', pg_temp.val('teamA')), 0);
+select pg_temp.expect_count('B cannot see A''s personal space',
+  format('select 1 from public.teams where id = %L', pg_temp.val('personalA')), 0);
+select pg_temp.expect_error('B cannot add a task to A''s personal space',
+  format($q$ insert into public.tasks (team_id, title, day)
+             values (%L, 'intruder', current_date) $q$, pg_temp.val('personalA')),
+  '%row-level security%');
 select pg_temp.expect_count('B cannot read A''s or C''s profile',
   format('select 1 from public.profiles where id in (%L, %L)',
          pg_temp.val('A'), pg_temp.val('C')), 0);
-select pg_temp.expect_count('B sees no rows outside team B: ' || tbl,
-  format('select 1 from public.%I where team_id <> %L', tbl, pg_temp.val('teamB')), 0)
+select pg_temp.expect_count('B sees no rows outside its own spaces: ' || tbl,
+  format('select 1 from public.%I where team_id not in (%L, %L)',
+         tbl, pg_temp.val('teamB'), pg_temp.val('personalB')), 0)
 from unnest(array['tasks', 'weekly_goals', 'weekly_reviews', 'contacts',
                   'income_entries', 'monthly_targets', 'team_members']) tbl;
 
@@ -389,6 +440,84 @@ select pg_temp.act_as('A');
 select pg_temp.expect_affected('A (owner) can delete C''s contact',
   $q$ delete from public.contacts where name = 'C lead 2' $q$, 1);
 
+-- 4b. Projects: shared inside the space, invisible outside ------------------
+select pg_temp.act_as('A');
+do $$
+declare v_id uuid;
+begin
+  insert into public.projects (team_id, name, template)
+  values (pg_temp.val('teamA')::uuid, 'Website', 'launch') returning id into v_id;
+  perform pg_temp.put('projA', v_id::text);
+  perform pg_temp.ok('A creates a project in team A', true, null);
+exception when others then
+  perform pg_temp.ok('A creates a project in team A', false, sqlerrm);
+end $$;
+select pg_temp.expect_affected('A adds two steps (team taken from the project)',
+  format($q$ insert into public.project_items (project_id, team_id, title, position)
+             values (%1$L, %2$L, 'Write copy', 0), (%1$L, %2$L, 'Pick domain', 1) $q$,
+         pg_temp.val('projA'), pg_temp.val('teamB')), 2);
+select pg_temp.expect_count('Steps were placed in the project''s space, not the one sent',
+  format('select 1 from public.project_items where project_id = %L and team_id = %L',
+         pg_temp.val('projA'), pg_temp.val('teamA')), 2);
+select pg_temp.expect_error('Project name over 80 characters is rejected',
+  format($q$ insert into public.projects (team_id, name) values (%L, repeat('x', 81)) $q$,
+         pg_temp.val('teamA')), '%check constraint%');
+select pg_temp.expect_error('Unknown template is rejected',
+  format($q$ insert into public.projects (team_id, name, template) values (%L, 'X', 'gantt') $q$,
+         pg_temp.val('teamA')), '%check constraint%');
+
+select pg_temp.act_as('C');
+select pg_temp.expect_count('C (same space) reads the project and its steps',
+  format('select 1 from public.project_items where project_id = %L', pg_temp.val('projA')), 2);
+select pg_temp.expect_affected('C checks off a shared step',
+  $q$ update public.project_items set done = true where title = 'Pick domain' $q$, 1);
+select pg_temp.expect_count('...and done_at is set by the database',
+  $q$ select 1 from public.project_items where title = 'Pick domain' and done_at is not null $q$, 1);
+select pg_temp.expect_affected('C cannot delete A''s project',
+  format('delete from public.projects where id = %L', pg_temp.val('projA')), 0);
+select pg_temp.expect_error('C cannot move a project to another space',
+  format('update public.projects set team_id = %L where id = %L',
+         pg_temp.val('teamB'), pg_temp.val('projA')), '%permission denied%');
+-- Plan a step for today. C has no tasks today, so a slot is free.
+do $$
+declare v_item uuid;
+begin
+  select id into v_item from public.project_items where title = 'Write copy';
+  perform pg_temp.put('itemCopy', v_item::text);
+  insert into public.tasks (team_id, title, day, project_item_id)
+  values (pg_temp.val('teamA')::uuid, 'Write copy', current_date, v_item);
+  perform pg_temp.ok('C plans a project step for today', true, null);
+exception when others then
+  perform pg_temp.ok('C plans a project step for today', false, sqlerrm);
+end $$;
+select pg_temp.expect_affected('C completes the planned task',
+  format('update public.tasks set done = true where project_item_id = %L', pg_temp.val('itemCopy')), 1);
+select pg_temp.expect_count('...and the project step is completed too',
+  format('select 1 from public.project_items where id = %L and done', pg_temp.val('itemCopy')), 1);
+select pg_temp.expect_error('A task cannot link a step from another space',
+  format($q$ insert into public.tasks (team_id, title, day, project_item_id)
+             values (%L, 'x', current_date + 9, %L) $q$,
+         pg_temp.val('personalC'), pg_temp.val('itemCopy')),
+  '%invalid_project_item%');
+
+select pg_temp.act_as('B');
+select pg_temp.expect_count('B cannot read team A''s project',
+  format('select 1 from public.projects where id = %L', pg_temp.val('projA')), 0);
+select pg_temp.expect_error('B cannot add a step to team A''s project',
+  format($q$ insert into public.project_items (project_id, team_id, title) values (%L, %L, 'x') $q$,
+         pg_temp.val('projA'), pg_temp.val('teamB')),
+  '%');
+select pg_temp.expect_affected('B cannot check off team A''s steps',
+  format('update public.project_items set done = false where project_id = %L', pg_temp.val('projA')), 0);
+
+select pg_temp.act_as('A');
+select pg_temp.expect_affected('A (creator) can delete the project',
+  format('delete from public.projects where id = %L', pg_temp.val('projA')), 1);
+select pg_temp.expect_count('...its steps went with it',
+  format('select 1 from public.project_items where project_id = %L', pg_temp.val('projA')), 0);
+select pg_temp.expect_count('...and the planned task stays, unlinked',
+  $q$ select 1 from public.tasks where title = 'Write copy' and project_item_id is null $q$, 1);
+
 -- 5. Logged-out (anon) callers get nothing ---------------------------------
 select pg_temp.act_as('anon');
 select pg_temp.expect_no_access('anon reads nothing: ' || tbl,
@@ -406,12 +535,14 @@ select pg_temp.expect_error('anon cannot insert a task',
 
 -- 6. Leaving: owner hand-over and team deletion ----------------------------
 select pg_temp.act_as('A');
-select pg_temp.expect_affected('A (owner) leaves the team',
-  'select public.leave_team()', 1);
+select pg_temp.expect_affected('A (owner) leaves team A',
+  format('select public.leave_team(%L)', pg_temp.val('teamA')), 1);
 select pg_temp.expect_count('A can no longer read team A tasks',
   format('select 1 from public.tasks where team_id = %L', pg_temp.val('teamA')), 0);
 select pg_temp.expect_error('A cannot leave twice',
-  'select public.leave_team()', 'not_in_team');
+  format('select public.leave_team(%L)', pg_temp.val('teamA')), 'not_in_team');
+select pg_temp.expect_count('A still has its personal space and team A2',
+  'select 1 from public.team_members where user_id = auth.uid()', 2);
 
 select pg_temp.act_as('postgres');
 select pg_temp.ok('C (oldest remaining) became owner',
@@ -420,7 +551,8 @@ select pg_temp.ok('C (oldest remaining) became owner',
             and user_id = pg_temp.val('C')::uuid and role = 'owner'));
 
 select pg_temp.act_as('C');
-select pg_temp.expect_affected('C (last member) leaves', 'select public.leave_team()', 1);
+select pg_temp.expect_affected('C (last member) leaves',
+  format('select public.leave_team(%L)', pg_temp.val('teamA')), 1);
 
 select pg_temp.act_as('postgres');
 select pg_temp.ok('Team A and all its data were deleted with the last member',
@@ -430,7 +562,8 @@ select pg_temp.ok('Team A and all its data were deleted with the last member',
   and not exists (select 1 from public.income_entries where team_id = pg_temp.val('teamA')::uuid));
 
 select pg_temp.act_as('B');
-select pg_temp.expect_affected('B leaves', 'select public.leave_team()', 1);
+select pg_temp.expect_affected('B leaves team B',
+  format('select public.leave_team(%L)', pg_temp.val('teamB')), 1);
 
 -- Cleanup and results (as postgres) ---------------------------------------
 select pg_temp.act_as('postgres');
@@ -439,6 +572,9 @@ delete from auth.users where email like 'rls-test-%@example.com';
 select pg_temp.ok('Cleanup removed all test users and teams',
   not exists (select 1 from auth.users where email like 'rls-test-%@example.com')
   and not exists (select 1 from public.teams where name like 'rls-test-%'));
+select pg_temp.ok('Deleting a user also deleted their personal space',
+  not exists (select 1 from public.teams
+              where id in (pg_temp.val('personalA')::uuid, pg_temp.val('personalB')::uuid)));
 
 select n, test, ok, info
 from t_results
