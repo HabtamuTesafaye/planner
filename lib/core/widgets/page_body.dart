@@ -15,6 +15,9 @@ class PageBody extends StatelessWidget {
     this.subtitle,
     this.largeTitle = false,
     this.bottomPadding = AppSpacing.xxl,
+    this.itemCount = 0,
+    this.itemBuilder,
+    this.footer = const [],
     super.key,
   });
 
@@ -34,35 +37,66 @@ class PageBody extends StatelessWidget {
   /// Space under the content, larger when a floating button covers it.
   final double bottomPadding;
 
+  /// Optional long list under [children], built lazily (only visible rows
+  /// are built), so screens stay fast with hundreds of items.
+  final int itemCount;
+  final IndexedWidgetBuilder? itemBuilder;
+
+  /// Widgets after the lazy list.
+  final List<Widget> footer;
+
   @override
   Widget build(BuildContext context) {
-    final list = ListView(
-      physics: onRefresh == null ? null : const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        top == null ? AppSpacing.xl : AppSpacing.sm,
-        AppSpacing.lg,
-        bottomPadding,
+    final header = [
+      if (top != null) ...[top!, const SizedBox(height: AppSpacing.xs)],
+      Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: largeTitle
+              ? context.text.displayMedium
+              : context.text.headlineMedium,
+        ),
       ),
-      children: [
-        if (top != null) ...[top!, const SizedBox(height: AppSpacing.xs)],
-        Semantics(
-          header: true,
-          child: Text(
-            title,
-            style: largeTitle
-                ? context.text.displayMedium
-                : context.text.headlineMedium,
+      if (subtitle != null)
+        Text(
+          subtitle!,
+          style: context.text.titleMedium!.copyWith(
+            color: context.colors.muted,
           ),
         ),
-        if (subtitle != null)
-          Text(
-            subtitle!,
-            style: context.text.titleMedium!.copyWith(
-              color: context.colors.muted,
+      ...children,
+    ];
+    final builder = itemBuilder;
+    final list = CustomScrollView(
+      physics: onRefresh == null ? null : const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            top == null ? AppSpacing.xl : AppSpacing.sm,
+            AppSpacing.lg,
+            0,
+          ),
+          sliver: SliverList.list(children: header),
+        ),
+        if (builder != null && itemCount > 0)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            sliver: SliverList.builder(
+              itemCount: itemCount,
+              itemBuilder: builder,
             ),
           ),
-        ...children,
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            bottomPadding,
+          ),
+          sliver: SliverList.list(children: footer),
+        ),
       ],
     );
 
