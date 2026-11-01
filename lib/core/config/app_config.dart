@@ -24,6 +24,10 @@ class AppConfig {
   /// matches the intent filter in AndroidManifest.xml.
   static const String authRedirectUrl = 'com.elvaris.planner://login-callback';
 
+  /// Longest wait for a request that blocks the app from opening. Without
+  /// it, a phone with no internet can wait for minutes.
+  static const Duration requestTimeout = Duration(seconds: 15);
+
   /// Names of settings that are missing or malformed. Empty when the
   /// config is usable.
   List<String> get problems {

@@ -175,4 +175,5 @@ Phase 0:
 - Step notes: migration 016 (`note` up to 2000 chars, `note_updated_at/by` stamped by a trigger, update grant on `note` only). Tap a step to edit its title and note; the first line shows under the step; "Edited by … · date". DB test 146/146.
 - Income sources: migration 017 (`source` up to 60 chars). Add income has a Source field with one-tap chips of earlier sources; the list shows the source as the title (note below); Money shows "By source" for the month when there are 2+. DB test 148/148.
 - Server time: migration 018 (`server_now()` RPC, `tasks_check_day` guard ±1 day of UTC). The app syncs the clock offset at start and on resume; "today" = server time in the phone's zone. DB test 152/152.
-- Tests: 282 passing (+8 skipped renders).
+- Offline: opening the app with no connection showed "Getting your spaces ready…" forever. The splash now shows "You're offline. Turn on mobile data or Wi-Fi" at once and retries by itself when the connection returns; the spaces request times out after 15 s. Offline banner and network error now say to turn on mobile data or Wi-Fi.
+- Tests: 283 passing (+8 skipped renders).

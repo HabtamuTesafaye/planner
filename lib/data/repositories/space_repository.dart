@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/config/app_config.dart';
+
 import '../app_exception.dart';
 import '../models/space.dart';
 import '../models/team_member.dart';
@@ -41,7 +43,8 @@ class SpaceRepository {
     final rows = await _client
         .from('team_members')
         .select('teams($_spaceColumns)')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .timeout(AppConfig.requestTimeout);
     final spaces = [
       for (final row in rows)
         if (row['teams'] case final Map<String, dynamic> team)
