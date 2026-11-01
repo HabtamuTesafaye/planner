@@ -82,7 +82,7 @@ class AppException implements Exception {
     AppErrorKind.googleNotSetUp =>
       'Google sign-in isn’t switched on yet. Use email for now.',
     AppErrorKind.network =>
-      "Can't reach the server. Check your connection and try again.",
+      'No connection. Turn on mobile data or Wi-Fi and try again.',
     AppErrorKind.unknown =>
       "That didn't work, and it's not your fault. Please try again.",
   };
