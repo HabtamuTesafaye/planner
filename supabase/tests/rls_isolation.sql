@@ -251,7 +251,17 @@ select pg_temp.expect_count('Rejected bulk insert left nothing behind',
   'select 1 from public.tasks where day = current_date + 1', 0);
 select pg_temp.expect_affected('A adds a task on another day',
   format($q$ insert into public.tasks (team_id, title, day)
-             values (%L, 'other day', current_date + 2) $q$, pg_temp.val('teamA')), 1);
+             values (%L, 'other day', current_date - 1) $q$, pg_temp.val('teamA')), 1);
+select pg_temp.expect_error('A task 3 days ahead is rejected (phone date cannot dodge the limit)',
+  format($q$ insert into public.tasks (team_id, title, day)
+             values (%L, 'future', current_date + 3) $q$, pg_temp.val('teamA')),
+  'invalid_day');
+select pg_temp.expect_error('A task 3 days back is rejected too',
+  format($q$ insert into public.tasks (team_id, title, day)
+             values (%L, 'past', current_date - 3) $q$, pg_temp.val('teamA')),
+  'invalid_day');
+select pg_temp.expect_count('The app can read the server clock',
+  $q$ select 1 where abs(extract(epoch from public.server_now() - now())) < 5 $q$, 1);
 select pg_temp.expect_error('Moving a task onto a full day is rejected',
   $q$ update public.tasks set day = current_date where title = 'other day' $q$,
   'task_limit_reached');
@@ -269,11 +279,11 @@ select pg_temp.expect_count('done_at is set by the database',
   $q$ select 1 from public.tasks where title = 'task 1' and done_at is not null $q$, 1);
 select pg_temp.expect_error('Task title over 120 characters is rejected',
   format($q$ insert into public.tasks (team_id, title, day)
-             values (%L, repeat('x', 121), current_date + 3) $q$, pg_temp.val('teamA')),
+             values (%L, repeat('x', 121), current_date - 1) $q$, pg_temp.val('teamA')),
   '%check constraint%');
 select pg_temp.expect_error('Blank task title is rejected',
   format($q$ insert into public.tasks (team_id, title, day)
-             values (%L, '   ', current_date + 3) $q$, pg_temp.val('teamA')),
+             values (%L, '   ', current_date - 1) $q$, pg_temp.val('teamA')),
   '%check constraint%');
 
 select pg_temp.expect_affected('A sets a weekly goal (Monday week start)',
@@ -308,6 +318,15 @@ select pg_temp.expect_error('Income of 0 is rejected',
 select pg_temp.expect_error('Income month must be the first day',
   format($q$ insert into public.income_entries (team_id, month, amount)
              values (%L, date_trunc('month', current_date)::date + 1, 10) $q$,
+         pg_temp.val('teamA')),
+  '%check constraint%');
+select pg_temp.expect_affected('A adds income with a source',
+  format($q$ insert into public.income_entries (team_id, month, amount, source)
+             values (%L, date_trunc('month', current_date)::date, 500, 'Café client') $q$,
+         pg_temp.val('teamA')), 1);
+select pg_temp.expect_error('An income source longer than 60 characters is rejected',
+  format($q$ insert into public.income_entries (team_id, month, amount, source)
+             values (%L, date_trunc('month', current_date)::date, 5, repeat('x', 61)) $q$,
          pg_temp.val('teamA')),
   '%check constraint%');
 select pg_temp.expect_affected('A sets the monthly target',
@@ -400,7 +419,7 @@ select pg_temp.expect_affected('C cannot edit A''s weekly goal',
   format('update public.weekly_goals set goal = %L where user_id = %L', 'edited', pg_temp.val('A')), 0);
 select pg_temp.expect_error('C cannot add a task as A',
   format($q$ insert into public.tasks (team_id, user_id, title, day)
-             values (%L, %L, 'fake', current_date + 5) $q$,
+             values (%L, %L, 'fake', current_date - 1) $q$,
          pg_temp.val('teamA'), pg_temp.val('A')),
   '%row-level security%');
 select pg_temp.expect_error('C cannot add a contact as A',
@@ -460,6 +479,8 @@ select pg_temp.act_as('C');
 select pg_temp.expect_count('get_my_profile() never returns someone else',
   format('select 1 from public.get_my_profile() where id = %L', pg_temp.val('A')), 0);
 select pg_temp.act_as('anon');
+select pg_temp.expect_error('Anon cannot read the server clock',
+  'select public.server_now()', '%permission denied%');
 select pg_temp.expect_error('anon cannot call get_my_profile()',
   'select * from public.get_my_profile()', '%permission denied%');
 
@@ -496,6 +517,17 @@ select pg_temp.expect_affected('C checks off a shared step',
   $q$ update public.project_items set done = true where title = 'Pick domain' $q$, 1);
 select pg_temp.expect_count('...and done_at is set by the database',
   $q$ select 1 from public.project_items where title = 'Pick domain' and done_at is not null $q$, 1);
+select pg_temp.expect_affected('C writes a note on a shared step',
+  $q$ update public.project_items set note = 'Ask Hana for the login' where title = 'Pick domain' $q$, 1);
+select pg_temp.expect_count('...the database stamps who wrote it and when',
+  format($q$ select 1 from public.project_items where title = 'Pick domain'
+            and note_updated_by = %L and note_updated_at is not null $q$, pg_temp.val('C')), 1);
+select pg_temp.expect_error('C cannot forge who wrote the note',
+  format($q$ update public.project_items set note_updated_by = %L where title = 'Pick domain' $q$,
+         pg_temp.val('A')), '%permission denied%');
+select pg_temp.expect_error('A note longer than 2000 characters is rejected',
+  $q$ update public.project_items set note = repeat('x', 2001) where title = 'Pick domain' $q$,
+  '%check constraint%');
 select pg_temp.expect_affected('C cannot delete A''s project',
   format('delete from public.projects where id = %L', pg_temp.val('projA')), 0);
 select pg_temp.expect_error('C cannot move a project to another space',
@@ -519,7 +551,7 @@ select pg_temp.expect_count('...and the project step is completed too',
   format('select 1 from public.project_items where id = %L and done', pg_temp.val('itemCopy')), 1);
 select pg_temp.expect_error('A task cannot link a step from another space',
   format($q$ insert into public.tasks (team_id, title, day, project_item_id)
-             values (%L, 'x', current_date + 9, %L) $q$,
+             values (%L, 'x', current_date - 1, %L) $q$,
          pg_temp.val('personalC'), pg_temp.val('itemCopy')),
   '%invalid_project_item%');
 
@@ -532,6 +564,10 @@ select pg_temp.expect_error('B cannot add a step to team A''s project',
   '%');
 select pg_temp.expect_affected('B cannot check off team A''s steps',
   format('update public.project_items set done = false where project_id = %L', pg_temp.val('projA')), 0);
+select pg_temp.expect_count('B cannot read the notes on team A''s steps',
+  $q$ select 1 from public.project_items where note is not null $q$, 0);
+select pg_temp.expect_affected('B cannot write a note on team A''s steps',
+  format('update public.project_items set note = ''x'' where project_id = %L', pg_temp.val('projA')), 0);
 
 select pg_temp.act_as('A');
 select pg_temp.expect_affected('A (creator) can delete the project',

@@ -105,6 +105,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   isNewPassword: false,
                   onSubmitted: _submit,
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.push(
+                      Uri(
+                        path: AppRoutes.forgotPassword,
+                        queryParameters: {'email': _email.text.trim()},
+                      ).toString(),
+                    ),
+                    child: const Text('Forgot password?'),
+                  ),
+                ),
               ],
             ),
           ),

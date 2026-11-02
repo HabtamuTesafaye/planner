@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,13 +13,11 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/grouped_list.dart';
 import '../../../core/widgets/page_body.dart';
 import '../../../core/widgets/progress_ring.dart';
-import '../../../core/widgets/round_icon_button.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/sheet_frame.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../../data/app_exception.dart';
 import '../../../data/models/task.dart';
-import '../../insights/screens/insights_screen.dart';
 import '../../money/screens/money_screen.dart';
 import '../../outreach/screens/outreach_screen.dart';
 import '../../projects/screens/projects_screen.dart';
@@ -50,7 +50,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     super.initState();
     // A new day may have started while the app was in the background.
     _lifecycle = AppLifecycleListener(
-      onResume: () => ref.invalidate(todayProvider),
+      onResume: () {
+        ref.invalidate(todayProvider);
+        unawaited(ref.read(serverClockProvider.notifier).sync());
+      },
     );
   }
 
@@ -169,14 +172,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     '${Task.dailyLimit - count} free',
               )
             : null,
-        top: Align(
-          alignment: Alignment.centerRight,
-          child: RoundIconButton(
-            onPressed: () => context.push(InsightsScreen.path),
-            tooltip: 'Insights',
-            icon: Symbols.insights,
-          ),
-        ),
         bottomPadding: AppSizes.fabClearance,
         onRefresh: () async => ref.invalidate(myTasksProvider),
         children: [

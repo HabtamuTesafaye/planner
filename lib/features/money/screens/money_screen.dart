@@ -27,6 +27,7 @@ import '../providers/money_providers.dart';
 import '../widgets/amount_sheet.dart';
 import '../widgets/entry_row.dart';
 import '../widgets/money_hero.dart';
+import '../widgets/source_breakdown.dart';
 
 /// This month's income against the target, entries, and earlier months.
 class MoneyScreen extends ConsumerWidget {
@@ -49,7 +50,8 @@ class MoneyScreen extends ConsumerWidget {
         title: 'Add income',
         buttonLabel: 'Add',
         withNote: true,
-        onSave: (cents, note) async {
+        sources: knownSources(ref.read(incomeEntriesProvider).value ?? []),
+        onSave: (cents, note, source) async {
           try {
             await ref
                 .read(moneyRepositoryProvider)
@@ -61,6 +63,7 @@ class MoneyScreen extends ConsumerWidget {
                     month: monthOf(ref.read(currentMonthProvider)),
                     cents: cents,
                     note: note,
+                    source: source,
                     createdAt: DateTime.now(),
                   ),
                 );
@@ -86,7 +89,7 @@ class MoneyScreen extends ConsumerWidget {
         title: 'Monthly target',
         buttonLabel: 'Save target',
         initialCents: current,
-        onSave: (cents, _) async {
+        onSave: (cents, _, _) async {
           try {
             await ref
                 .read(moneyRepositoryProvider)
@@ -204,6 +207,10 @@ class MoneyScreen extends ConsumerWidget {
             )
           else
             const SkeletonList(rows: 2),
+          if (entries.hasValue && totalsBySource(thisMonth).length > 1) ...[
+            const SectionHeader(title: 'By source'),
+            SourceBreakdown(rows: totalsBySource(thisMonth)),
+          ],
           if (entries.hasValue) ...[
             const SectionHeader(title: 'This month'),
             if (thisMonth.isEmpty)

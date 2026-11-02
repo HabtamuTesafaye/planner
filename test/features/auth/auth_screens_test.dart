@@ -6,6 +6,8 @@ import 'package:planner/data/app_exception.dart';
 import 'package:planner/data/repositories/auth_repository.dart';
 import 'package:planner/data/repositories/space_repository.dart';
 import 'package:planner/features/auth/screens/check_email_screen.dart';
+import 'package:planner/features/auth/screens/forgot_password_screen.dart';
+import 'package:planner/features/auth/screens/new_password_screen.dart';
 import 'package:planner/features/auth/screens/sign_in_screen.dart';
 import 'package:planner/features/auth/screens/sign_up_screen.dart';
 import 'package:planner/features/auth/screens/welcome_screen.dart';
@@ -42,12 +44,48 @@ void main() {
     expect(google, findsOneWidget); // Button is usable again.
   });
 
+  testWidgets('Forgot password: sends the link, same reply for any email', (
+    tester,
+  ) async {
+    final auth = MockAuthRepository();
+    when(() => auth.sendPasswordReset(any())).thenAnswer((_) async {});
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const ForgotPasswordScreen(email: 'someone@example.com'),
+      overrides: [authRepositoryProvider.overrideWithValue(auth)],
+    );
+    await tester.tap(find.text('Send reset link'));
+    await tester.pumpAndSettle();
+    verify(() => auth.sendPasswordReset('someone@example.com')).called(1);
+    expect(find.textContaining('If there is an account'), findsOneWidget);
+  });
+
+  testWidgets('New password: too short is caught before sending', (
+    tester,
+  ) async {
+    final auth = MockAuthRepository();
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const NewPasswordScreen(),
+      overrides: [authRepositoryProvider.overrideWithValue(auth)],
+    );
+    await tester.enterText(find.byType(TextFormField), 'short');
+    await tester.tap(find.text('Save password'));
+    await tester.pumpAndSettle();
+    verifyNever(() => auth.updatePassword(any()));
+    expect(find.text('Use at least 8 characters.'), findsOneWidget);
+  });
+
   group('screens fit a small phone at 1.5x text, both themes', () {
     final screens = <String, Widget>{
       'welcome': const WelcomeScreen(),
       'sign in': const SignInScreen(),
       'sign up': const SignUpScreen(),
       'check email': const CheckEmailScreen(email: 'someone@example.com'),
+      'forgot password': const ForgotPasswordScreen(email: 'a@example.com'),
+      'new password': const NewPasswordScreen(),
       'new space': const NewSpaceScreen(),
       'join space': const NewSpaceScreen(initialMode: NewSpaceMode.join),
     };

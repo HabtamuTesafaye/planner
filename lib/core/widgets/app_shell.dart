@@ -29,6 +29,7 @@ class AppShell extends ConsumerStatefulWidget {
 
   static const _items = [
     NavItem(icon: Symbols.edit_note, label: 'Today'),
+    NavItem(icon: Symbols.insights, label: 'Insights'),
     NavItem(icon: Symbols.folder_open, label: 'Projects'),
     NavItem(icon: Symbols.handshake, label: 'Outreach'),
     NavItem(icon: Symbols.payments, label: 'Money'),
@@ -58,6 +59,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           ..invalidate(spaceTasksProvider);
       }
     });
+    // "Today" follows the server's clock, not a possibly wrong phone clock.
+    unawaited(ref.read(serverClockProvider.notifier).sync());
     // Daily reminder follows the profile (also after sign-in on a new phone).
     ref.listenManual(
       currentProfileProvider.select((p) => p.value?.reminderTime),
@@ -84,8 +87,16 @@ class _AppShellState extends ConsumerState<AppShell> {
       backgroundColor: context.colors.accentSoft,
       body: Column(
         children: [
+          // The banner sits below the status bar; the tabs then must not
+          // add the status bar height a second time.
           SafeArea(bottom: false, child: OfflineBanner(visible: !online)),
-          Expanded(child: widget.navigationShell),
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: widget.navigationShell,
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: FloatingNavBar(

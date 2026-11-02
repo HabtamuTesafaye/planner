@@ -28,3 +28,24 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   if (userId == null) return null;
   return ref.watch(profileRepositoryProvider).fetchProfile(userId);
 });
+
+/// True after the user opened a password-reset link, until they set a new
+/// password. The router then shows the new-password screen.
+class PasswordRecoveryNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final sub = ref
+        .watch(authRepositoryProvider)
+        .passwordRecoveries()
+        .listen((_) => state = true);
+    ref.onDispose(sub.cancel);
+    return false;
+  }
+
+  void finish() => state = false;
+}
+
+final passwordRecoveryProvider =
+    NotifierProvider<PasswordRecoveryNotifier, bool>(
+      PasswordRecoveryNotifier.new,
+    );

@@ -77,6 +77,9 @@ class ProjectItem {
     required this.done,
     required this.position,
     required this.createdBy,
+    this.note,
+    this.noteUpdatedAt,
+    this.noteUpdatedBy,
   });
 
   factory ProjectItem.fromJson(Map<String, dynamic> json) => ProjectItem(
@@ -87,9 +90,15 @@ class ProjectItem {
     done: json['done'] as bool? ?? false,
     position: (json['position'] as num?)?.toInt() ?? 0,
     createdBy: json['created_by'] as String?,
+    note: json['note'] as String?,
+    noteUpdatedAt: json['note_updated_at'] == null
+        ? null
+        : DateTime.parse(json['note_updated_at'] as String).toLocal(),
+    noteUpdatedBy: json['note_updated_by'] as String?,
   );
 
   static const int maxTitleLength = 200;
+  static const int maxNoteLength = 2000;
 
   final String id;
   final String projectId;
@@ -99,6 +108,15 @@ class ProjectItem {
   final int position;
   final String? createdBy;
 
+  /// Free text for the whole space to read (null when there is none).
+  final String? note;
+
+  /// When and by whom the note was last changed (set by the database).
+  final DateTime? noteUpdatedAt;
+  final String? noteUpdatedBy;
+
+  bool get hasNote => note != null && note!.trim().isNotEmpty;
+
   ProjectItem copyWith({bool? done}) => ProjectItem(
     id: id,
     projectId: projectId,
@@ -107,6 +125,9 @@ class ProjectItem {
     done: done ?? this.done,
     position: position,
     createdBy: createdBy,
+    note: note,
+    noteUpdatedAt: noteUpdatedAt,
+    noteUpdatedBy: noteUpdatedBy,
   );
 
   Map<String, dynamic> toInsertJson() => {
@@ -117,6 +138,7 @@ class ProjectItem {
     'done': done,
     'position': position,
     'created_by': createdBy,
+    if (hasNote) 'note': note!.trim(),
   };
 
   @override
@@ -125,10 +147,13 @@ class ProjectItem {
       other.id == id &&
       other.title == title &&
       other.done == done &&
-      other.position == position;
+      other.position == position &&
+      other.note == note &&
+      other.noteUpdatedAt == noteUpdatedAt;
 
   @override
-  int get hashCode => Object.hash(id, title, done, position);
+  int get hashCode =>
+      Object.hash(id, title, done, position, note, noteUpdatedAt);
 }
 
 /// Steps done / total, as 0..1 (0 for an empty project).

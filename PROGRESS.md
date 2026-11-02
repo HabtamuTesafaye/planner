@@ -162,3 +162,18 @@ Phase 0:
 - PRs #1, #6 and #7 merged into `main` after checks (analyze clean, 257 tests, DB 140/140).
 - Issues closed: #3 (Supabase auth settings, done by owner), #5 (AI features, not planned by owner's decision), #2 (backup reminder; steps in README). Open: #4 device QA.
 - Google sign-in switched on in Supabase staging by the owner; verified from the public settings endpoint and the authorize redirect.
+
+## Auth fixes (2026-11-01, branch `feature/auth-fixes`)
+- Forgot password: "Forgot password?" on Sign in → reset screen (same reply whether or not the email has an account) → email link opens the app (PKCE, `passwordRecovery` event) → "Set a new password" screen → Today. Error `same_password` mapped to a friendly message.
+- Welcome: mark, headline and subtitle centered.
+- Insights is now a bottom tab (second). The round Insights button on Today and the Insights link on Space are gone. The nav shows the selected tab's name only when it fits (six round tabs on small phones or large text).
+- Google: first try failed before Google returned (owner was not yet a test user in Google Cloud). After adding the test user, Google sign-in works on the phone (2026-11-01 13:40 UTC): account created with profile and Personal space.
+- Fixed: tabs added the status bar height twice (shell SafeArea for the offline banner plus each page's SafeArea), leaving a big gap at the top of every tab. Page top padding 24 → 16.
+- Fixed: daily reminder switch did nothing in release builds. Resource shrinking removed `ic_stat_planner` (loaded by name), so the notification plugin failed to initialize before the permission prompt. Kept via `res/raw/keep.xml`; permission request now fails safe.
+- Fixed: add/edit sheets were cut off with an empty band above the keyboard. Sheets opened inside the tab (already shrunk for the keyboard by the shell) and SheetFrame added the keyboard height again. Sheets now open on the root navigator, above tabs and nav bar.
+- Fixed: stuck on a project opened from the Today shortcut (it replaced the whole stack, so Back had nowhere to go, and there was no nav). Project detail now lives inside the Projects tab: nav stays, Back always returns to the list. When every step is done, a clear "Mark project done" card appears (and "Reopen" once done); a hint explains the sun button, which is now tinted.
+- Step notes: migration 016 (`note` up to 2000 chars, `note_updated_at/by` stamped by a trigger, update grant on `note` only). Tap a step to edit its title and note; the first line shows under the step; "Edited by … · date". DB test 146/146.
+- Income sources: migration 017 (`source` up to 60 chars). Add income has a Source field with one-tap chips of earlier sources; the list shows the source as the title (note below); Money shows "By source" for the month when there are 2+. DB test 148/148.
+- Server time: migration 018 (`server_now()` RPC, `tasks_check_day` guard ±1 day of UTC). The app syncs the clock offset at start and on resume; "today" = server time in the phone's zone. DB test 152/152.
+- Offline: opening the app with no connection showed "Getting your spaces ready…" forever. The splash now shows "You're offline. Turn on mobile data or Wi-Fi" at once and retries by itself when the connection returns; the spaces request times out after 15 s. Offline banner and network error now say to turn on mobile data or Wi-Fi.
+- Tests: 283 passing (+8 skipped renders).

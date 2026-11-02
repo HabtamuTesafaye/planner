@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/theme/app_motion.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -7,6 +8,7 @@ import '../../../core/theme/theme_context.dart';
 import '../../../core/utils/logger.dart';
 import '../../../core/widgets/brand_mark.dart';
 import '../../../data/app_exception.dart';
+import '../../../data/connectivity.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../space/providers/space_providers.dart';
 
@@ -27,6 +29,11 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final online = ref.watch(isOnlineProvider);
+    // Back online: try again right away, no tap needed.
+    ref.listen(isOnlineProvider, (was, now) {
+      if (was == false && now) ref.invalidate(mySpacesProvider);
+    });
     final spaces = ref.watch(mySpacesProvider);
     final Object? error = spaces.hasError && !spaces.isLoading
         ? spaces.error
@@ -51,7 +58,9 @@ class SplashScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(AppSpacing.xl),
                   child: AnimatedSwitcher(
                     duration: AppMotion.of(context, AppDurations.normal),
-                    child: error == null
+                    child: !online
+                        ? const _Offline(key: ValueKey('offline'))
+                        : error == null
                         ? FadeSlideIn(
                             key: const ValueKey('slow'),
                             delay: const Duration(milliseconds: 1500),
@@ -90,6 +99,39 @@ class SplashScreen extends ConsumerWidget {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// No connection while opening: say so plainly, and what to do. The app
+/// opens by itself once the phone is back online.
+class _Offline extends StatelessWidget {
+  const _Offline({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final text = context.text;
+    return Semantics(
+      liveRegion: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Symbols.cloud_off, color: context.colors.muted),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            "You're offline",
+            textAlign: TextAlign.center,
+            style: text.titleMedium,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Turn on mobile data or Wi-Fi. Planner opens as soon as '
+            "you're connected.",
+            textAlign: TextAlign.center,
+            style: text.bodyMedium!.copyWith(color: context.colors.muted),
           ),
         ],
       ),

@@ -35,3 +35,40 @@ List<IncomeEntry> entriesOf(Iterable<IncomeEntry> entries, DateTime month) {
 /// Progress toward the target, 0..1+ (0 without a target).
 double targetProgress(int totalCents, int? targetCents) =>
     targetCents == null || targetCents <= 0 ? 0 : totalCents / targetCents;
+
+/// Sources used before in this space, most recent first, for one-tap reuse.
+List<String> knownSources(Iterable<IncomeEntry> entries, {int limit = 8}) {
+  final sorted = entries.toList()
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  final seen = <String>{};
+  final out = <String>[];
+  for (final e in sorted) {
+    final s = e.source.trim();
+    if (s.isEmpty || !seen.add(s.toLowerCase())) continue;
+    out.add(s);
+    if (out.length == limit) break;
+  }
+  return out;
+}
+
+/// Label for entries without a source in the breakdown.
+const String otherSource = 'Other';
+
+/// Totals per source for [entries] (one month), largest first. Sources that
+/// differ only in case count as one.
+List<({String label, int cents})> totalsBySource(
+  Iterable<IncomeEntry> entries,
+) {
+  final labels = <String, String>{};
+  final cents = <String, int>{};
+  for (final e in entries) {
+    final label = e.source.trim().isEmpty ? otherSource : e.source.trim();
+    final key = label.toLowerCase();
+    labels.putIfAbsent(key, () => label);
+    cents[key] = (cents[key] ?? 0) + e.cents;
+  }
+  final rows = [
+    for (final k in cents.keys) (label: labels[k]!, cents: cents[k]!),
+  ]..sort((a, b) => b.cents.compareTo(a.cents));
+  return rows;
+}

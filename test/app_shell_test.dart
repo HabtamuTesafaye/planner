@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:planner/app.dart';
 import 'package:planner/core/config/app_config.dart';
+import 'package:planner/core/theme/app_spacing.dart';
 import 'package:planner/core/widgets/floating_nav_bar.dart';
+import 'package:planner/core/widgets/page_body.dart';
+import 'package:planner/core/widgets/sheet_frame.dart';
 import 'package:planner/data/models/profile.dart';
 import 'package:planner/data/models/space.dart';
 import 'package:planner/data/models/team_member.dart';
@@ -69,6 +73,7 @@ Future<void> _pumpApp(WidgetTester tester, {String? lastSpace}) async {
     ProviderScope(
       overrides: [
         currentUserIdProvider.overrideWith((ref) => Stream.value('u1')),
+        noPasswordRecovery,
         currentProfileProvider.overrideWith(
           (ref) async =>
               Profile(id: 'u1', displayName: 'Abebe', lastSpaceId: lastSpace),
@@ -116,6 +121,7 @@ Future<void> _openTab(WidgetTester tester, String tab) async {
 
 const _marks = {
   'Today': 'Nothing planned yet.',
+  'Insights': 'Your rhythm across every space.',
   'Projects': 'No projects yet.',
   'Outreach': 'No contacts yet.',
   'Money': 'No income logged this month.',
@@ -124,19 +130,99 @@ const _marks = {
 
 void main() {
   for (final brightness in Brightness.values) {
-    testWidgets('signed in: 5 tabs fit a small phone ($brightness, 1.5x)', (
+    testWidgets('signed in: 6 tabs fit a small phone ($brightness, 1.5x)', (
       tester,
     ) async {
       useSmallPhone(tester, brightness: brightness);
       await _pumpApp(tester);
       expect(find.byType(FloatingNavBar), findsOneWidget);
-      for (final tab in ['Projects', 'Outreach', 'Money', 'Space', 'Today']) {
+      for (final tab in [
+        'Insights',
+        'Projects',
+        'Outreach',
+        'Money',
+        'Space',
+        'Today',
+      ]) {
         await _openTab(tester, tab);
         expect(find.text(_marks[tab]!), findsOneWidget);
         expect(tester.takeException(), isNull);
       }
     });
   }
+
+  testWidgets('nav: the selected name shows only when it fits', (tester) async {
+    Finder navLabel(String text) => find.descendant(
+      of: find.byType(FloatingNavBar),
+      matching: find.text(text),
+    );
+    // Small phone at 1.5x text: six round tabs, no room for a name.
+    useSmallPhone(tester);
+    await _pumpApp(tester);
+    expect(navLabel('Today'), findsNothing);
+    expect(find.byTooltip('Today'), findsOneWidget);
+
+    // A large phone at normal text size: the name appears. (The test font
+    // is wider than Manrope, so this needs more room than a real phone.)
+    tester.view.physicalSize = const Size(480, 900) * 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 1;
+    await tester.pumpAndSettle();
+    expect(navLabel('Today'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('tabs: the status bar gap is added once, not twice', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    const statusBar = 40.0;
+    tester.view.padding = const FakeViewPadding(top: statusBar * 3);
+    await _pumpApp(tester);
+    final title = find
+        .descendant(of: find.byType(PageBody), matching: find.byType(Text))
+        .first;
+    final top = tester.getTopLeft(title).dy;
+    expect(top, greaterThanOrEqualTo(statusBar));
+    expect(top, lessThanOrEqualTo(statusBar + AppSpacing.lg));
+  });
+
+  testWidgets('sheets: room for the keyboard is made once, not twice', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    tester.platformDispatcher.textScaleFactorTestValue = 1;
+    await _pumpApp(tester);
+    await _openTab(tester, 'Outreach');
+    await tester.tap(find.text('Add contact').last);
+    await tester.pumpAndSettle();
+    const keyboard = 250.0;
+    tester.view.viewInsets = const FakeViewPadding(bottom: keyboard * 3);
+    await tester.pumpAndSettle();
+    final form = find.descendant(
+      of: find.byType(SheetFrame),
+      matching: find.byType(SingleChildScrollView),
+    );
+    final bottom = tester.getBottomLeft(form).dy;
+    // The form reaches down to the top of the keyboard.
+    expect(bottom, closeTo(640 - keyboard, 1));
+  });
+
+  testWidgets(
+    'a project opened from Today keeps the nav, back goes to Projects',
+    (tester) async {
+      useSmallPhone(tester);
+      await _pumpApp(tester);
+      // What the Today shortcut does after creating a project.
+      GoRouter.of(tester.element(find.byType(FloatingNavBar)))
+          .go('/projects/p1');
+      await tester.pumpAndSettle();
+      expect(find.byType(FloatingNavBar), findsOneWidget);
+      await tester.tap(find.byTooltip('Back to projects'));
+      await tester.pumpAndSettle();
+      expect(find.text(_marks['Projects']!), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('switching tabs through the real router never overlaps', (
     tester,
@@ -221,6 +307,7 @@ void main() {
       ProviderScope(
         overrides: [
           currentUserIdProvider.overrideWith((ref) => Stream.value(null)),
+          noPasswordRecovery,
         ],
         child: const PlannerApp(config: _config),
       ),

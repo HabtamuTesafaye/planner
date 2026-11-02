@@ -42,8 +42,7 @@ class OfflineBanner extends StatelessWidget {
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Text(
-                        "You're offline. Changes can't be saved until "
-                        "you're back.",
+                        "You're offline. Turn on mobile data or Wi-Fi to save changes.",
                         style: context.text.bodySmall!.copyWith(
                           color: colors.text,
                         ),

@@ -17,6 +17,7 @@ import 'space_switcher.dart';
 Future<void> showSpaceSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     builder: (context) => const _SpaceSheet(),

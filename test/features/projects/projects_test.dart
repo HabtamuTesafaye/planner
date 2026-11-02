@@ -183,4 +183,97 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('This project is gone.'), findsOneWidget);
   });
+
+  testWidgets('every step done: a clear "Mark project done" button', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const ProjectScreen(projectId: 'p1'),
+      overrides: _overrides(
+        [_project],
+        [step('a', done: true), step('b', pos: 1, done: true)],
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Every step is done. Close the project?'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Mark project done'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('open steps: no done button, a hint about planning', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    await pumpScreen(
+      tester,
+      const ProjectScreen(projectId: 'p1'),
+      overrides: _overrides([_project], [step('a'), step('b', pos: 1)]),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Mark project done'), findsNothing);
+    expect(
+      find.text('Tap a step to add a note. Tap the sun to plan it for today.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a step with a note shows its first line; tap opens it', (
+    tester,
+  ) async {
+    useSmallPhone(tester);
+    final noted = ProjectItem.fromJson(const {
+      'id': 'n1',
+      'project_id': 'p1',
+      'team_id': 's1',
+      'title': 'Pick domain',
+      'done': false,
+      'position': 0,
+      'note': 'Ask Hana for the login\nThen renew for 2 years',
+      'note_updated_at': '2026-11-01T10:00:00Z',
+      'note_updated_by': 'u1',
+    });
+    await pumpScreen(
+      tester,
+      const ProjectScreen(projectId: 'p1'),
+      overrides: _overrides([_project], [noted]),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Ask Hana for the login'), findsOneWidget);
+    await tester.tap(find.text('Pick domain'));
+    await tester.pumpAndSettle();
+    expect(find.text('Note'), findsOneWidget);
+    expect(find.textContaining('Then renew'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  test(
+    'step notes: read from the database, sent on restore, blank is none',
+    () {
+      final item = ProjectItem.fromJson(const {
+        'id': 'n1',
+        'project_id': 'p1',
+        'team_id': 's1',
+        'title': 'T',
+        'note': '  keep me  ',
+        'note_updated_at': '2026-11-01T10:00:00Z',
+      });
+      expect(item.hasNote, isTrue);
+      expect(item.noteUpdatedAt, isNotNull);
+      expect(item.toInsertJson()['note'], 'keep me');
+      final blank = ProjectItem.fromJson(const {
+        'id': 'n2',
+        'project_id': 'p1',
+        'team_id': 's1',
+        'title': 'T',
+        'note': '   ',
+      });
+      expect(blank.hasNote, isFalse);
+      expect(blank.toInsertJson().containsKey('note'), isFalse);
+    },
+  );
 }

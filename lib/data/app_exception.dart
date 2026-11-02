@@ -23,6 +23,8 @@ enum AppErrorKind {
   rateLimited,
   signedOut,
   googleNotSetUp,
+  samePassword,
+  wrongDate,
   network,
   unknown,
 }
@@ -72,10 +74,15 @@ class AppException implements Exception {
     AppErrorKind.rateLimited =>
       'Too many tries in a short time. Wait a minute and try again.',
     AppErrorKind.signedOut => 'Your session ended. Please sign in again.',
+    AppErrorKind.wrongDate =>
+      "Your phone's date looks off. Turn on automatic date and time, "
+          'then try again.',
+    AppErrorKind.samePassword =>
+      "That's your current password. Pick a new one.",
     AppErrorKind.googleNotSetUp =>
       'Google sign-in isn’t switched on yet. Use email for now.',
     AppErrorKind.network =>
-      "Can't reach the server. Check your connection and try again.",
+      'No connection. Turn on mobile data or Wi-Fi and try again.',
     AppErrorKind.unknown =>
       "That didn't work, and it's not your fault. Please try again.",
   };
@@ -112,6 +119,8 @@ class AppException implements Exception {
       case 'user_already_exists':
       case 'email_exists':
         return AppErrorKind.emailInUse;
+      case 'same_password':
+        return AppErrorKind.samePassword;
       case 'weak_password':
         return AppErrorKind.weakPassword;
       case 'email_address_invalid':
@@ -139,6 +148,7 @@ class AppException implements Exception {
       'not_in_team' => AppErrorKind.notInTeam,
       'invalid_team_name' => AppErrorKind.invalidTeamName,
       'task_limit_reached' => AppErrorKind.taskLimit,
+      'invalid_day' => AppErrorKind.wrongDate,
       'immutable_column' || 'invalid_project_item' => AppErrorKind.notAllowed,
       'not_authenticated' => AppErrorKind.signedOut,
       _ => AppErrorKind.unknown,

@@ -95,7 +95,7 @@ class PageBody extends StatelessWidget {
         SliverPadding(
           padding: EdgeInsets.fromLTRB(
             AppSpacing.lg,
-            top == null ? AppSpacing.xl : AppSpacing.sm,
+            top == null ? AppSpacing.lg : AppSpacing.sm,
             AppSpacing.lg,
             0,
           ),

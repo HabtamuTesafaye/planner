@@ -20,7 +20,7 @@ The app is successful if people open it every day because it is fast, clear and 
 5. **Weekly review** feeds next week's goal for the space.
 
 ### In scope (v1)
-- Email + password accounts
+- Email + password accounts, with "Forgot password?" (reset link by email, opens the app via the PKCE deep link; owner's decision 2026-11-01)
 - Spaces: an automatic Personal space for every user (private, cannot be left or joined), plus any number of team spaces (create, join with an invite code, leave). A space switcher at the top of the app.
 - Today: max 3 tasks per person per day **across all spaces**, plus one "goal of the week" for the current space
 - Projects: per space, created from a template or blank, each with a checklist; plan a step for today
@@ -149,6 +149,7 @@ I have (or will create) a Supabase project named `planner-staging`. Use the free
 
 Rules:
 - A database trigger must reject a 4th task for the same `user_id` and `day` (across all spaces). The app also enforces it, but the database is the source of truth.
+- "Today" comes from the server's clock in the phone's time zone (`server_now()` RPC, owner's decision 2026-11-01), not the phone clock alone. The database rejects a task `day` more than one day from the UTC date (`invalid_day`).
 - Auto-create a `profiles` row on signup with a trigger.
 - Add indexes for `team_id`, `(user_id, day)` and `(team_id, next_follow_up)`.
 
@@ -170,7 +171,7 @@ Rules:
 
 ## 6. Screens and behavior
 
-Bottom tabs: **Today, Projects, Outreach, Money, Space**. A **space switcher** sits at the top of every tab except Today: tap it to switch space, create a team space or join one with a code. The selected space is remembered (stored on the profile).
+Bottom tabs: **Today, Insights, Projects, Outreach, Money, Space** (Insights moved into the nav by owner's decision, 2026-11-01). A **space switcher** sits at the top of every tab except Today: tap it to switch space, create a team space or join one with a code. The selected space is remembered (stored on the profile).
 
 **Auth**: welcome screen, sign up (name, email, password), sign in. No team is required: after sign-in you land in your Personal space. Session persists. Friendly error messages (wrong password, no connection, email in use).
 

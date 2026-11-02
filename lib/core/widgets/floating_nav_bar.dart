@@ -13,7 +13,8 @@ class NavItem {
 }
 
 /// Bottom navigation as a floating pill. Each tab is a round 48 dp button;
-/// the selected one fills with the accent and grows to show its name.
+/// the selected one fills with the accent and grows to show its name when
+/// there is room.
 /// Every tab has a tooltip and is announced as a selected or unselected
 /// tab by TalkBack.
 class FloatingNavBar extends StatelessWidget {
@@ -59,16 +60,25 @@ class FloatingNavBar extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.sm),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (final (i, item) in items.indexed)
-                        _NavButton(
-                          item: item,
-                          selected: i == selectedIndex,
-                          onTap: () => onSelect(i),
-                        ),
-                    ],
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final showLabel = _labelFits(
+                        context,
+                        constraints.maxWidth,
+                      );
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          for (final (i, item) in items.indexed)
+                            _NavButton(
+                              item: item,
+                              selected: i == selectedIndex,
+                              showLabel: showLabel,
+                              onTap: () => onSelect(i),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -78,23 +88,45 @@ class FloatingNavBar extends StatelessWidget {
       ),
     );
   }
+
+  /// Whether the selected tab's name fits next to its icon, with every
+  /// other tab still a full round button. On narrow phones or large text
+  /// it doesn't, and the selected tab is shown by its fill alone (the name
+  /// stays in the tooltip and for TalkBack).
+  bool _labelFits(BuildContext context, double width) {
+    final style = context.text.labelMedium!;
+    final scaler = MediaQuery.textScalerOf(context);
+    final painter = TextPainter(
+      text: TextSpan(text: items[selectedIndex].label, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    final label = painter.width;
+    painter.dispose();
+    const grow = AppSpacing.sm + (AppSpacing.lg - AppSpacing.md) * 2;
+    return items.length * AppSizes.navItem + label + grow <= width;
+  }
 }
 
 class _NavButton extends StatelessWidget {
   const _NavButton({
     required this.item,
     required this.selected,
+    required this.showLabel,
     required this.onTap,
   });
 
   final NavItem item;
   final bool selected;
+  final bool showLabel;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final fg = selected ? colors.onAccent : colors.muted;
+    final expanded = selected && showLabel;
     final button = Semantics(
       button: true,
       selected: selected,
@@ -117,7 +149,7 @@ class _NavButton extends StatelessWidget {
                 minHeight: AppSizes.navItem,
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: selected ? AppSpacing.lg : AppSpacing.md,
+                horizontal: expanded ? AppSpacing.lg : AppSpacing.md,
               ),
               decoration: ShapeDecoration(
                 color: selected ? colors.accentText : Colors.transparent,
@@ -133,7 +165,7 @@ class _NavButton extends StatelessWidget {
                     size: AppSizes.icon,
                     weight: selected ? 500 : 300,
                   ),
-                  if (selected) ...[
+                  if (expanded) ...[
                     const SizedBox(width: AppSpacing.sm),
                     Flexible(
                       child: Text(
@@ -153,6 +185,6 @@ class _NavButton extends StatelessWidget {
       ),
     );
     // The selected tab takes the free space it needs; the others stay round.
-    return selected ? Flexible(child: button) : button;
+    return expanded ? Flexible(child: button) : button;
   }
 }

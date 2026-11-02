@@ -26,6 +26,7 @@ class IncomeEntry {
     required this.cents,
     required this.note,
     required this.createdAt,
+    this.source = '',
   });
 
   factory IncomeEntry.fromJson(Map<String, dynamic> json) => IncomeEntry(
@@ -35,10 +36,12 @@ class IncomeEntry {
     month: Dates.fromDb(json['month'] as String),
     cents: centsFromJson(json['amount']),
     note: json['note'] as String? ?? '',
+    source: json['source'] as String? ?? '',
     createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
   );
 
   static const int maxNote = 200;
+  static const int maxSource = 60;
 
   final String id;
   final String spaceId;
@@ -46,6 +49,9 @@ class IncomeEntry {
   final DateTime month;
   final int cents;
   final String note;
+
+  /// Where it came from ("Salary", "Café client"); empty when not given.
+  final String source;
   final DateTime createdAt;
 
   double get amount => cents / 100;
@@ -57,6 +63,7 @@ class IncomeEntry {
     'month': Dates.toDb(month),
     'amount': centsToDb(cents),
     'note': note.trim(),
+    'source': source.trim(),
   };
 
   @override
@@ -65,10 +72,11 @@ class IncomeEntry {
       other.id == id &&
       other.month == month &&
       other.cents == cents &&
-      other.note == note;
+      other.note == note &&
+      other.source == source;
 
   @override
-  int get hashCode => Object.hash(id, month, cents, note);
+  int get hashCode => Object.hash(id, month, cents, note, source);
 }
 
 /// The income target of a space for one month.

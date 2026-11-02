@@ -108,3 +108,13 @@ Checks that passed:
 - The Supabase anon key is limited to the auth health endpoint until RLS policies exist (no tables yet).
 
 Next audit: end of Phase 1, a full RLS and functions review, the Supabase security advisor, and the two-user isolation test.
+
+## Change review: password reset (2026-11-01)
+- The reset screen gives the same reply for any email, so it does not reveal which emails have accounts.
+- The reset link uses PKCE: the code only works with the verifier stored on the phone that asked for it.
+- The new password goes through `updateUser` on the recovery session; the minimum length is checked in the app and by Supabase (8).
+
+## Change review: server time (2026-11-01)
+- "Today" = server time (`public.server_now()`, authenticated only) in the phone's time zone. A wrong phone clock no longer moves tasks to another day.
+- `tasks_check_day` rejects a task day outside UTC date ± 1 (`invalid_day`), so changing the phone's date cannot get around the 3-a-day limit. Finishing or renaming old tasks still works (the check runs only when `day` is set).
+- Server-side timestamps (`created_at`, `done_at`, `note_updated_at`, …) were already set by the database.

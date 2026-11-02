@@ -66,6 +66,21 @@ class ProjectsRepository {
   Future<void> addItem(ProjectItem item) =>
       _guard(() => _client.from('project_items').insert(item.toInsertJson()));
 
+  /// Saves a step's title and note (an empty note clears it).
+  Future<void> updateItem(
+    String itemId, {
+    required String title,
+    required String? note,
+  }) => _guard(
+    () => _client
+        .from('project_items')
+        .update({
+          'title': title.trim(),
+          'note': (note == null || note.trim().isEmpty) ? null : note.trim(),
+        })
+        .eq('id', itemId),
+  );
+
   Future<void> setItemDone(String itemId, {required bool done}) => _guard(
     () => _client.from('project_items').update({'done': done}).eq('id', itemId),
   );
